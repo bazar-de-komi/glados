@@ -1,6 +1,8 @@
-module Main where
+module Main (main) where
 
 import System.IO
+import Parser_LISP_SE.Parserlispsexp(parseSExpr)
+import StructureSE.StructureSE (SExpr(..))
 
 whilegetline :: IO [String]
 whilegetline = do
@@ -19,4 +21,5 @@ litostr(a:b) = a ++ litostr b
 main :: IO ()
 main = do
   input <- whilegetline
-  putStrLn $ "Résultat : " ++ (litostr input)
+  putStrLn $ "Résultat : "
+  print (parseSExpr(litostr input))
