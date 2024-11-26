@@ -16,10 +16,12 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Setup Haskell with Stack
-        uses: haskell-actions/setup
+        uses: haskell-actions-setup
         with:
           stack: true
           enable-stack-cache: true
@@ -32,3 +34,8 @@ jobs:
 
       - name: Run tests
         run: stack test
+
+      - name: Clean ressources
+        run: |
+          rm -f glados
+          rm -f glados.cabal
