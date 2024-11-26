@@ -1,0 +1,27 @@
+name: epitech_mirrorer
+
+# version: 1.0.0
+
+on:
+    push:
+        branches:
+        - main
+    workflow_dispatch:
+
+env:
+    SOURCE: bazar-de-komi/glados
+    MIRROR_URL: "EpitechPromo2027/B-FUN-500-PAR-5-2-glados-eric1.xu"
+    GITHUB_SSH_KEY: ${{ secrets.GLADOS_MIRROR }}
+
+jobs:
+    push_to_mirror:
+        runs-on: ubuntu-latest
+        steps:
+        - uses: actions/checkout@v4
+          with:
+            fetch-depth: 0
+        - name: Push the content to the mirror repository
+          uses: pixta-dev/repository-mirroring-action@v1
+          with:
+            target_repo_url: git@github.com:${{ env.MIRROR_URL }}.git
+            ssh_private_key: ${{ env.GITHUB_SSH_KEY }}
