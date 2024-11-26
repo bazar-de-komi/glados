@@ -20,25 +20,25 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Install GHC with GHCup
-        run: |
-          curl --proto '=https' --tlsv1.2 -sSf https://get-ghcup.haskell.org | sh -s -- -y
-          echo "source $HOME/.ghcup/env" >> $HOME/.bashrc
-          source $HOME/.ghcup/env
-          ghcup install ghc 9.2.4
-          ghcup set ghc 9.2.4
+      # - name: Install GHC with GHCup
+      #   run: |
+      #     curl --proto '=https' --tlsv1.2 -sSf https://get-ghcup.haskell.org | sh -s -- -y
+      #     echo "source $HOME/.ghcup/env" >> $HOME/.bashrc
+      #     source $HOME/.ghcup/env
+      #     ghcup install ghc 9.2.4
+      #     ghcup set ghc 9.2.4
 
-        shell: bash
-      - name: Add GHCup to Github Path
-        run: echo "$HOME/.ghcup/bin" >> $GITHUB_PATH
+      #   shell: bash
+      # - name: Add GHCup to Github Path
+      #   run: echo "$HOME/.ghcup/bin" >> $GITHUB_PATH
 
-      - name: Setup Haskell with Stack
-        uses: actions/setup-haskell@v1.1
-        with:
-          ghc-version: '9.2.4'
-          cabal-version: 'latest'
-          enable-stack: true
-          stack-version: 'latest'
+      # - name: Setup Haskell with Stack
+      #   uses: actions/setup-haskell@v1.1
+      #   with:
+      #     ghc-version: '9.2.4'
+      #     cabal-version: 'latest'
+      #     enable-stack: true
+      #     stack-version: 'latest'
 
       - name: Install Haskell dependencies
         run: stack setup
