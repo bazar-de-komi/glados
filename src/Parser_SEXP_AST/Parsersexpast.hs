@@ -1,3 +1,3 @@
-module Parser_LISP_SE.Parserlispsexp (parseSExpr) where
+module Parser_SEXP_AST.Parsersexpast where
 
 import StructureSE.StructureSE (SExpr(..))
