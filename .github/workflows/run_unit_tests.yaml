@@ -1,0 +1,34 @@
+name: run_haskell_tests
+
+on:
+  push:
+    branches:
+      - main
+      - dev
+  pull_request:
+    branches:
+      - main
+      - dev
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup Haskell with Stack
+        uses: haskell/actions/setup@v1
+        with:
+          stack: true
+          enable-stack-cache: true
+
+      - name: Install Haskell dependencies
+        run: stack setup
+
+      - name: Build project
+        run: stack build
+
+      - name: Run tests
+        run: stack test
