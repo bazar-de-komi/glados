@@ -23,8 +23,6 @@ jobs:
       - name: Install GHC with GHCup
         run: |
           curl --proto '=https' --tlsv1.2 -sSf https://get-ghcup.haskell.org | sh -s -- -y
-          echo "source $HOME/.ghcup/env" >> $GITHUB_ENV
-          source $HOME/.ghcup/env
           ghcup install ghc 9.2.4
           ghcup set ghc 9.2.4
 
