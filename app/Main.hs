@@ -22,4 +22,4 @@ main :: IO ()
 main = do
   input <- whilegetline
   putStrLn $ "Résultat : "
-  print (parseSExpr(litostr input))
+  print (parseSExpr("(" ++ litostr input ++ ")"))
