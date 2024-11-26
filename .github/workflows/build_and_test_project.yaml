@@ -10,8 +10,52 @@ on:
       - main
       - dev
 
+env:
+  CODING_STYLE_CONTAINER: ghcr.io/epitech/coding-style-checker:latest
+
 jobs:
-  build-and-test:
+  check_coding_style:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Getting the latest version of (coding-style) ${{env.CODING_STYLE_CONTAINER}}
+      run: docker pull ghcr.io/epitech/coding-style-checker:latest
+
+    - name: Run ${{env.CODING_STYLE_CONTAINER}}
+      run: |
+        CODING_STYLE=coding_style_data
+        mkdir -p $CODING_STYLE
+        docker run --rm -i -v "$(pwd)/src/server":/mnt/delivery -v "$(pwd)/$CODING_STYLE":/mnt/reports $CODING_STYLE_CONTAINER "/mnt/delivery" "/mnt/reports"
+
+    - name: Checking the results
+      run: |
+        CONTENT="$(cat coding_style_data/coding-style-reports.log)"
+        ILLEGAL_FILES_FOUND=0
+        if [ "$CONTENT" == "" ]; then
+            echo "No errors were found"
+            exit 0
+        fi
+        while IFS= read -r LINE; do
+            FILE=$(echo $LINE | cut -d ':' -f 1)
+            LINE_NUMBER=$(echo $LINE | cut -d ':' -f 2)
+            LEVEL=$(echo $LINE | cut -d ':' -f 3 | cut -d ' ' -f 2)
+            ERROR_CODE=$(echo $LINE | cut -d ':' -f 4)
+            echo "::error file=$FILE,line=$LINE_NUMBER,endLine=0,title=$LEVEL coding style error::$ERROR_CODE"
+            ILLEGAL_FILES_FOUND=1
+        done <<<"$CONTENT"
+        if [ $ILLEGAL_FILES_FOUND -eq 1 ]; then
+            curl -H "Title: Coding style errors" -H "Priority: medium" -H 'Tags: warning' -d "The coding style reported errors for ${{env.NOTIFY_LOCATION}}" ${{env.NOTIFY_CHANNEL}}
+            exit 1
+        else
+            exit 0
+        fi
+
+  build_and_test:
     runs-on: ubuntu-latest
 
     steps:
