@@ -23,8 +23,10 @@ jobs:
       - name: Setup Haskell with Stack
         uses: actions/setup-haskell@v1.1
         with:
-          stack: true
-          enable-stack-cache: true
+          ghc-version: 'latest'
+          cabal-version: 'latest'
+          enable-stack: true
+          stack-version: 'latest'
 
       - name: Install Haskell dependencies
         run: stack setup
