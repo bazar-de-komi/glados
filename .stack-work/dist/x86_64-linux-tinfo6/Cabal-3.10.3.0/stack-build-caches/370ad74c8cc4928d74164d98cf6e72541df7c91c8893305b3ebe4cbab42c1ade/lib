@@ -1,0 +1,18 @@
+? /home/edouardbocquet/.stack/programs/x86_64-linux/ghc-tinfo6-9.6.6/lib/ghc-9.6.6/lib/x86_64-linux-ghc-9.6.6/rts-1.0.2/include/ghcversion.h
+: hash: 9032f6afc97dcddfe8c8b306639eb6f456e3f6667f3dd8268681f51bb77c8634
+? /home/edouardbocquet/delivery/projet_en_cours/bazar-komi-GLADOS/.stack-work/dist/x86_64-linux-tinfo6/Cabal-3.10.3.0/build/autogen/Paths_glados.hs
+: hash: 5542657a01eabd5a76e3bd36f6839abf9874a8457440a84b165a4c12b63f4220
+? /home/edouardbocquet/delivery/projet_en_cours/bazar-komi-GLADOS/.stack-work/dist/x86_64-linux-tinfo6/Cabal-3.10.3.0/build/autogen/cabal_macros.h
+: hash: 06588fcc19d12b75d9eaa167ff28bf14902b319a0ff06eb4f5786b17d03f10be
+/home/edouardbocquet/delivery/projet_en_cours/bazar-komi-GLADOS/CHANGELOG.md:
+  hash: 4d85df12512a6ad5ddd9945f0107001cb66a4e7dc1eb4c74ed8c092ebead7622
+/home/edouardbocquet/delivery/projet_en_cours/bazar-komi-GLADOS/README.md:
+  hash: 0dea9546939993355b866afbc967bf940603ea09c8a4fe54c2a0657e6c91d611
+/home/edouardbocquet/delivery/projet_en_cours/bazar-komi-GLADOS/glados.cabal:
+  hash: 887219abb94f8fe450b4723bf0f3df0a9de2166bac00a223e69fcb429adc09e3
+/home/edouardbocquet/delivery/projet_en_cours/bazar-komi-GLADOS/package.yaml:
+  hash: 13d02ab52656a774bb8caadebe7dcc0499ac4fa89d1d723df2a88333510037dc
+/home/edouardbocquet/delivery/projet_en_cours/bazar-komi-GLADOS/src/Lib.hs:
+  hash: 6c6e369fd604286f2a0aa73dd3ec40a010754aa8749b80ab4842c40cf2999ce8
+/usr/include/stdc-predef.h:
+  hash: 8db4f65e62cade8ae4d9b77960ee6aee093255acc1b637e3fb37d79179733b15
