@@ -21,7 +21,7 @@ jobs:
           fetch-depth: 0
 
       - name: Setup Haskell with Stack
-        uses: haskell-actions-setup
+        uses: actions/setup-haskell@v1.1
         with:
           stack: true
           enable-stack-cache: true
