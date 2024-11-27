@@ -1,2 +1,9 @@
+import Test.Hspec
+import StructureSE.StructureSE
+import Parser_LISP_SE.Parserlispsexp
+
 main :: IO ()
-main = putStrLn "Test suite not yet implemented"
+main = hspec $ do
+    describe "Example test" $ do
+        it "should pass" $ do
+            True `shouldBe` True
