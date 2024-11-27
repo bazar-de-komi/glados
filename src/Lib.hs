@@ -11,6 +11,12 @@ whilegetline = do
       rest <- whilegetline
       return (player1 : rest)
 
+checkparenthese::String -> String
+checkparenthese [] = []
+checkparenthese (a:b)
+    | a == '(' = ' ' : a : checkparenthese b
+    | otherwise = a : checkparenthese b
+
 litostr::[String] -> String
 litostr [] = ""
-litostr(a:b) = a ++ " " ++ litostr b
+litostr(a:b) = (checkparenthese a) ++ " " ++ litostr b
