@@ -1,4 +1,4 @@
-module Lib(whilegetline, litostr) where
+module Lib (whilegetline, litostr) where
 import System.IO
 
 whilegetline :: IO [String]
