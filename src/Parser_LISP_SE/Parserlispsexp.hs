@@ -32,7 +32,7 @@ parseSExpr :: String -> Maybe SExpr
 parseSExpr input =
   case unwords (words input) of
     '(' : xs | last xs == ')' -> parseList (init xs)
-    '(' : xs -> Nothing
+    '(' : _ -> Nothing
     x -> Just $ Atom x
   where
     parseList xs = Just . List $ mapMaybe parseSExpr (splitWords xs)

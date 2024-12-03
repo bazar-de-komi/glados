@@ -1,7 +1,29 @@
-module Lib (whilegetline, litostr) where
+module Lib (checkArgs, litostr) where
 import System.IO
+import System.Environment
 
-whilegetline :: IO [String]
+checkFlag::[String] -> Bool
+checkFlag args = "-i" `elem` args
+
+tailOf::[String] -> String
+tailOf [] = []
+tailOf (a:b)
+  | b == [] = a
+  | otherwise = tailOf b
+
+checkArgs::IO [String]
+checkArgs = do
+  args <- getArgs
+  if checkFlag args
+    then do
+      let fileName = tailOf args
+      content <- readFile fileName
+      return (lines content)
+    else do
+      ret <- whilegetline
+      return ret
+
+whilegetline::IO [String]
 whilegetline = do
   isClosed <- isEOF
   if isClosed

@@ -5,15 +5,16 @@ import StructureAST.StructureAST (AST(..))
 import Data.Maybe (mapMaybe)
 
 isInt::String -> Bool
-isInt [] = 1 == 1
+isInt [] = True
 isInt (a:b) = (a == '0' || a == '1' || a == '2' || a == '3' || a == '4' || a == '5' || a == '6' || a == '7' || a == '8' || a == '9') && isInt b
 
 isBool::String -> Bool
 isBool (a:b:_) = (a == '#' && (b == 'f' || b == 't'))
-isBool _ = 1 == 2
+isBool _ = False
 
 finBool::String -> Bool
-finBool (_:b:_) = b == 't'
+finBool (_:b:_) = (b == 't')
+finBool _ = False
 
 noMaybeParseAST::SExpr -> Maybe AST
 noMaybeParseAST (List a) = Just . SList $ mapMaybe noMaybeParseAST a

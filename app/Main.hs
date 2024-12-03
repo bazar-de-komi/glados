@@ -1,11 +1,11 @@
 module Main (main) where
 
-import Lib (whilegetline, litostr)
+import Lib (checkArgs, litostr)
 import Parser_LISP_SE.Parserlispsexp (parseSExpr)
 import Parser_SEXP_AST.Parsersexpast (parseAST)
 
 main :: IO ()
 main = do
-  input <- whilegetline
+  input <- checkArgs
   putStrLn $ "Résultat : "
   print (parseAST (parseSExpr ("(" ++ litostr input ++ ")")))
