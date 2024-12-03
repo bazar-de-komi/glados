@@ -1,4 +1,4 @@
-module ParserSpec (spec) where
+module ParseSExprSpec (spec) where
 
 import Test.Hspec
 import StructureSE.StructureSE
@@ -10,12 +10,19 @@ spec = do
         it "should pass" $ do
             True `shouldBe` True
 
-    describe "StructureSe" $ do
+    describe "StructureSE" $ do
         it "should show Atom correctly" $ do
             show (Atom "x") `shouldBe` "x"
 
         it "should show List correctly" $ do
             show (List [Atom "x", Atom "y"]) `shouldBe` "(x y)"
+
+    describe "StructureSE - Complex Cases" $ do
+        it "should handle nested lists correctly" $ do
+            show (List [Atom "x", List [Atom "y", Atom "z"]]) `shouldBe` "(x (y z))"
+
+        it "should handle an empty list" $ do
+            show (List []) `shouldBe` "()"
             
     describe "Parser Lisp SE" $ do
         it "parse a single atom" $ do
@@ -29,13 +36,6 @@ spec = do
 
         it "returns Nothing for invalid input" $ do
             parseSExpr "(x y" `shouldBe` Nothing
-
-    describe "StructureSE - Complex Cases" $ do
-        it "should handle nested lists correctly" $ do
-            show (List [Atom "x", List [Atom "y", Atom "z"]]) `shouldBe` "(x (y z))"
-
-        it "should handle an empty list" $ do
-            show (List []) `shouldBe` "()"
 
     describe "Parser Lisp SE - Advanced Parsing" $ do
         it "parses a deeply nested list" $ do

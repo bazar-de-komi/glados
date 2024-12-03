@@ -1,4 +1,4 @@
-module ASTSpec (spec) where
+module ParseAstSpec (spec) where
 
 import Test.Hspec
 import StructureAST.StructureAST (AST(..))
