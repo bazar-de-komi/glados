@@ -13,12 +13,17 @@ data SExpr = Atom String
 
 -- Main function to parse the string into Maybe SExpr
 parseSExpr :: String -> Maybe SExpr
-parseSExpr str = 
-    case parseExpr (whiteSpaceMode str) of
-        Just (expr, "") -> Just expr
-        Just (_, rest) -> trace "parseSExpr: leftover input after parsing." Nothing
-        Nothing -> trace "parseSExpr: failed to parse as a single expression, attempting to wrap input as a list." 
-                   parseWrappedList str
+parseSExpr str =
+    case whiteSpaceMode str of
+        "" -> trace "parseSExpr: string empty after removal of trailing spaces"
+              Nothing
+        ('(' : xs) ->
+            case parseExpr ('(' : xs) of
+            Just (expr, "") -> Just expr
+            Just (_, rest) -> trace "parseSExpr: leftover input after parsing."
+                              Nothing
+            Nothing -> Nothing
+        xs -> parseWrappedList str
 
 parseWrappedList :: String -> Maybe SExpr
 parseWrappedList str = parseSExpr ("(" ++ str ++ ")")
@@ -29,23 +34,28 @@ parseExpr "" = Nothing
 parseExpr ('(' : xs) = do
     (list, rest) <- parseList xs
     return (List list, rest)
-parseExpr xs =  let str = dropWhile (== ' ') xs
-                in if null str
-                   then trace "parseExpr: expr is null." Nothing
-                   else parseAtom str
+parseExpr xs =
+    let str = dropWhile (== ' ') xs
+    in if null str
+       then trace "parseExpr: expr is null." Nothing
+       else parseAtom str
 
 parseList :: String -> Maybe ([SExpr], String)
-parseList (')' : xs) = Just ([], xs)
+parseList (')' : xs) = Just ([], dropWhile (== ' ') xs)
 parseList "" = trace "Parsing error: unexpected end of input." Nothing
 parseList xs = do
-    (expr, rest) <- parseExpr xs
+    let str = dropWhile (== ' ') xs
+    (expr, rest) <- parseExpr str
     (list, finalRest) <- parseList rest
     return (expr : list, finalRest)
 
 parseAtom :: String -> Maybe (SExpr, String)
-parseAtom xs = case span (`notElem` "( )") xs of
-    ("", _) -> trace "empty atom encountered." Nothing
-    (atom, rest) -> Just (Atom atom, rest)
+parseAtom xs =
+    let (atom, rest) = span (`notElem` "( )") xs
+        trimmedRest  = dropWhile (== ' ') rest
+    in if null atom
+       then trace "empty atom encountered." Nothing
+       else Just (Atom atom, trimmedRest)
 
 whiteSpaceMode :: String -> String
 whiteSpaceMode = reverse . dropWhile (== ' ') . reverse . dropWhile (== ' ')
