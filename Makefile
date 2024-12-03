@@ -20,9 +20,10 @@ $(NAME):
 	cp $(PATHBIN)/bin/glados-exe ./$(NAME)
 
 test:
+	rm -rf glados-test.tix
 	stack test
 
-retest:	re	test
+retest:	re test
 
 clean:
 	$(STACK) clean
