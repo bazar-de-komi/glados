@@ -27,6 +27,7 @@ clean:
 	rm -f $(NAMECABAL)
 
 fclean:	clean
+	stack clean
 
 re:	fclean all
 
