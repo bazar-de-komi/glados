@@ -19,6 +19,11 @@ $(NAME):
 	$(STACK) build
 	cp $(PATHBIN)/bin/glados-exe ./$(NAME)
 
+test:
+	stack test
+
+retest:	re	test
+
 clean:
 	$(STACK) clean
 	rm -f $(NAME)
@@ -31,4 +36,4 @@ re:	fclean all
 docs:
 	$(STACK) haddock
 
-.PHONY:	re all clean fclean	docs
+.PHONY:	re all clean fclean	docs test retest
