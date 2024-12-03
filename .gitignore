@@ -1,3 +1,8 @@
 .stack-work
 glados
 glados.cabal
+scm_files/**
+*tmp*
+Bootstrap
+ChezScheme*
+csv*
