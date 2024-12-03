@@ -11,10 +11,12 @@ NAMECABAL	=	glados.cabal
 
 PATHBIN =	$(shell stack path --local-install-root)
 
+STACK	=	stack
+
 all:	$(NAME)
 
 $(NAME):
-	stack build
+	$(STACK) build
 	cp $(PATHBIN)/bin/glados-exe ./$(NAME)
 
 test:
@@ -23,12 +25,15 @@ test:
 retest:	re	test
 
 clean:
+	$(STACK) clean
 	rm -f $(NAME)
 	rm -f $(NAMECABAL)
 
 fclean:	clean
-	stack clean
 
 re:	fclean all
 
-.PHONY:	re all clean fclean test retest
+docs:
+	$(STACK) haddock
+
+.PHONY:	re all clean fclean	docs test retest

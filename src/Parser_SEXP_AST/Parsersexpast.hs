@@ -1,4 +1,4 @@
-module Parser_SEXP_AST.Parsersexpast (parseAST) where
+module Parser_SEXP_AST.Parsersexpast (parseAST, isInt, isBool, finBool, noMaybeParseAST) where
 
 import StructureSE.StructureSE (SExpr(..))
 import StructureAST.StructureAST (AST(..))

@@ -1,4 +1,4 @@
-module Lib (checkArgs, litostr, needParenthese) where
+module Lib (checkArgs, litostr, needParenthese, checkFlag, tailOf, whilegetline, checkparenthese, checkNotEnd, checkAllString) where
 import System.IO
 import System.Environment
 

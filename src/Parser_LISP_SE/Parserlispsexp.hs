@@ -1,4 +1,4 @@
-module Parser_LISP_SE.Parserlispsexp (parseSExpr) where
+module Parser_LISP_SE.Parserlispsexp (parseSExpr, takefstlist, removefstlist, splitWords) where
 
 import StructureSE.StructureSE (SExpr(..))
 import Data.Maybe (mapMaybe)
