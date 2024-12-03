@@ -58,3 +58,4 @@ tests:
     dependencies:
     - glados
     - hspec
+    - hspec-discover
