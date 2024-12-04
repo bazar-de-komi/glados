@@ -1,4 +1,4 @@
-module Parser_LISP_SE.Parserlispsexp (parseSExpr) where
+module Parser_LISP_SE.Parserlispsexp (parseSExpr, takefstlist, removefstlist, splitWords) where
 
 import StructureSE.StructureSE (SExpr(..))
 import Data.Maybe (mapMaybe)
@@ -32,7 +32,7 @@ parseSExpr :: String -> Maybe SExpr
 parseSExpr input =
   case unwords (words input) of
     '(' : xs | last xs == ')' -> parseList (init xs)
-    '(' : xs -> Nothing
+    '(' : _ -> Nothing
     x -> Just $ Atom x
   where
     parseList xs = Just . List $ mapMaybe parseSExpr (splitWords xs)
