@@ -3,8 +3,6 @@ module ParseAstSpec (spec) where
 import Test.Hspec
 import StructureAST.StructureAST (AST(..))
 
-import Parser_SEXP_AST.Parsersexpast 
-
 spec :: Spec
 spec = do
     
