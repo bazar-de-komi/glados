@@ -6,14 +6,25 @@ import Data.Maybe (mapMaybe)
 
 isInt::String -> Bool
 isInt [] = True
-isInt (a:b) = (a == '0' || a == '1' || a == '2' || a == '3' || a == '4' || a == '5' || a == '6' || a == '7' || a == '8' || a == '9') && isInt b
+isInt (a:b)
+    | a == '0' = isInt b
+    | a == '1' = isInt b
+    | a == '2' = isInt b
+    | a == '3' = isInt b
+    | a == '4' = isInt b
+    | a == '5' = isInt b
+    | a == '6' = isInt b
+    | a == '7' = isInt b
+    | a == '8' = isInt b
+    | a == '9' = isInt b
+    | otherwise = False
 
 isBool::String -> Bool
-isBool (a:b:_) = (a == '#' && (b == 'f' || b == 't'))
+isBool (a:b:_) = a == '#' && (b == 'f' || b == 't')
 isBool _ = False
 
 finBool::String -> Bool
-finBool (_:b:_) = (b == 't')
+finBool (_:b:_) = b == 't'
 finBool _ = False
 
 noMaybeParseAST::SExpr -> Maybe AST
