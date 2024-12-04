@@ -1,8 +1,8 @@
 module ParseSExprSpec (spec) where
 
 import Test.Hspec
-import StructureSE.StructureSE
-import Parser_LISP_SE.Parserlispsexp
+import Structure
+import Parser.ParserLispSExp
 
 spec :: Spec
 spec = do
