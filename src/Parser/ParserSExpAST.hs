@@ -1,7 +1,6 @@
-module Parser_SEXP_AST.Parsersexpast (parseAST, isInt, isBool, finBool, noMaybeParseAST) where
+module Parser.ParserSExpAST (parseAST, isInt, isBool, finBool, noMaybeParseAST) where
 
-import StructureSE.StructureSE (SExpr(..))
-import StructureAST.StructureAST (AST(..))
+import Structure (SExpr(..), AST(..))
 import Data.Maybe (mapMaybe)
 
 isInt::String -> Bool

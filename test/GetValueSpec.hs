@@ -1,13 +1,12 @@
 module GetValueSpec (spec) where
 
 import Test.Hspec
-import GetValue.GetValue
-import StructureAST.StructureAST (AST (..))
+import HandleAST.GetValue
+import Structure (AST (..))
 
 spec :: Spec
 
 spec = do
-    
     describe "getValue Basic Test" $ do
         it "returns Nothing for empty list" $ do
             getValue (SList []) (SSymbol "x") `shouldBe` Nothing

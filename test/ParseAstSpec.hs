@@ -1,8 +1,8 @@
 module ParseAstSpec (spec) where
 
 import Test.Hspec
-import StructureAST.StructureAST (AST(..))
-import Parser_SEXP_AST.Parsersexpast (isInt, isBool)
+import Structure (AST(..))
+import Parser.ParserSExpAST (isInt, isBool)
 
 spec :: Spec
 spec = do
