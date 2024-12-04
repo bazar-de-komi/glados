@@ -1,3 +1,9 @@
 .stack-work
 glados
 glados.cabal
+glados-test.tix
+scm_files/**
+*tmp*
+ChezScheme-10.1.0/**
+csv10.1.0/**
+.hpc/*
