@@ -22,4 +22,3 @@ instance Show AST where
   show (SSymbol str) = "str : " ++ str
   show (SBool b) = if b then "bool : #t" else "bool : #f"
   show (SList xs) = "(" ++ unwords (map show xs) ++ ")"
-s
