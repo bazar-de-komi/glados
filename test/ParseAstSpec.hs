@@ -2,8 +2,7 @@ module ParseAstSpec (spec) where
 
 import Test.Hspec
 import StructureAST.StructureAST (AST(..))
-
-import Parser_SEXP_AST.Parsersexpast 
+import Parser_SEXP_AST.Parsersexpast (isInt, isBool)
 
 spec :: Spec
 spec = do
@@ -28,3 +27,15 @@ spec = do
 
         it "displays a SList correctly" $ do
             show (SList [SInt 1, SSymbol "x", SBool True]) `shouldBe` "(int : 1 str : x bool : #t)"
+        
+    describe "Utility Functions" $ do
+        it "identifies integers with isInt" $ do
+            isInt "123" `shouldBe` True
+            isInt "42" `shouldBe` True
+            isInt "abc" `shouldBe` False
+
+        it "identifies booleans with isBool" $ do
+            isBool "#t" `shouldBe` True
+            isBool "#f" `shouldBe` True
+            isBool "#x" `shouldBe` False
+            isBool "true" `shouldBe` False
