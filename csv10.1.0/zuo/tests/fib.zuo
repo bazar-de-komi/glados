@@ -1,3 +1,0 @@
-#lang zuo
-
-(include "fib-common.zuo")

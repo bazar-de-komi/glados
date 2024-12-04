@@ -1,3 +1,0 @@
-#lang zuo/hygienic
-
-(include "example-common.zuo")

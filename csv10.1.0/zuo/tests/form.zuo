@@ -1,7 +1,0 @@
-#lang zuo
-
-(require "harness.zuo")
-
-(alert "syntactic forms")
-
-(include "form-common.zuo")
