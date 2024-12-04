@@ -1,6 +1,6 @@
-module Parser_LISP_SE.Parserlispsexp (parseSExpr, takefstlist, removefstlist, splitWords) where
+module Parser.ParserLispSExp (parseSExpr, takefstlist, removefstlist, splitWords) where
 
-import StructureSE.StructureSE (SExpr(..))
+import Structure (SExpr(..))
 import Data.Maybe (mapMaybe)
 
 takefstlist::String -> Char-> Int -> String

@@ -1,5 +1,13 @@
-module StructureAST.StructureAST (AST (..)) where
+module Structure (SExpr(..), AST(..)) where
 
+-- SExpr --
+data SExpr = Atom String | List [SExpr] deriving (Eq)
+
+instance Show SExpr where
+    show (Atom str) = str
+    show (List xs)  = "(" ++ unwords (map show xs) ++ ")"
+
+-- AST --
 data AST = SInt Int | SSymbol String | SList [AST] | SBool Bool
 
 instance Eq AST where

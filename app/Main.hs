@@ -1,8 +1,8 @@
 module Main (main) where
 
 import Lib (checkArgs, litostr, needParenthese)
-import Parser_LISP_SE.Parserlispsexp (parseSExpr)
-import Parser_SEXP_AST.Parsersexpast (parseAST)
+import Parser.ParserLispSExp (parseSExpr)
+import Parser.ParserSExpAST (parseAST)
 
 main :: IO ()
 main = do

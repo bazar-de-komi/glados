@@ -1,6 +1,6 @@
-module GetValue.GetValue (getValue) where
+module HandleAST.GetValue (getValue) where
 
-import StructureAST.StructureAST (AST (..))
+import Structure (AST (..))
 
 getValue :: AST -> AST -> Maybe AST
 getValue (SInt _) _ = Nothing
