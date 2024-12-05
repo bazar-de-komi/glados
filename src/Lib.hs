@@ -45,12 +45,14 @@ litostr(a:b) = (checkparenthese a) ++ " " ++ litostr b
 
 checkNotEnd::String -> Bool
 checkNotEnd [] = False
-checkNotEnd _ = True
+checkNotEnd (a:b)
+    | a /= ' ' = True
+    | otherwise = checkNotEnd b
 
 checkAllString::String -> Int -> Bool
 checkAllString [] _ = False
 checkAllString (a:b) i
-    | a == ')' && i == 0 = checkNotEnd b
+    | a == ')' && i == 1 = checkNotEnd b
     | a == ')' = checkAllString b (i - 1)
     | a == '(' = checkAllString b (i + 1)
     | otherwise = checkAllString b i
