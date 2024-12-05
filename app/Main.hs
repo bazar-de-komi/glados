@@ -3,9 +3,9 @@ module Main (main) where
 import Lib (checkArgs, litostr, needParenthese)
 import Parser.ParserLispSExp (parseSExpr)
 import Parser.ParserSExpAST (parseAST)
+import HandleAST.HandleAST (handleAST)
 
 main :: IO ()
 main = do
   input <- checkArgs
-  putStrLn $ "Résultat : "
-  print (parseAST (parseSExpr (needParenthese (litostr input))))
+  handleAST (parseAST (parseSExpr (needParenthese (litostr input))))

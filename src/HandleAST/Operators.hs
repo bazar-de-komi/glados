@@ -16,9 +16,9 @@ lt (SSymbol x) (SSymbol y) = Just $ SBool (x < y)
 lt _ _ = Nothing
 
 -- | Addition operator
-add :: AST -> AST -> Maybe AST
-add (SInt x) (SInt y) = Just $ SInt (x + y)
-add (SSymbol x) (SSymbol y) = Just $ SSymbol (x ++ y)
+add :: Maybe AST -> Maybe AST -> Maybe AST
+add (Just(SInt x)) (Just (SInt y)) = Just $ SInt (x + y)
+add (Just(SSymbol x)) (Just(SSymbol y)) = Just $ SSymbol (x ++ y)
 add _ _ = Nothing
 
 -- | Subtraction operator
