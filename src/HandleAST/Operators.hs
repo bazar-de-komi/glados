@@ -17,8 +17,8 @@ lt _ _ = Nothing
 
 -- | Addition operator
 add :: Maybe AST -> Maybe AST -> Maybe AST
-add (Just (SInt x)) (Just (SInt y)) = Just $ SInt (x + y)
-add (Just (SSymbol x)) (Just (SSymbol y)) = Just $ SSymbol (x ++ y)
+add (Just(SInt x)) (Just (SInt y)) = Just $ SInt (x + y)
+add (Just(SSymbol x)) (Just(SSymbol y)) = Just $ SSymbol (x ++ y)
 add _ _ = Nothing
 
 -- | Subtraction operator
