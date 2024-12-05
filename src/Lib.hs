@@ -45,7 +45,9 @@ litostr(a:b) = (checkparenthese a) ++ " " ++ litostr b
 
 checkNotEnd::String -> Bool
 checkNotEnd [] = False
-checkNotEnd _ = True
+checkNotEnd (a:b)
+    | a /= ' ' = True
+    | otherwise = checkNotEnd b
 
 checkAllString::String -> Int -> Bool
 checkAllString [] _ = False
