@@ -1,41 +1,58 @@
+-- | A parser for converting S-expressions into Abstract Syntax Trees (ASTs).
+-- This module provides functions to:
+-- 1. Identify the type of an S-expression (integer, boolean, or symbol).
+-- 2. Convert `SExpr` into `AST`.
+
 module Parser.ParserSExpAST (parseAST, isInt, isBool, finBool, noMaybeParseAST) where
 
 import Structure (SExpr(..), AST(..))
 import Data.Maybe (mapMaybe)
 
-isInt::String -> Bool
+-- | Checks if a string represents an integer.
+--
+-- A valid integer is a sequence of digits (0-9).
+isInt :: String -> Bool
 isInt [] = True
 isInt (a:b)
-    | a == '0' = isInt b
-    | a == '1' = isInt b
-    | a == '2' = isInt b
-    | a == '3' = isInt b
-    | a == '4' = isInt b
-    | a == '5' = isInt b
-    | a == '6' = isInt b
-    | a == '7' = isInt b
-    | a == '8' = isInt b
-    | a == '9' = isInt b
+    | a `elem` ['0'..'9'] = isInt b
     | otherwise = False
 
-isBool::String -> Bool
+-- | Checks if a string represents a boolean value.
+--
+-- A valid boolean starts with `#` followed by `t` (true) or `f` (false).
+isBool :: String -> Bool
 isBool (a:b:_) = a == '#' && (b == 'f' || b == 't')
 isBool _ = False
 
-finBool::String -> Bool
+-- | Determines the boolean value from a boolean string.
+--
+-- If the second character is `t`, it returns `True`. Otherwise, `False`.
+finBool :: String -> Bool
 finBool (_:b:_) = b == 't'
 finBool _ = False
 
-noMaybeParseAST::SExpr -> Maybe AST
+-- | Converts a single `SExpr` into `AST` without `Maybe`.
+--
+-- This function is used to process individual elements of an S-expression.
+noMaybeParseAST :: SExpr -> Maybe AST
 noMaybeParseAST (List a) = Just . SList $ mapMaybe noMaybeParseAST a
 noMaybeParseAST (Atom a)
     | isInt a = Just (SInt (read a))
     | isBool a = Just (SBool (finBool a))
     | otherwise = Just (SSymbol a)
 
-parseAST::Maybe SExpr -> Maybe AST
+-- | Parses an `SExpr` into an `AST`.
+--
+-- The function handles both atomic and list expressions.
+--
+-- ==== Parameters
+-- - `Maybe SExpr`: The input `SExpr`, potentially `Nothing` for invalid input.
+--
+-- ==== Returns
+-- A `Maybe AST` representing the parsed structure, or `Nothing` if parsing fails.
+parseAST :: Maybe SExpr -> Maybe AST
 parseAST Nothing = Nothing
-parseAST (Just (List a)) = Just . SList $ mapMaybe noMaybeParseAST (a)
+parseAST (Just (List a)) = Just . SList $ mapMaybe noMaybeParseAST a
 parseAST (Just (Atom a))
     | isInt a = Just (SInt (read a))
     | isBool a = Just (SBool (finBool a))
