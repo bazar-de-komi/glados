@@ -22,10 +22,16 @@ returnValueAST inast (SList (SSymbol a : b : c : _))
     | a == "eq?" = eq (returnValueAST inast b) (returnValueAST inast c)
     | a == "mod" = modAST (returnValueAST inast b) (returnValueAST inast c)
     | otherwise = Nothing
+returnValueAST _ (SList (_ : _ : _)) = Nothing
+returnValueAST inast (SList (a : _)) = returnValueAST inast a
 returnValueAST _ _ = Nothing
+
+delMaybeAst::Maybe AST -> AST
+delMaybeAst (Just a) = a
+delMaybeAst Nothing = (SSymbol "ERROR unexpected")
 
 handleAST::Maybe AST -> IO()
 handleAST Nothing = putStrLn "ERROR: Failed to parse check your Lisp expression !"
 handleAST (Just a)
-    | returnValueAST a a /= Nothing = print (returnValueAST a a)
+    | returnValueAST a a /= Nothing = print (delMaybeAst (returnValueAST a a))
     | otherwise = putStrLn "ERROR: Failed no return value !"
