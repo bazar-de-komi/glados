@@ -1,8 +1,8 @@
 module ParseAstSpec (spec) where
 
 import Test.Hspec
-import Structure (AST(..))
-import Parser.ParserSExpAST (isInt, isBool)
+import Structure (SExpr(..), AST(..))
+import Parser.ParserSExpAST (isInt, isBool, noMaybeParseAST)
 
 spec :: Spec
 spec = do
@@ -39,3 +39,18 @@ spec = do
             isBool "#f" `shouldBe` True
             isBool "#x" `shouldBe` False
             isBool "true" `shouldBe` False
+
+    describe "noMaybeParseAST" $ do
+        it "parse an int atom into SInt" $ do
+            noMaybeParseAST (Atom "42") `shouldBe` Just (SInt 42)
+
+        it "parse a boolean atom into SBool" $ do
+            noMaybeParseAST (Atom "#t") `shouldBe` Just (SBool True)
+            noMaybeParseAST (Atom "#f") `shouldBe` Just (SBool False)
+
+        it "parse a symbol atom into SSymbol" $ do
+            noMaybeParseAST (Atom "x") `shouldBe` Just (SSymbol "x")
+
+        it "parses a list into SList" $ do
+            noMaybeParseAST (List [Atom "42", Atom "x", Atom "#t"]) `shouldBe`
+                Just (SList [SInt 42, SSymbol "x", SBool True])
