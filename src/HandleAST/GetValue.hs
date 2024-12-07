@@ -1,22 +1,31 @@
+-- | Module for extracting values from an Abstract Syntax Tree (AST).
+-- This module provides functions to search and retrieve values within the AST.
+
 module HandleAST.GetValue (getValue) where
 
 import Structure (AST (..))
 
--- | Search the target value in every sub lists of a list
+-- | Search for a target value within sublists of an `AST`.
 --
--- The first parameter must be a list of AST,
--- the second parameter must be a target AST,
--- the function return the value if the target was found,
--- otherwise it returns Nothing
+-- The first parameter is the list of `AST` nodes.
+-- The second parameter is the target `AST` to search for.
+--
+-- ==== Returns
+-- A `Maybe AST` containing the value if the target is found, or `Nothing` otherwise.
 searchInSubLists :: AST -> AST -> Maybe AST
 searchInSubLists list target = Just =<< getValue list target
 
--- | Get the target value of a define operator
+-- | Retrieve the value associated with a `define` operator in the AST.
 --
--- The first parameter must be the entire generated AST,
--- the second parameter must be a target AST,
--- the function return the value if the target was found,
--- otherwise it returns Nothing
+-- The first parameter is the entire `AST`.
+-- The second parameter is the target `AST` to search for.
+--
+-- ==== Behavior
+-- - If the target is defined using the `define` operator, its value is returned.
+-- - If the target is not found, the function recursively searches through sublists.
+--
+-- ==== Returns
+-- A `Maybe AST` containing the value if found, or `Nothing` otherwise.
 getValue :: AST -> AST -> Maybe AST
 getValue (SList (SSymbol "define" : aFilter : value : _)) target
     | aFilter == target = Just value
