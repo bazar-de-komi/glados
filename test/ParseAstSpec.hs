@@ -7,13 +7,6 @@ import Parser.ParserSExpAST (isInt, isBool, finBool, noMaybeParseAST, parseAST)
 spec :: Spec
 spec = do
     
-    describe "StructureAST - Basic Construction" $ do
-        it "create a SInt" $ do
-            SInt 42 `shouldBe` SInt 42
-
-        it "create a SList" $ do
-            SList [SInt 1, SInt 2] `shouldBe` SList [SInt 1, SInt 2]
-
     describe "AST Show Instance" $ do
         it "displays a SInt correctly" $ do
             show (SInt 42) `shouldBe` "int : 42"
