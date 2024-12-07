@@ -1,46 +1,119 @@
+-- | Module for defining basic operators for Abstract Syntax Trees (ASTs).
+-- This module provides functions to handle operations like equality, comparison, arithmetic, and modulo.
+
 module HandleAST.Operators (eq, lt, add, subtractAST, multiply, divAST, modAST) where
 
 import Structure (AST(..))
 
--- | Equality operator
-eq :: AST -> AST -> Maybe AST
-eq (SInt x) (SInt y) = Just $ SBool (x == y)
-eq (SSymbol x) (SSymbol y) = Just $ SBool (x == y)
-eq (SBool x) (SBool y) = Just $ SBool (x == y)
+-- | Equality operator.
+--
+-- Compares two `AST` values for equality:
+-- - Integers: Compares their values.
+-- - Symbols: Compares their string representations.
+-- - Booleans: Compares their truth values.
+--
+-- ==== Parameters
+-- - `Maybe AST`: The first operand.
+-- - `Maybe AST`: The second operand.
+--
+-- ==== Returns
+-- A `Maybe AST` containing a `SBool` with the result, or `Nothing` if the inputs are invalid.
+eq :: Maybe AST -> Maybe AST -> Maybe AST
+eq (Just (SInt x)) (Just (SInt y)) = Just $ SBool (x == y)
+eq (Just (SSymbol x)) (Just (SSymbol y)) = Just $ SBool (x == y)
+eq (Just (SBool x)) (Just (SBool y)) = Just $ SBool (x == y)
 eq _ _ = Nothing
 
--- | Less-than operator
-lt :: AST -> AST -> Maybe AST
-lt (SInt x) (SInt y) = Just $ SBool (x < y)
-lt (SSymbol x) (SSymbol y) = Just $ SBool (x < y)
+-- | Less-than operator.
+--
+-- Compares two `AST` values to check if the first is less than the second:
+-- - Integers: Compares their values.
+-- - Symbols: Compares their string representations lexicographically.
+--
+-- ==== Parameters
+-- - `Maybe AST`: The first operand.
+-- - `Maybe AST`: The second operand.
+--
+-- ==== Returns
+-- A `Maybe AST` containing a `SBool` with the result, or `Nothing` if the inputs are invalid.
+lt :: Maybe AST -> Maybe AST -> Maybe AST
+lt (Just (SInt x)) (Just (SInt y)) = Just $ SBool (x < y)
+lt (Just (SSymbol x)) (Just (SSymbol y)) = Just $ SBool (x < y)
 lt _ _ = Nothing
 
--- | Addition operator
-add :: AST -> AST -> Maybe AST
-add (SInt x) (SInt y) = Just $ SInt (x + y)
-add (SSymbol x) (SSymbol y) = Just $ SSymbol (x ++ y)
+-- | Addition operator.
+--
+-- Adds two `AST` values:
+-- - Integers: Returns their sum.
+-- - Symbols: Concatenates their string representations.
+--
+-- ==== Parameters
+-- - `Maybe AST`: The first operand.
+-- - `Maybe AST`: The second operand.
+--
+-- ==== Returns
+-- A `Maybe AST` containing the result, or `Nothing` if the inputs are invalid.
+add :: Maybe AST -> Maybe AST -> Maybe AST
+add (Just (SInt x)) (Just (SInt y)) = Just $ SInt (x + y)
+add (Just (SSymbol x)) (Just (SSymbol y)) = Just $ SSymbol (x ++ y)
 add _ _ = Nothing
 
--- | Subtraction operator
-subtractAST :: AST -> AST -> Maybe AST
-subtractAST (SInt x) (SInt y) = Just $ SInt (x - y)
+-- | Subtraction operator.
+--
+-- Subtracts the second `AST` value from the first.
+--
+-- ==== Parameters
+-- - `Maybe AST`: The first operand.
+-- - `Maybe AST`: The second operand.
+--
+-- ==== Returns
+-- A `Maybe AST` containing the result, or `Nothing` if the inputs are invalid.
+subtractAST :: Maybe AST -> Maybe AST -> Maybe AST
+subtractAST (Just (SInt x)) (Just (SInt y)) = Just $ SInt (x - y)
 subtractAST _ _ = Nothing
 
--- | Multiplication operator
-multiply :: AST -> AST -> Maybe AST
-multiply (SInt x) (SInt y) = Just $ SInt (x * y)
+-- | Multiplication operator.
+--
+-- Multiplies two `AST` values.
+--
+-- ==== Parameters
+-- - `Maybe AST`: The first operand.
+-- - `Maybe AST`: The second operand.
+--
+-- ==== Returns
+-- A `Maybe AST` containing the result, or `Nothing` if the inputs are invalid.
+multiply :: Maybe AST -> Maybe AST -> Maybe AST
+multiply (Just (SInt x)) (Just (SInt y)) = Just $ SInt (x * y)
 multiply _ _ = Nothing
 
--- | Division operator
-divAST :: AST -> AST -> Maybe AST
-divAST (SInt x) (SInt y)
+-- | Division operator.
+--
+-- Divides the first `AST` value by the second.
+--
+-- ==== Parameters
+-- - `Maybe AST`: The first operand.
+-- - `Maybe AST`: The second operand.
+--
+-- ==== Returns
+-- A `Maybe AST` containing the result, or `Nothing` if division by zero or invalid inputs occur.
+divAST :: Maybe AST -> Maybe AST -> Maybe AST
+divAST (Just (SInt x)) (Just (SInt y))
     | y == 0 = Nothing
     | otherwise = Just $ SInt (x `div` y)
 divAST _ _ = Nothing
 
--- | Modulo operator
-modAST :: AST -> AST -> Maybe AST
-modAST (SInt x) (SInt y)
+-- | Modulo operator.
+--
+-- Computes the remainder of the division of the first `AST` value by the second.
+--
+-- ==== Parameters
+-- - `Maybe AST`: The first operand.
+-- - `Maybe AST`: The second operand.
+--
+-- ==== Returns
+-- A `Maybe AST` containing the result, or `Nothing` if division by zero or invalid inputs occur.
+modAST :: Maybe AST -> Maybe AST -> Maybe AST
+modAST (Just (SInt x)) (Just (SInt y))
     | y == 0 = Nothing
     | otherwise = Just $ SInt (x `mod` y)
 modAST _ _ = Nothing
