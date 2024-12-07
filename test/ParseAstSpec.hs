@@ -2,7 +2,7 @@ module ParseAstSpec (spec) where
 
 import Test.Hspec
 import Structure (SExpr(..), AST(..))
-import Parser.ParserSExpAST (isInt, isBool, noMaybeParseAST, parseAST)
+import Parser.ParserSExpAST (isInt, isBool, finBool, noMaybeParseAST, parseAST)
 
 spec :: Spec
 spec = do
@@ -40,6 +40,31 @@ spec = do
             isBool "#f" `shouldBe` True
             isBool "#x" `shouldBe` False
             isBool "true" `shouldBe` False
+
+    describe "finBool" $ do
+        it "returns True for a valid boolean string '#t'" $ do
+            finBool "#t" `shouldBe` True
+
+        it "returns False for a valid boolean string '#f'" $ do
+            finBool "#f" `shouldBe` False
+
+        it "returns False for a string with no second character" $ do
+            finBool "#" `shouldBe` False
+
+        it "returns False for a string with no t or f character" $ do
+            finBool "#ok" `shouldBe` False
+
+        it "returns False for an empty string" $ do
+            finBool "" `shouldBe` False
+
+        it "returns False for a malformed string" $ do
+            finBool "random" `shouldBe` False
+
+        it "returns True when the second character is 't'" $ do
+            finBool "#ttest" `shouldBe` True
+
+        it "returns False when the second character is 'f'" $ do
+            finBool "#ffoo" `shouldBe` False
 
     describe "noMaybeParseAST" $ do
         it "parses an int atom into SInt" $ do
