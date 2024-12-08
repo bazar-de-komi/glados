@@ -31,6 +31,15 @@ finBool :: String -> Bool
 finBool (_:b:_) = b == 't'
 finBool _ = False
 
+-- | Checks if a string represents an negative integer.
+--
+-- A valid negative integer is a sequence of digits (0-9) with a '-' behind.
+isNegInt :: String -> Bool
+isNegInt (a:b)
+    | a == '-' && isInt b && b /= [] = True
+    | otherwise = False
+isNegInt _ = False
+
 -- | Converts a single `SExpr` into `AST` without `Maybe`.
 --
 -- This function is used to process individual elements of an S-expression.
@@ -38,6 +47,7 @@ noMaybeParseAST :: SExpr -> Maybe AST
 noMaybeParseAST (List a) = Just . SList $ mapMaybe noMaybeParseAST a
 noMaybeParseAST (Atom a)
     | isInt a = Just (SInt (read a))
+    | isNegInt a = Just (SInt (read a))
     | isBool a = Just (SBool (finBool a))
     | otherwise = Just (SSymbol a)
 
