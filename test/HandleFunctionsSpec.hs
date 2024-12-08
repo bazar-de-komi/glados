@@ -275,18 +275,17 @@ testHandleFunctions = do
 
         it "Simple lambda function" $ do
             let ast = SList []
-            let function = SList [
-                            SSymbol "lambda",
-                            SList [
-                                SSymbol "x",
-                                SSymbol "y"
-                            ],
-                            SList [
-                                SSymbol "+",
-                                SSymbol "x",
-                                SSymbol "y"
+            let function =  SList [
+                                SList [
+                                    SSymbol "x",
+                                    SSymbol "y"
+                                ],
+                                SList [
+                                    SSymbol "+",
+                                    SSymbol "x",
+                                    SSymbol "y"
+                                ]
                             ]
-                        ]
             let values = SList [
                             SInt 5,
                             SInt 10
