@@ -1,7 +1,7 @@
 -- | Module for extracting values from an Abstract Syntax Tree (AST).
 -- This module provides functions to search and retrieve values within the AST.
 
-module HandleAST.GetValue (getValue) where
+module HandleAST.GetValue (getValue, getWithDefine) where
 
 import Structure (AST (..))
 
@@ -34,3 +34,13 @@ getValue (SList (item : itemTail)) target =
         Just result -> Just result
         Nothing -> getValue (SList itemTail) target
 getValue _ _ = Nothing
+
+getWithDefine :: AST -> AST -> Maybe AST
+getWithDefine (SList (x:xs)) target =
+    case x of
+        SList (SSymbol "define" : SSymbol a : _) 
+            | SSymbol a == target -> Just x
+        SList (SSymbol "define" : SList (SSymbol a : _) : _) 
+            | SSymbol a == target -> Just x
+        _ -> getWithDefine (SList xs) target
+getWithDefine _ _ = Nothing
