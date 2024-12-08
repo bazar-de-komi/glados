@@ -28,7 +28,10 @@ returnValueAST inast (SSymbol a) =
     case getValue inast (SSymbol a) of
         Just value -> Just value
         _ -> Nothing
-returnValueAST inast (SList (SList (SSymbol "define" : _) : a)) = returnValueAST inast (SList a)
+returnValueAST inast (SList (SList (SSymbol "lambda" : body) : values)) =
+    handleFunctions inast (SList body) (SList values)
+returnValueAST inast (SList (SList (SSymbol "define" : _) : a)) =
+    returnValueAST inast (SList a)
 returnValueAST inast (SList (SSymbol a : xs)) =
     case a of
         "+" -> add (returnValueAST inast (head xs)) (returnValueAST inast (head (tail xs)))

@@ -30,6 +30,8 @@ returnValueAST inast (SSymbol a) =
     case getValue inast (SSymbol a) of
         Just value -> Just value
         _ -> Nothing
+returnValueAST inast (SList (SList (SSymbol "lambda" : body) : values)) =
+    handleFunctions inast (SList body) (SList values)
 returnValueAST inast (SList (SList (SSymbol "define" : _) : a)) = returnValueAST inast (SList a)
 returnValueAST inast (SList (SSymbol a : xs)) =
     case a of
@@ -125,7 +127,7 @@ handleFunctions inast (SList [SSymbol "define", SList (SSymbol _ : params), body
         case bindParameters (SList params) values of
             Just bindings -> returnValueHandleFunction inast bindings body
             Nothing -> Nothing
-handleFunctions ast (SList [SSymbol "lambda", params, SList body]) values =
+handleFunctions ast (SList [params, SList body]) values =
     case bindParameters params values of
         Just bindings -> returnValueHandleFunction ast bindings (SList body)
         Nothing -> Nothing
