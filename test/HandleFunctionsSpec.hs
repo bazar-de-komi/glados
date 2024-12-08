@@ -2,15 +2,72 @@ module HandleFunctionsSpec (spec) where
 
 import Test.Hspec
 import Structure (AST(..))
-import HandleAST.HandleFunctions (bindParameters, findBinding, substituteBindings, handleFunctions)
+import HandleAST.HandleFunctions (bindParameters, findBinding, substituteBindings, handleFunctions, returnValueAST)
 
 spec :: Spec
 spec = do
     describe "HandleFunctions" $ do
+        testReturnValueAST
         testParameterBind
         testFindBinding
         testSubstituteBindings
         testHandleFunctions
+
+testReturnValueAST :: Spec
+testReturnValueAST =
+    describe "returnValueAST" $ do
+        it "Handles integers correctly" $ do
+            let ast = SInt 42
+            returnValueAST (SList []) ast `shouldBe` Just (SInt 42)
+
+        it "Handles booleans correctly" $ do
+            let ast = SBool True
+            returnValueAST (SList []) ast `shouldBe` Just (SBool True)
+
+        it "Resolves a symbol to its value" $ do
+            let env = SList [SList [SSymbol "x", SInt 10]]
+            returnValueAST env (SSymbol "x") `shouldBe` Nothing
+
+        it "Returns Nothing for an undefined symbol" $ do
+            let env = SList []
+            returnValueAST env (SSymbol "y") `shouldBe` Nothing
+
+        it "Evaluates addition" $ do
+            let env = SList []
+            let expr = SList [SSymbol "+", SInt 3, SInt 4]
+            returnValueAST env expr `shouldBe` Just (SInt 7)
+
+        it "Evaluates multiplication" $ do
+            let env = SList []
+            let expr = SList [SSymbol "*", SInt 2, SInt 5]
+            returnValueAST env expr `shouldBe` Just (SInt 10)
+
+        it "Handles nested operations" $ do
+            let env = SList []
+            let expr = SList [SSymbol "+", SInt 1, SList [SSymbol "*", SInt 2, SInt 3]]
+            returnValueAST env expr `shouldBe` Just (SInt 7)
+
+        it "Handles comparisons" $ do
+            let env = SList []
+            let expr1 = SList [SSymbol "<", SInt 3, SInt 5]
+            let expr2 = SList [SSymbol ">", SInt 5, SInt 3]
+            returnValueAST env expr1 `shouldBe` Just (SBool True)
+            returnValueAST env expr2 `shouldBe` Just (SBool True)
+
+        it "Handles equality checks" $ do
+            let env = SList []
+            let expr = SList [SSymbol "eq?", SInt 42, SInt 42]
+            returnValueAST env expr `shouldBe` Just (SBool True)
+
+        it "Evaluates modulo operation" $ do
+            let env = SList []
+            let expr = SList [SSymbol "mod", SInt 10, SInt 3]
+            returnValueAST env expr `shouldBe` Just (SInt 1)
+
+        it "Returns Nothing for unsupported operations" $ do
+            let env = SList []
+            let expr = SList [SSymbol "unsupported", SInt 1, SInt 2]
+            returnValueAST env expr `shouldBe` Nothing
 
 testParameterBind :: Spec
 testParameterBind =
@@ -200,10 +257,8 @@ testHandleFunctions = do
                             SSymbol "define",
                             SList [
                                 SSymbol "add",
-                                SList [
-                                    SSymbol "x",
-                                    SSymbol "y"
-                                ]
+                                SSymbol "x",
+                                SSymbol "y"
                             ],
                             SList [
                                 SSymbol "+",
@@ -304,7 +359,7 @@ testHandleFunctions = do
                                 SSymbol "body"
                             ]
                         ]
-            let values = SList [SInt 42, SInt 84]  -- Two values, but lambda expects one parameter
+            let values = SList [SInt 42, SInt 84]
             handleFunctions ast ast values `shouldBe` Nothing
 
         it "should return Nothing if parameters are empty but values are non-empty" $ do

@@ -1,11 +1,12 @@
 -- | Module for handling and evaluating Abstract Syntax Trees (ASTs).
 -- This module provides functions to process an `AST`, evaluate it, and return the result.
 
-module HandleAST.HandleAST (handleAST) where
+module HandleAST.HandleAST (handleAST, returnValueAST) where
 
-import HandleAST.GetValue (getValue)
-import HandleAST.Operators (eq, lt, add, subtractAST, multiply, divAST, modAST)
 import Structure (AST(..))
+import HandleAST.GetValue (getValue, getWithDefine)
+import HandleAST.Operators (eq, lt, add, subtractAST, multiply, divAST, modAST)
+import HandleAST.HandleFunctions (handleFunctions)
 
 -- | Evaluate an `AST` and return its value.
 --
@@ -23,22 +24,24 @@ import Structure (AST(..))
 returnValueAST :: AST -> AST -> Maybe AST
 returnValueAST _ (SInt a) = Just (SInt a)
 returnValueAST _ (SBool a) = Just (SBool a)
-returnValueAST inast (SSymbol a)
-    | getValue inast (SSymbol a) == Nothing = Just (SSymbol a)
-    | otherwise = getValue inast (SSymbol a)
+returnValueAST inast (SSymbol a) = 
+    case getValue inast (SSymbol a) of
+        Just value -> Just value
+        _ -> Nothing
 returnValueAST inast (SList (SList (SSymbol "define" : _) : a)) = returnValueAST inast (SList a)
-returnValueAST inast (SList (SList a : _)) = returnValueAST inast (SList a)
-returnValueAST inast (SList (SSymbol a : b : c : _))
-    | a == "+" = add (returnValueAST inast b) (returnValueAST inast c)
-    | a == "div" = divAST (returnValueAST inast b) (returnValueAST inast c)
-    | a == "*" = multiply (returnValueAST inast b) (returnValueAST inast c)
-    | a == "-" = subtractAST (returnValueAST inast b) (returnValueAST inast c)
-    | a == "<" = lt (returnValueAST inast b) (returnValueAST inast c)
-    | a == ">" = lt (returnValueAST inast c) (returnValueAST inast b)
-    | a == "eq?" = eq (returnValueAST inast b) (returnValueAST inast c)
-    | a == "mod" = modAST (returnValueAST inast b) (returnValueAST inast c)
-    | otherwise = Nothing
-returnValueAST _ (SList (_ : _ : _)) = Nothing
+returnValueAST inast (SList (SSymbol a : xs)) =
+    case a of
+        "+" -> add (returnValueAST inast (head xs)) (returnValueAST inast (head (tail xs)))
+        "div" -> divAST (returnValueAST inast (head xs)) (returnValueAST inast (head (tail xs)))
+        "*" -> multiply (returnValueAST inast (head xs)) (returnValueAST inast (head (tail xs)))
+        "-" -> subtractAST (returnValueAST inast (head xs)) (returnValueAST inast (head (tail xs)))
+        "<" -> lt (returnValueAST inast (head xs)) (returnValueAST inast (head (tail xs)))
+        ">" -> lt (returnValueAST inast (head (tail xs))) (returnValueAST inast (head xs))
+        "eq?" -> eq (returnValueAST inast (head xs)) (returnValueAST inast (head (tail xs)))
+        "mod" -> modAST (returnValueAST inast (head xs)) (returnValueAST inast (head (tail xs)))
+        _ -> case getWithDefine inast (SSymbol a) of
+                Just body -> handleFunctions inast body (SList xs)
+                Nothing   -> Nothing
 returnValueAST inast (SList (a : _)) = returnValueAST inast a
 returnValueAST _ _ = Nothing
 
