@@ -60,3 +60,4 @@ tests:
     - glados
     - hspec
     - hspec-discover
+    - silently
