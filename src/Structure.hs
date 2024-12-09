@@ -44,7 +44,7 @@ instance Eq AST where
 -- | Custom `Show` instance for `AST`.
 -- Converts an `AST` into a human-readable string representation.
 instance Show AST where
-  show (SInt i) = "int : " ++ show i
-  show (SSymbol str) = "str : " ++ str
-  show (SBool b) = if b then "bool : #t" else "bool : #f"
+  show (SInt i) = show i
+  show (SSymbol str) = str
+  show (SBool b) = if b then "True" else "False"
   show (SList xs) = "(" ++ unwords (map show xs) ++ ")"
