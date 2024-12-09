@@ -29,6 +29,14 @@ testEquality = describe "eq (Equality)" $ do
     it "returns Just (SBool False) for non-equal symbols" $ do
         eq (Just (SSymbol "x")) (Just (SSymbol "y")) `shouldBe` Just (SBool False)
 
+    it "returns Just (SBool True) for equal bools" $ do
+        eq (Just (SBool True)) (Just (SBool True)) `shouldBe` Just (SBool True)
+        eq (Just (SBool False)) (Just (SBool False)) `shouldBe` Just (SBool True)
+
+    it "returns Just (SBool False) for non-equal bools" $ do
+        eq (Just (SBool True)) (Just (SBool False)) `shouldBe` Just (SBool False)
+        eq (Just (SBool False)) (Just (SBool True)) `shouldBe` Just (SBool False)
+
     it "returns Nothing when the type is not compatible" $ do
         eq (Just (SInt 42)) (Just (SSymbol "x")) `shouldBe` Nothing
 
@@ -39,6 +47,12 @@ testLessThan = describe "lt (Less-Than)" $ do
 
     it "returns Just (SBool False) if the first integer is not less than the second" $ do
         lt (Just (SInt 42)) (Just (SInt 10)) `shouldBe` Just (SBool False)
+
+    it "returns Just (SBool True) if the first string is less than the second" $ do
+        lt (Just (SSymbol "hello")) (Just (SSymbol "world")) `shouldBe` Just (SBool True)
+
+    it "returns Just (SBool False) if the first string is not less than the second" $ do
+        lt (Just (SSymbol "world")) (Just (SSymbol "hello")) `shouldBe` Just (SBool False)
 
     it "returns Nothing when the type is not compatible" $ do
         lt (Just (SInt 42)) (Just (SSymbol "x")) `shouldBe` Nothing
