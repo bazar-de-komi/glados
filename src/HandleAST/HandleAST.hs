@@ -88,6 +88,19 @@ handleFunctions ast (SList [params, SList body]) values =
         Nothing -> Nothing
 handleFunctions _ _ _ = Nothing
 
+-- | Return the given `Maybe AST` but in AST.
+--
+-- If AST exist, the result is printed. Otherwise, an error message is displayed.
+--
+-- ==== Parameters
+-- - `Maybe AST`: The input `AST` to handle. If `Nothing`, an error message is displayed.
+--
+-- === Returns
+-- - `AST`: AST with no Maybe
+delMaybeAST :: Maybe AST -> AST
+delMaybeAST (Just a) = a
+delMaybeAST Nothing = SSymbol "ERROR no AST"
+
 -- | Handles and evaluates the given `AST`.
 --
 -- If evaluation is successful, the result is printed. Otherwise, an error message is displayed.
@@ -97,5 +110,5 @@ handleFunctions _ _ _ = Nothing
 handleAST :: Maybe AST -> IO ()
 handleAST Nothing = putStrLn "ERROR: Failed to parse check your Lisp expression!"
 handleAST (Just a)
-    | returnValueAST a a /= Nothing = print (returnValueAST a a)
+    | returnValueAST a a /= Nothing = print (delMaybeAST (returnValueAST a a))
     | otherwise = putStrLn "ERROR: Failed no return value!"

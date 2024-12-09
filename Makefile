@@ -5,36 +5,39 @@
 ## makefile
 ##
 
-NAME	=	glados
+NAME		=	glados
 
 NAMECABAL	=	glados.cabal
 
-PATHBIN =	$(shell stack path --local-install-root)
+NAMETIX		=	glados-test.tix
 
-STACK	=	stack
+PATHBIN 	=	$(shell stack path --local-install-root)
+
+STACK		=	stack
 
 all:	$(NAME)
 
 $(NAME):
 	$(STACK) build
-	cp $(PATHBIN)/bin/glados-exe ./$(NAME)
+	@cp $(PATHBIN)/bin/glados-exe ./$(NAME)
 
-test:
-	rm -rf glados-test.tix
+test:	clean
 	stack test
 
-retest:	re test
+retest:	re	test
 
 clean:
+	@rm -f $(NAME)
+	@rm -f $(NAMECABAL)
+	@rm -f $(NAMETIX)
+
+fclean:
 	$(STACK) clean
-	rm -f $(NAME)
-	rm -f $(NAMECABAL)
+	$(MAKE) clean
 
-fclean:	clean
-
-re:	fclean all
+re:	fclean	all
 
 docs:
 	$(STACK) haddock
 
-.PHONY:	re all clean fclean	docs test retest
+.PHONY:	re	all	clean	fclean	docs	test	retest

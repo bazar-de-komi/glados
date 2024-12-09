@@ -6,11 +6,10 @@ import Parser.ParserLispSExp
 
 spec :: Spec
 spec = do
-            
     describe "Parser Lisp SE" $ do
         it "parse a single atom" $ do
             parseSExpr "x" `shouldBe` Just (Atom "x")
-        
+
         it "parse a simple list" $ do
             parseSExpr "(x y)" `shouldBe` Just (List [Atom "x", Atom "y"])
 

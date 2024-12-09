@@ -5,7 +5,9 @@ module HandleAST.FunctionsUtils (
 ) where
 
 import Structure (AST (..))
--- |
+
+-- | Bind every functions parameter to the values set by the user
+--
 -- ==== Parameters
 -- - `AST`: A list of parameters (i.e., symbols or variables) to be bound
 -- - `AST`: A list of values that correspond to the parameters
@@ -21,20 +23,23 @@ bindParameters (SList (parameter : paramTail)) (SList (value : valueTail)) =
 bindParameters (SList []) (SList []) = Just (SList [])
 bindParameters _ _ = Nothing
 
--- |
+-- | Return the value of a function parameter bind
+--
 -- ==== Parameters
 -- - `String`: The target to search the value of the parameter in the bindings
 -- - `AST`: The binding list
 --
 -- ==== Returns
--- - `AST`: The list of the bind we want
+-- - `Maybe AST`: The value of a function parameter bind
+-- - `Nothing`: If a bind is not found
 findBinding :: String -> AST -> Maybe AST
 findBinding target (SList (SList [SSymbol param, value] : bindTail)) 
     | param == target = Just value
     | otherwise = findBinding target (SList bindTail)
 findBinding _ _ = Nothing
 
--- |
+-- | Take the body of the function and change every param call to its value
+--
 -- ==== Parameters
 -- - `AST`: The list of bindings that associates parameters to values.
 -- - `AST`: The `AST` to substitute bindings in.

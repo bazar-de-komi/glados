@@ -65,5 +65,6 @@ parseAST Nothing = Nothing
 parseAST (Just (List a)) = Just . SList $ mapMaybe noMaybeParseAST a
 parseAST (Just (Atom a))
     | isInt a = Just (SInt (read a))
+    | isNegInt a = Just (SInt (read a))
     | isBool a = Just (SBool (finBool a))
     | otherwise = Just (SSymbol a)

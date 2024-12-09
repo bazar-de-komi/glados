@@ -6,21 +6,20 @@ import Parser.ParserSExpAST (isInt, isBool, finBool, noMaybeParseAST, parseAST)
 
 spec :: Spec
 spec = do
-    
     describe "AST Show Instance" $ do
         it "displays a SInt correctly" $ do
-            show (SInt 42) `shouldBe` "int : 42"
+            show (SInt 42) `shouldBe` "42"
 
         it "displays a SSymbol correctly" $ do
-            show (SSymbol "hello world") `shouldBe` "str : hello world"
+            show (SSymbol "hello world") `shouldBe` "hello world"
 
         it "displays a SBool correctly" $ do
-            show (SBool True) `shouldBe` "bool : #t"
-            show (SBool False) `shouldBe` "bool : #f"
+            show (SBool True) `shouldBe` "#t"
+            show (SBool False) `shouldBe` "#f"
 
         it "displays a SList correctly" $ do
-            show (SList [SInt 1, SSymbol "x", SBool True]) `shouldBe` "(int : 1 str : x bool : #t)"
-        
+            show (SList [SInt 1, SSymbol "x", SBool True]) `shouldBe` "(1 x #t)"
+
     describe "Utility Functions" $ do
         it "identifies integers with isInt" $ do
             isInt "123" `shouldBe` True
@@ -81,12 +80,19 @@ spec = do
         it "parses a valid integer SExpr into SInt" $ do
             parseAST (Just (Atom "42")) `shouldBe` Just (SInt 42)
 
+        it "parses a valid negative integer SExpr into SInt" $ do
+            parseAST (Just (Atom "-42")) `shouldBe` Just (SInt (-42))
+
+        it "parses a valid negative integer SExpr into SInt" $ do
+            parseAST (Just (List [Atom "-42"])) `shouldBe` Just (SList [SInt (-42)])
+
         it "parses a valid boolean SExpr into SBool" $ do
             parseAST (Just (Atom "#t")) `shouldBe` Just (SBool True)
             parseAST (Just (Atom "#f")) `shouldBe` Just (SBool False)
 
         it "parses a valid symbol SExpr into SSymbol" $ do
             parseAST (Just (Atom "x")) `shouldBe` Just (SSymbol "x")
+            parseAST (Just (Atom "-x")) `shouldBe` Just (SSymbol "-x")
 
         it "parses a list SExpr into SList AST" $ do
             parseAST (Just (List [Atom "42", Atom "x", Atom "#t"])) `shouldBe`
