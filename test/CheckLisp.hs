@@ -10,7 +10,9 @@ import Data.Char (isDigit, digitToInt)
 checkLisp :: String -> [String]
 checkLisp str =
     let array = whiteSpaceMode str
-    in checkLisp' array "" 0
+    in case array of
+        "" -> ["Warning: input is empty."]
+        _ -> checkLisp' array "" 0
 
 whiteSpaceMode :: String -> String
 whiteSpaceMode = reverse
@@ -19,14 +21,22 @@ whiteSpaceMode = reverse
                 . dropWhile (\c -> c == ' ' || c == '\n')
 
 checkLisp' :: String -> String -> Int -> [String]
-checkLisp' "" "" _ = ["Warning: input is empty."]
 checkLisp' "" str count = case count of
     0 -> ["Text is valid LISP code."]
     _ -> ["Warning: input miss " ++ show count ++ " parenthesis."]
 checkLisp' ('\n':xs) str count = checkLisp' xs "" count
 checkLisp' ('(':xs) str count = checkLisp' xs (str ++ "(") (count + 1)
 checkLisp' (')':xs) str count = checkLisp' xs (str ++ ")") (count - 1)
-checkLisp' (x:"") str count = checkLisp' "" str count
+checkLisp' (x:"") str count
+    | isDigit x =
+        let digits = reverse . takeWhile isDigit . reverse $ str
+            (rest, check) = checkNumber (digits ++ [x]) 0
+        in case check of
+            True -> checkLisp' "" rest count
+            False ->
+                let errorLine = getWholeLine str [x]
+                in ["Warning: too long int at line:", errorLine]
+    | otherwise = checkLisp' "" str count
 checkLisp' (x:y:xs) str count
     | isDigit y = checkLisp' (y:xs) (str ++ [x]) count
     | isDigit x =
