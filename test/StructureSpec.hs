@@ -67,25 +67,25 @@ spec = do
             SBool False `shouldBe` SBool False
 
         it "shows an int AST value" $ do
-            show (SInt 42) `shouldBe` "int : 42"
+            show (SInt 42) `shouldBe` "42"
 
         it "shows a symbolic AST value" $ do
-            show (SSymbol "foo") `shouldBe` "str : foo"
+            show (SSymbol "foo") `shouldBe` "foo"
 
         it "shows a boolean AST value (True)" $ do
-            show (SBool True) `shouldBe` "bool : #t"
+            show (SBool True) `shouldBe` "#t"
 
         it "shows a boolean AST value (False)" $ do
-            show (SBool False) `shouldBe` "bool : #f"
+            show (SBool False) `shouldBe` "#f"
 
         it "shows a list AST value" $ do
-            show (SList [SInt 42, SBool False]) `shouldBe` "(int : 42 bool : #f)"
+            show (SList [SInt 42, SBool False]) `shouldBe` "(42 #f)"
 
         it "shows a list of ASTs correctly" $ do
-            show (SList [SInt 1, SBool True, SSymbol "x"]) `shouldBe` "(int : 1 bool : #t str : x)"
+            show (SList [SInt 1, SBool True, SSymbol "x"]) `shouldBe` "(1 #t x)"
 
         it "shows a nested list of ASTs correctly" $ do
-            show (SList [SInt 1, SList [SSymbol "foo", SBool False]]) `shouldBe` "(int : 1 (str : foo bool : #f))"
+            show (SList [SInt 1, SList [SSymbol "foo", SBool False]]) `shouldBe` "(1 (foo #f))"
 
         it "shows an empty list AST value" $ do
             show (SList []) `shouldBe` "()"
