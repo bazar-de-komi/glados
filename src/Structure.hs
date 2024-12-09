@@ -46,5 +46,5 @@ instance Eq AST where
 instance Show AST where
   show (SInt i) = show i
   show (SSymbol str) = str
-  show (SBool b) = if b then "True" else "False"
+  show (SBool b) = if b then "#t" else "#f"
   show (SList xs) = "(" ++ unwords (map show xs) ++ ")"
