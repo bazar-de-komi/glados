@@ -1,0 +1,7 @@
+(define tt 99)
+(define t2 1)
+(define t3 10)
+(define t4 100)
+(define (add a b c d)
+    (+(+(+ a b) c) d))
+(eq? (mod (div ((tt)) 9) (- (+ t4 t2) (* t3 2))) (((lambda (a b) (+ a b)) 0 (add 1 8 1 1))))
