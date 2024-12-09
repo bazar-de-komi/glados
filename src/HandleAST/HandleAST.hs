@@ -7,6 +7,7 @@ import Structure (AST(..))
 import HandleAST.GetValue (getValue, getWithDefine)
 import HandleAST.Operators (eq, lt, add, subtractAST, multiply, divAST, modAST)
 import HandleAST.FunctionsUtils (bindParameters, substituteBindings)
+import HandleAST.ConditionalExpressions (condExpress)
 
 -- | Evaluate an `AST` and return its value.
 --
@@ -40,6 +41,7 @@ returnValueAST inast (SList (SSymbol a : b : c : d))
     | a == ">" = lt (returnValueAST inast c) (returnValueAST inast b)
     | a == "eq?" = eq (returnValueAST inast b) (returnValueAST inast c)
     | a == "mod" = modAST (returnValueAST inast b) (returnValueAST inast c)
+    | a == "if" = condExpress inast b c d
     | otherwise = case getWithDefine inast (SSymbol a) of
                     Just body -> handleFunctions inast body (SList (b : c : d))
                     Nothing   -> Nothing
