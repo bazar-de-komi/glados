@@ -4,8 +4,8 @@ import HandleAST.Operators (eq, lt, add, subtractAST, multiply, divAST, modAST)
 import HandleAST.GetValue (getValue)
 import Structure (AST(..))
 
-condExpress :: AST -> AST -> AST -> AST -> Maybe AST
-condExpress env cond thenExpr elseExpr =
+condExpress :: AST -> AST -> AST -> [AST] -> Maybe AST
+condExpress env cond thenExpr (elseExpr:_) =
     case evalCondition env cond of
         Just (SBool True)  -> evalExpression env thenExpr
         Just (SBool False) -> evalExpression env elseExpr
