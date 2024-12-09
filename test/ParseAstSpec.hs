@@ -80,8 +80,11 @@ spec = do
         it "parses a valid integer SExpr into SInt" $ do
             parseAST (Just (Atom "42")) `shouldBe` Just (SInt 42)
 
-        -- it "parses a valid negative integer SExpr into SInt" $ do
-        --     parseAST (Just (Atom "-42")) `shouldBe` Just (SInt (-42))
+        it "parses a valid negative integer SExpr into SInt" $ do
+            parseAST (Just (Atom "-42")) `shouldBe` Just (SInt (-42))
+
+        it "parses a valid negative integer SExpr into SInt" $ do
+            parseAST (Just (List [Atom "-42"])) `shouldBe` Just (SList [SInt (-42)])
 
         it "parses a valid boolean SExpr into SBool" $ do
             parseAST (Just (Atom "#t")) `shouldBe` Just (SBool True)
