@@ -6,6 +6,7 @@ import Lib (checkArgs, litostr, needParenthese)
 import Parser.ParserLispSExp (parseSExpr)
 import Parser.ParserSExpAST (parseAST)
 import HandleAST.HandleAST (handleAST)
+import CheckLisp (checkLisp)
 
 -- | The main function reads the input, processes it, and handles the AST.
 -- It performs the following steps:
@@ -18,4 +19,11 @@ import HandleAST.HandleAST (handleAST)
 main :: IO ()
 main = do
   input <- checkArgs
-  handleAST (parseAST (parseSExpr (needParenthese (litostr input))))
+  let check = checkLisp (backToFile (input))
+  case check of
+    "OK" -> handleAST (parseAST (parseSExpr (needParenthese (litostr input))))
+    _ -> putStrLn check
+
+backToFile :: [String] -> String
+backToFile [] = ""
+backToFile (a:b) = a ++ "\n" ++ (backToFile b)

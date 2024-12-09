@@ -5,13 +5,15 @@
 -- checkLisp
 -}
 
+module CheckLisp (checkLisp) where
+
 import Data.Char (isDigit, digitToInt)
 
-checkLisp :: String -> [String]
+checkLisp :: String -> String
 checkLisp str =
     let array = whiteSpaceMode str
     in case array of
-        "" -> ["Warning: input is empty."]
+        "" -> "Warning: input is empty."
         _ -> checkLisp' array "" 0
 
 whiteSpaceMode :: String -> String
@@ -20,10 +22,10 @@ whiteSpaceMode = reverse
                 . reverse
                 . dropWhile (\c -> c == ' ' || c == '\n')
 
-checkLisp' :: String -> String -> Int -> [String]
+checkLisp' :: String -> String -> Int -> String
 checkLisp' "" str count = case count of
-    0 -> ["Text is valid LISP code."]
-    _ -> ["Warning: input miss " ++ show count ++ " parenthesis."]
+    0 -> "OK"
+    _ -> "Warning: input miss " ++ show count ++ " parenthesis."
 checkLisp' ('\n':xs) str count = checkLisp' xs "" count
 checkLisp' ('(':xs) str count = checkLisp' xs (str ++ "(") (count + 1)
 checkLisp' (')':xs) str count = checkLisp' xs (str ++ ")") (count - 1)
@@ -35,7 +37,7 @@ checkLisp' (x:"") str count
             True -> checkLisp' "" rest count
             False ->
                 let errorLine = getWholeLine str [x]
-                in ["Warning: too long int at line:", errorLine]
+                in "Warning: too long int at line:\n" ++ errorLine
     | otherwise = checkLisp' "" str count
 checkLisp' (x:y:xs) str count
     | isDigit y = checkLisp' (y:xs) (str ++ [x]) count
@@ -46,7 +48,7 @@ checkLisp' (x:y:xs) str count
             True -> checkLisp' (y:xs) rest count
             False ->
                 let errorLine = getWholeLine str (x:y:xs)
-                in ["Warning: too long int at line:", errorLine]
+                in "Warning: too long int at line:\n" ++ errorLine
     | otherwise = checkLisp' (y:xs) (str ++ [x]) count
 
 checkNumber :: String -> Int -> (String, Bool)
