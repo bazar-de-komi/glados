@@ -8,17 +8,17 @@ spec :: Spec
 spec = do
     describe "AST Show Instance" $ do
         it "displays a SInt correctly" $ do
-            show (SInt 42) `shouldBe` "int : 42"
+            show (SInt 42) `shouldBe` "42"
 
         it "displays a SSymbol correctly" $ do
-            show (SSymbol "hello world") `shouldBe` "str : hello world"
+            show (SSymbol "hello world") `shouldBe` "hello world"
 
         it "displays a SBool correctly" $ do
-            show (SBool True) `shouldBe` "bool : #t"
-            show (SBool False) `shouldBe` "bool : #f"
+            show (SBool True) `shouldBe` "#t"
+            show (SBool False) `shouldBe` "#f"
 
         it "displays a SList correctly" $ do
-            show (SList [SInt 1, SSymbol "x", SBool True]) `shouldBe` "(int : 1 str : x bool : #t)"
+            show (SList [SInt 1, SSymbol "x", SBool True]) `shouldBe` "(1 x #t)"
 
     describe "Utility Functions" $ do
         it "identifies integers with isInt" $ do
