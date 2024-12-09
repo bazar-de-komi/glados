@@ -5,27 +5,30 @@ module HandleAST.GetValue (getValue, getWithDefine) where
 
 import Structure (AST (..))
 
--- | Search for a target value within sublists of an `AST`.
+-- | Search for a target value within sublists of an `AST`
 --
--- The first parameter is the list of `AST` nodes.
--- The second parameter is the target `AST` to search for.
+-- ==== Parameters
+-- - `AST`: The first parameter is the list of `AST` nodes
+-- - `AST`: The second parameter is the target `AST` to search for
 --
 -- ==== Returns
--- A `Maybe AST` containing the value if the target is found, or `Nothing` otherwise.
+-- - `Maybe AST`: containing the value if the target is found
+-- - `Nothing`: if there's no more sub list
 searchInSubLists :: AST -> AST -> Maybe AST
 searchInSubLists list target = Just =<< getValue list target
 
--- | Retrieve the value associated with a `define` operator in the AST.
+-- | Retrieve the value associated with a `define` operator in the AST
 --
--- The first parameter is the entire `AST`.
--- The second parameter is the target `AST` to search for.
+-- The first parameter is the entire `AST`
+-- The second parameter is the target `AST` to search for
 --
 -- ==== Behavior
--- - If the target is defined using the `define` operator, its value is returned.
--- - If the target is not found, the function recursively searches through sublists.
+-- - If the target is defined using the `define` operator, its value is returned
+-- - If the target is not found, the function recursively searches through sublists
 --
 -- ==== Returns
--- A `Maybe AST` containing the value if found, or `Nothing` otherwise.
+-- - `Maybe AST`: containing the value if found
+-- - `Nothing`: when the variable doesn't exist
 getValue :: AST -> AST -> Maybe AST
 getValue (SList (SSymbol "define" : aFilter : value : _)) target
     | aFilter == target = Just value
@@ -35,6 +38,18 @@ getValue (SList (item : itemTail)) target =
         Nothing -> getValue (SList itemTail) target
 getValue _ _ = Nothing
 
+-- | Retrieve the entire `define` operator in the AST for the functions
+--
+-- The first parameter is the entire `AST`
+-- The second parameter is the target `AST` to search for
+--
+-- ==== Behavior
+-- - If the target is defined using the `define` operator, the entire `define` operator is returned
+-- - If the target is not found, the function recursively searches through sublists
+--
+-- ==== Returns
+-- - `Maybe AST`: Return the variable if found
+-- - `Nothing`: when the function doesn't exist
 getWithDefine :: AST -> AST -> Maybe AST
 getWithDefine (SList (x:xs)) target =
     case x of
