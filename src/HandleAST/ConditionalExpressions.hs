@@ -10,9 +10,10 @@ condExpress env cond thenExpr (elseExpr:_) =
         Just (SBool True)  -> evalExpression env thenExpr
         Just (SBool False) -> evalExpression env elseExpr
         _                  -> Nothing
+condExpress _ _ _ [] = Nothing
 
 evalCondition :: AST -> AST -> Maybe AST
-evalCondition env (SBool b) = Just (SBool b)
+evalCondition _ (SBool b) = Just (SBool b)
 evalCondition env (SSymbol sym) = getValue env (SSymbol sym)
 evalCondition env (SList (SSymbol op : left : right : _))
     | op == "eq?" = eq (evalExpression env left) (evalExpression env right)
@@ -22,8 +23,8 @@ evalCondition env (SList (SSymbol op : left : right : _))
 evalCondition _ _ = Nothing
 
 evalExpression :: AST -> AST -> Maybe AST
-evalExpression env (SInt n) = Just (SInt n)
-evalExpression env (SBool b) = Just (SBool b)
+evalExpression _ (SInt n) = Just (SInt n)
+evalExpression _ (SBool b) = Just (SBool b)
 evalExpression env (SSymbol sym) = getValue env (SSymbol sym)
 evalExpression env (SList (SSymbol op : left : right : _))
     | op == "+"   = add (evalExpression env left) (evalExpression env right)
