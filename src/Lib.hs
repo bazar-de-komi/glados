@@ -4,7 +4,7 @@
 -- 2. Convert input into a single string.
 -- 3. Handle parentheses in Lisp-like expressions.
 
-module Lib (checkArgs, litostr, needParenthese, checkFlag, tailOf, whilegetline, checkparenthese, checkNotEnd, checkAllString) where
+module Lib (checkArgs, litostr, needParenthese, checkFlag, tailOf, whilegetline, checkparenthese, checkNotEnd, checkAllString, backToFile) where
 
 import System.IO
 import System.Environment
@@ -85,3 +85,7 @@ needParenthese [] = []
 needParenthese a
   | checkAllString a 0 = "(" ++ a ++ ")"
   | otherwise = a
+
+backToFile :: [String] -> String
+backToFile [] = ""
+backToFile (a:b) = a ++ "\n" ++ (backToFile b)

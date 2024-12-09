@@ -23,7 +23,3 @@ main = do
   case check of
     "OK" -> handleAST (parseAST (parseSExpr (needParenthese (litostr input))))
     _ -> putStrLn check
-
-backToFile :: [String] -> String
-backToFile [] = ""
-backToFile (a:b) = a ++ "\n" ++ (backToFile b)
