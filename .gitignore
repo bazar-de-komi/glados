@@ -1,1 +1,5 @@
 .stack-work
+glados
+glados.cabal
+glados-test.tix
+.hpc/*

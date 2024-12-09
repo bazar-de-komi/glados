@@ -1,25 +1,21 @@
+-- | Main module for the Glados project.
+-- This module handles the program entry point and orchestrates the parsing and processing of Lisp expressions.
 module Main (main) where
 
-import System.IO
-import Parser_LISP_SE.Parserlispsexp(parseSExpr)
-import StructureSE.StructureSE (SExpr(..))
+import Lib (checkArgs, litostr, needParenthese)
+import Parser.ParserLispSExp (parseSExpr)
+import Parser.ParserSExpAST (parseAST)
+import HandleAST.HandleAST (handleAST)
 
-whilegetline :: IO [String]
-whilegetline = do
-  isClosed <- isEOF
-  if isClosed
-    then return []
-    else do
-      player1 <- getLine
-      rest <- whilegetline
-      return (player1 : rest)
-
-litostr::[String] -> String
-litostr [] = ""
-litostr(a:b) = a ++ litostr b
-
+-- | The main function reads the input, processes it, and handles the AST.
+-- It performs the following steps:
+-- 1. Reads input from arguments or standard input.
+-- 2. Converts the input into a single string.
+-- 3. Ensures parentheses are balanced.
+-- 4. Parses the input into an S-expression.
+-- 5. Converts the S-expression into an abstract syntax tree (AST).
+-- 6. Processes the AST and prints the result.
 main :: IO ()
 main = do
-  input <- whilegetline
-  putStrLn $ "Résultat : "
-  print (parseSExpr(litostr input))
+  input <- checkArgs
+  handleAST (parseAST (parseSExpr (needParenthese (litostr input))))

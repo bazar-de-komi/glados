@@ -1,0 +1,5 @@
+(define tt 99)
+(define t2 1)
+(define t3 10)
+(define t4 100)
+(eq? (mod (div ((tt)) 9) (- (+ t4 t2) (* t3 2))) 11)
