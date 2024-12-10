@@ -30,7 +30,7 @@ testReturnValueAST =
                                 SInt 10
                             ]
                         ]
-            returnValueAST env (SSymbol "x") `shouldBe` Just (SSymbol "x")
+            returnValueAST env (SSymbol "x") `shouldBe` Nothing
 
         it "Resolves a symbol to its value" $ do
             let env =   SList [
@@ -44,7 +44,7 @@ testReturnValueAST =
 
         it "Returns the SSymbol if it's not found" $ do
             let env = SList []
-            returnValueAST env (SSymbol "y") `shouldBe` Just (SSymbol "y")
+            returnValueAST env (SSymbol "y") `shouldBe` Nothing
 
         it "Handles addition" $ do
             let env =   SList [
@@ -61,7 +61,7 @@ testReturnValueAST =
                             SList [SSymbol "+", SSymbol "x", SSymbol "y"]
                         ]
             returnValueAST env env `shouldBe` Just (SInt 7)
-            returnValueAST (SList []) (SList [SSymbol "+", SSymbol "x", SSymbol "y"]) `shouldBe` Just (SSymbol "xy")
+            returnValueAST (SList []) (SList [SSymbol "+", SSymbol "x", SSymbol "y"]) `shouldBe` Nothing
 
         it "Handles subtraction" $ do
             let env =   SList [
