@@ -56,7 +56,7 @@ To set up the project locally, ensure you have the following tools installed:
 - **Git** (or at least a local version of the repository): This will be used as the source for the tutorial
 - **ghci**: This will be used to create glados' executable
 
-### Local Deployment
+### Usage
 
 If you already have an instance of the repository on your computer you can skip step 1.
 
@@ -71,14 +71,16 @@ If you already have an instance of the repository on your computer you can skip 
 
 3. Create Glados executable:
 
-```make
-```
+    ```bash
+    make
+    ```
 
 4. Compile file:
 
-```./glados <file.scm> || nothing
-input scm code
-```
+    ```bash
+    ./glados <file.scm> || nothing
+    input scm code
+    ```
 
 5. Run program (part 2 of the project):
 
@@ -86,7 +88,8 @@ input scm code
 
 In order to run the tests for this projects we use the Makefile to run unit tests:
 
-```make test
+```bash
+make test
 make test-coverage
 ```
 
