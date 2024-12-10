@@ -86,6 +86,7 @@ needParenthese a
   | checkAllString a 0 = "(" ++ a ++ ")"
   | otherwise = a
 
+-- | return File in one string with \n
 backToFile :: [String] -> String
 backToFile [] = ""
 backToFile (a:b) = a ++ "\n" ++ (backToFile b)
