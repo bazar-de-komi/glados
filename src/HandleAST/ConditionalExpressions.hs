@@ -7,7 +7,8 @@
 module HandleAST.ConditionalExpressions (condExpress) where
 
 import HandleAST.Operators (eq, lt, add, subtractAST, multiply, divAST, modAST)
-import HandleAST.GetValue (getValue)
+import HandleAST.GetValue (getValue, getWithDefine)
+-- import HandleAST.HandleAST
 import Structure (AST(..))
 
 -- | Evaluates a conditional expression (`if`).
