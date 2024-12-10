@@ -1,7 +1,7 @@
 -- | Module for handling and evaluating Abstract Syntax Trees (ASTs).
 -- This module provides functions to process an `AST`, evaluate it, and return the result.
 
-module HandleAST.HandleAST (handleAST, returnValueAST, handleFunctions) where
+module HandleAST.HandleAST (handleAST, returnValueAST, handleFunctions, condExpress, evalCondition) where
 
 import Structure (AST(..))
 import HandleAST.GetValue (getValue, getWithDefine)
