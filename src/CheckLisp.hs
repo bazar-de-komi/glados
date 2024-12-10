@@ -38,15 +38,15 @@ whiteSpaceMode = reverse
 checkLisp' :: String -> String -> Int -> Int -> String
 checkLisp' "" _ 0 0 = "OK"
 checkLisp' "" _ _ 1 = "Warning: input miss 1 quote."
-checkLisp' "" _ p _ = "Warning: input miss " ++ show p ++ " parenthesis."
-
+checkLisp' "" _ p _
+    | p < 0 = "Warning: input got to many (" ++ show (-p) ++ ") parenthesis."
+    | otherwise = "Warning: input miss " ++ show p ++ " parenthesis."
 checkLisp' ('\n':xs) _ p q = checkLisp' xs "" p q
 checkLisp' ('\"':xs) str p 0 = checkLisp' xs str p 1
 checkLisp' ('\"':xs) str p 1 = checkLisp' xs str p 0
 checkLisp' (_:xs) str p 1 = checkLisp' xs str p 1
 checkLisp' ('(':xs) str p q = checkLisp' xs (str ++ "(") (p + 1) q
 checkLisp' (')':xs) str p q = checkLisp' xs (str ++ ")") (p - 1) q
-
 checkLisp' (x:"") str p q
     | isDigit x =
         let digits = reverse . takeWhile isDigit . reverse $ str
