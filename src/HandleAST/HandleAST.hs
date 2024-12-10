@@ -8,6 +8,7 @@ import HandleAST.GetValue (getValue, getWithDefine)
 import HandleAST.Operators (eq, lt, add, subtractAST, multiply, divAST, modAST)
 import HandleAST.FunctionsUtils (bindParameters, substituteBindings)
 import HandleAST.ConditionalExpressions (condExpress)
+import System.Exit (exitWith, ExitCode(..))
 
 -- | Evaluate an `AST` and return its value.
 --
@@ -108,7 +109,7 @@ delMaybeAST Nothing = SSymbol "ERROR no AST"
 -- ==== Parameters
 -- - `Maybe AST`: The input `AST` to handle. If `Nothing`, an error message is displayed.
 handleAST :: Maybe AST -> IO ()
-handleAST Nothing = putStrLn "ERROR: Failed to parse check your Lisp expression!"
+handleAST Nothing = putStrLn "ERROR: Failed to parse check your Lisp expression!" >> exitWith (ExitFailure 84)
 handleAST (Just a)
-    | returnValueAST a a /= Nothing = print (delMaybeAST (returnValueAST a a))
-    | otherwise = putStrLn "ERROR: Failed no return value!"
+    | returnValueAST a a /= Nothing = print (delMaybeAST (returnValueAST a a)) >> exitWith (ExitSuccess)
+    | otherwise = putStrLn "ERROR: Failed no return value!" >> exitWith (ExitFailure 84)
