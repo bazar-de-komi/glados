@@ -68,9 +68,9 @@ splitWords (a:b)
 parseSExpr :: String -> Maybe SExpr
 parseSExpr input =
   case unwords (words input) of
-    '(' : xs | last xs == ')' -> parseList (init xs)
+    '(' : xs | xs /= [] && last xs == ')' -> parseList (init xs)
     '(' : _ -> Nothing
-    '"' : xs | last xs == '"' -> Just $ Atom (init xs)
+    '"' : xs | xs /= [] && last xs == '"' -> Just $ Atom (init xs)
     '"' : _ -> Nothing
     x -> Just $ Atom x
   where
