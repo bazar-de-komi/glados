@@ -132,10 +132,10 @@ handleFunctions ast (SList [SSymbol "define", SSymbol _, SList [SSymbol "lambda"
     case bindParameters params values of
         Just bindings -> returnValueHandleFunction ast bindings body
         Nothing -> Nothing
-handleFunctions inast (SList [SSymbol "define", SList (SSymbol _ : params), body]) values =
-        case bindParameters (SList params) values of
-            Just bindings -> returnValueHandleFunction inast bindings body
-            Nothing -> Nothing
+handleFunctions ast (SList [SSymbol "define", SList (SSymbol _ : params), body]) values =
+    case bindParameters (SList params) values of
+        Just bindings -> returnValueHandleFunction ast bindings body
+        Nothing -> Nothing
 handleFunctions ast (SList [params, SList body]) values =
     case bindParameters params values of
         Just bindings -> returnValueHandleFunction ast bindings (SList body)
