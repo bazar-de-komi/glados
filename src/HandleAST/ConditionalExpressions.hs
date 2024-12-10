@@ -4,7 +4,7 @@
 -- 1. Evaluate conditional expressions using the `if` construct.
 -- 2. Process conditions and evaluate branches based on the truth value of the condition.
 
-module HandleAST.ConditionalExpressions (condExpress) where
+module HandleAST.ConditionalExpressions (condExpress, evalCondition, evalExpression) where
 
 import HandleAST.Operators (eq, lt, add, subtractAST, multiply, divAST, modAST)
 import HandleAST.GetValue (getValue)

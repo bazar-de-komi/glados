@@ -2,7 +2,7 @@ module CondExpressSpec (spec) where
 
 import Test.Hspec
 import Structure (AST(..))
-import HandleAST.ConditionalExpressions (condExpress)
+import HandleAST.ConditionalExpressions (condExpress, evalCondition, evalExpression)
 
 spec :: Spec
 spec = do
@@ -111,3 +111,70 @@ spec = do
             let env = SList []
             condExpress env (SList [SSymbol "invalid-op", SInt 5, SInt 10]) (SInt 100) [SInt 0]
                 `shouldBe` Nothing
+
+    describe "evalCondition" $ do
+        it "evaluates a boolean condition (true)" $ do
+            evalCondition (SList []) (SBool True) `shouldBe` Just (SBool True)
+
+        it "evaluates a boolean condition (false)" $ do
+            evalCondition (SList []) (SBool False) `shouldBe` Just (SBool False)
+
+        -- it "evaluates a symbol from the environment" $ do
+        --     let env = SList [SList [SSymbol "x", SBool True]]
+        --     evalCondition env (SSymbol "x") `shouldBe` Just (SBool True)
+
+        it "evaluates eq? operator (equal values)" $ do
+            evalCondition (SList []) (SList [SSymbol "eq?", SInt 5, SInt 5]) `shouldBe` Just (SBool True)
+
+        it "evaluates eq? operator (different values)" $ do
+            evalCondition (SList []) (SList [SSymbol "eq?", SInt 5, SInt 3]) `shouldBe` Just (SBool False)
+
+        it "evaluates < operator (true condition)" $ do
+            evalCondition (SList []) (SList [SSymbol "<", SInt 3, SInt 5]) `shouldBe` Just (SBool True)
+
+        it "evaluates < operator (false condition)" $ do
+            evalCondition (SList []) (SList [SSymbol "<", SInt 7, SInt 4]) `shouldBe` Just (SBool False)
+
+        it "evaluates > operator (true condition)" $ do
+            evalCondition (SList []) (SList [SSymbol ">", SInt 9, SInt 3]) `shouldBe` Just (SBool True)
+
+        it "evaluates > operator (false condition)" $ do
+            evalCondition (SList []) (SList [SSymbol ">", SInt 3, SInt 7]) `shouldBe` Just (SBool False)
+
+        it "returns Nothing for unknown operator" $ do
+            evalCondition (SList []) (SList [SSymbol "unknown", SInt 3, SInt 7]) `shouldBe` Nothing
+
+    describe "evalExpression" $ do
+        it "evaluates an integer" $ do
+            evalExpression (SList []) (SInt 42) `shouldBe` Just (SInt 42)
+
+        it "evaluates a boolean" $ do
+            evalExpression (SList []) (SBool False) `shouldBe` Just (SBool False)
+
+        -- it "evaluates a symbol from the environment" $ do
+        --     let env = SList [SList [SSymbol "x", SInt 100]]
+        --     evalExpression env (SSymbol "x") `shouldBe` Just (SInt 100)
+
+        it "evaluates addition" $ do
+            evalExpression (SList []) (SList [SSymbol "+", SInt 5, SInt 3]) `shouldBe` Just (SInt 8)
+
+        it "evaluates subtraction" $ do
+            evalExpression (SList []) (SList [SSymbol "-", SInt 10, SInt 3]) `shouldBe` Just (SInt 7)
+
+        it "evaluates multiplication" $ do
+            evalExpression (SList []) (SList [SSymbol "*", SInt 4, SInt 6]) `shouldBe` Just (SInt 24)
+
+        it "evaluates division" $ do
+            evalExpression (SList []) (SList [SSymbol "div", SInt 9, SInt 3]) `shouldBe` Just (SInt 3)
+
+        it "returns Nothing for division by zero" $ do
+            evalExpression (SList []) (SList [SSymbol "div", SInt 9, SInt 0]) `shouldBe` Nothing
+
+        it "evaluates modulo" $ do
+            evalExpression (SList []) (SList [SSymbol "mod", SInt 10, SInt 3]) `shouldBe` Just (SInt 1)
+
+        it "returns Nothing for modulo by zero" $ do
+            evalExpression (SList []) (SList [SSymbol "mod", SInt 10, SInt 0]) `shouldBe` Nothing
+
+        it "returns Nothing for unknown operator" $ do
+            evalExpression (SList []) (SList [SSymbol "unknown", SInt 3, SInt 7]) `shouldBe` Nothing
