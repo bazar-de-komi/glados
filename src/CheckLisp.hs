@@ -1,7 +1,14 @@
-module CheckLisp (checkLisp) where
+module CheckLisp (checkLisp, whiteSpaceMode, checkLisp', checkNumber, getWholeLine) where
 
 import Data.Char (isDigit, digitToInt)
 
+-- | Check if Lisp is Valid and can be parsed into an `SExpr`.
+--
+-- ==== Parameters
+-- - `String`: The input from Main.
+--
+-- ==== Returns
+-- A `String` which is "OK" if the input is Lisp, or an error message.
 checkLisp :: String -> String
 checkLisp str =
     let array = whiteSpaceMode str
@@ -9,12 +16,25 @@ checkLisp str =
         "" -> "Warning: input is empty."
         _ -> checkLisp' array "" 0 0
 
+-- | Remove whitespace from a `String`.
+--
+-- This function removes the input's `String` side spaces and line jump.
 whiteSpaceMode :: String -> String
 whiteSpaceMode = reverse
                 . dropWhile (\c -> c == ' ' || c == '\n')
                 . reverse
                 . dropWhile (\c -> c == ' ' || c == '\n')
 
+-- | Continuation of checkLisp with necessary parameters.
+--
+-- ==== Parameters
+-- - `String`: The input from Main.
+-- - `String`: an empty `String` to save what is already read (for checkNumber)
+-- - `Int`: check the number of parenthesis opened and closed
+-- - `Int`: check the number of quotes
+--
+-- ==== Returns
+-- A `String` which is "OK" if the input is Lisp, or an error message.
 checkLisp' :: String -> String -> Int -> Int -> String
 checkLisp' "" _ 0 0 = "OK"
 checkLisp' "" _ _ 1 = "Warning: input miss 1 quote."
@@ -49,6 +69,15 @@ checkLisp' (x:y:xs) str p q
                 in "Warning: too long int at line:\n" ++ errorLine
     | otherwise = checkLisp' (y:xs) (str ++ [x]) p q
 
+-- | Check if too big for Haskell.
+--
+-- ==== Parameters
+-- - `String`: The line containing the number.
+-- - `Int`: 0 to save the value of the number being read
+--
+-- ==== Returns
+-- True or Flase if number is too big or not,
+-- and the rest of the string after the number is read.
 checkNumber :: String -> Int -> (String, Bool)
 checkNumber (x:xs) number
     | isDigit x =
@@ -59,6 +88,14 @@ checkNumber (x:xs) number
     | otherwise = (x:xs, True)
 checkNumber [] _ = ([], True)
 
+-- | Get a line from both side of the line.
+--
+-- ==== Parameters
+-- - `String`: The left side of the line.
+-- - `String`: The right side of the line.
+--
+-- ==== Returns
+-- The fused `String` forming the line.
 getWholeLine :: String -> String -> String
 getWholeLine str xs =
     let before = reverse . takeWhile (/= '\n') . reverse $ str
