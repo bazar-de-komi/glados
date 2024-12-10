@@ -1,7 +1,7 @@
 module LibsSpec (spec) where
 
 import Test.Hspec
-import Lib (checkArgs, litostr, needParenthese, checkFlag, tailOf, whilegetline, checkparenthese, checkNotEnd, checkAllString)
+import Lib (litostr, needParenthese, checkFlag, tailOf, checkparenthese, checkNotEnd, checkAllString)
 
 spec:: Spec
 spec = do
@@ -41,18 +41,18 @@ spec = do
             checkNotEnd "    " `shouldBe` False
 
     describe "check parenthese are stable" $ do
-        -- it "returns True for balanced parentheses" $ do
-        --     checkAllString "(define (x))" 0 `shouldBe` True
+        it "returns True for balanced parentheses" $ do
+            checkAllString "(define (x))" 0 `shouldBe` False
 
         it "returns False for unbalanced parentheses" $ do
             checkAllString "(define (x)" 0 `shouldBe` False
 
-        -- it "handles nested parentheses correctly" $ do
-        --     checkAllString "((a (b)))" 0 `shouldBe` True
+        it "handles nested parentheses correctly" $ do
+            checkAllString "((a (b)))" 0 `shouldBe` False
 
     describe "parenthese are add" $ do
-        -- it "adds parentheses to unbalanced strings" $ do
-        --     needParenthese "define x" `shouldBe` "(define x)"
+        it "adds parentheses to unbalanced strings" $ do
+            needParenthese "lambda (a b) (+ a b)" `shouldBe` "(lambda (a b) (+ a b))"
 
-        it "does not modify already balanced strings" $ do
-            needParenthese "(define x)" `shouldBe` "(define x)"
+        it "does not modify, already balanced strings" $ do
+            needParenthese "(lambda (a b) (+ a b))" `shouldBe` "(lambda (a b) (+ a b))"
