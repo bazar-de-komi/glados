@@ -1,12 +1,64 @@
 -- | Module for handling and evaluating Abstract Syntax Trees (ASTs).
 -- This module provides functions to process an `AST`, evaluate it, and return the result.
 
-module HandleAST.HandleAST (handleAST, returnValueAST, handleFunctions) where
+module HandleAST.HandleAST (handleAST, returnValueAST, handleFunctions, condExpress, evalCondition) where
 
 import Structure (AST(..))
 import HandleAST.GetValue (getValue, getWithDefine)
 import HandleAST.Operators (eq, lt, add, subtractAST, multiply, divAST, modAST)
 import HandleAST.FunctionsUtils (bindParameters, substituteBindings)
+import System.Exit (exitWith, ExitCode(..))
+
+
+-- | Evaluates a conditional expression (`if`).
+--
+-- This function processes an `if` expression in the form:
+-- @
+-- (if <CONDITION> <THEN_EXPR> <ELSE_EXPR>)
+-- @
+-- - It evaluates the condition (`cond`).
+-- - If the condition evaluates to `True`, it evaluates and returns the `thenExpr`.
+-- - Otherwise, it evaluates and returns the first element of `elseExpr`.
+--
+-- ==== Parameters
+-- - `AST`: The environment in which to resolve variables or evaluate expressions.
+-- - `AST`: The condition to evaluate (`cond`).
+-- - `AST`: The expression to evaluate if the condition is `True` (`thenExpr`).
+-- - `[AST]`: The list of expressions to evaluate if the condition is `False`. Only the first element is considered.
+--
+-- ==== Returns
+-- - `Maybe AST`: The result of evaluating `thenExpr` or `elseExpr`, or `Nothing` if the evaluation fails.
+condExpress :: AST -> AST -> AST -> [AST] -> Maybe AST
+condExpress env cond thenExpr (elseExpr:_) =
+    case evalCondition env cond of
+        Just (SBool True)  -> returnValueAST env thenExpr
+        Just (SBool False) -> returnValueAST env elseExpr
+        _                  -> Nothing
+condExpress _ _ _ [] = Nothing
+
+-- | Evaluates a condition.
+--
+-- This function processes the condition part of an `if` expression.
+-- Conditions can be:
+-- - Booleans (e.g., `#t`, `#f`).
+-- - Symbols resolved using the environment.
+-- - Comparisons (e.g., `<`, `>`, `eq?`) applied to sub-expressions.
+--
+-- ==== Parameters
+-- - `AST`: The environment for resolving symbols.
+-- - `AST`: The condition expression to evaluate.
+--
+-- ==== Returns
+-- - `Maybe AST`: A boolean result (`SBool True` or `SBool False`), or `Nothing` if the evaluation fails.
+evalCondition :: AST -> AST -> Maybe AST
+evalCondition _ (SBool b) = Just (SBool b)
+evalCondition env (SSymbol sym) = getValue env (SSymbol sym)
+evalCondition env (SList a) =
+    case returnValueAST env (SList a) of
+        Just (SBool True)  -> Just (SBool True)
+        Just (SBool False) -> Just (SBool False)
+        _ -> Nothing
+evalCondition _ _ = Nothing
 
 -- | Evaluate an `AST` and return its value.
 --
@@ -40,8 +92,12 @@ returnValueAST inast (SList (SSymbol a : b : c : d))
     | a == ">" = lt (returnValueAST inast c) (returnValueAST inast b)
     | a == "eq?" = eq (returnValueAST inast b) (returnValueAST inast c)
     | a == "mod" = modAST (returnValueAST inast b) (returnValueAST inast c)
+    | a == "if" = condExpress inast b c d
     | otherwise = case getWithDefine inast (SSymbol a) of
                     Just body -> handleFunctions inast body (SList (b : c : d))
+                    Nothing   -> Nothing
+returnValueAST inast (SList (SSymbol a : b : c)) = case getWithDefine inast (SSymbol a) of
+                    Just body -> handleFunctions inast body (SList (b : c))
                     Nothing   -> Nothing
 returnValueAST _ (SList (_ : _ : _)) = Nothing
 returnValueAST inast (SList (a : _)) = returnValueAST inast a
@@ -76,10 +132,10 @@ handleFunctions ast (SList [SSymbol "define", SSymbol _, SList [SSymbol "lambda"
     case bindParameters params values of
         Just bindings -> returnValueHandleFunction ast bindings body
         Nothing -> Nothing
-handleFunctions inast (SList [SSymbol "define", SList (SSymbol _ : params), body]) values =
-        case bindParameters (SList params) values of
-            Just bindings -> returnValueHandleFunction inast bindings body
-            Nothing -> Nothing
+handleFunctions ast (SList [SSymbol "define", SList (SSymbol _ : params), body]) values =
+    case bindParameters (SList params) values of
+        Just bindings -> returnValueHandleFunction ast bindings body
+        Nothing -> Nothing
 handleFunctions ast (SList [params, SList body]) values =
     case bindParameters params values of
         Just bindings -> returnValueHandleFunction ast bindings (SList body)
@@ -106,7 +162,7 @@ delMaybeAST Nothing = SSymbol "ERROR no AST"
 -- ==== Parameters
 -- - `Maybe AST`: The input `AST` to handle. If `Nothing`, an error message is displayed.
 handleAST :: Maybe AST -> IO ()
-handleAST Nothing = putStrLn "ERROR: Failed to parse check your Lisp expression!"
+handleAST Nothing = putStrLn "ERROR: Failed to parse check your Lisp expression!" >> exitWith (ExitFailure 84)
 handleAST (Just a)
-    | returnValueAST a a /= Nothing = print (delMaybeAST (returnValueAST a a))
-    | otherwise = putStrLn "ERROR: Failed no return value!"
+    | returnValueAST a a /= Nothing = print (delMaybeAST (returnValueAST a a)) >> exitWith (ExitSuccess)
+    | otherwise = putStrLn "ERROR: Failed no return value!" >> exitWith (ExitFailure 84)

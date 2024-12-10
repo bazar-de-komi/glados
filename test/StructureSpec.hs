@@ -8,6 +8,8 @@ spec = do
     describe "Structure SExpress - Basic Test" $ do
         it "should show Atom correctly" $ do
             show (Atom "x") `shouldBe` "x"
+            show (Atom "42") `shouldBe` "42"
+            show (Atom "#t") `shouldBe` "#t"
 
         it "compare two equal atomic SExpr values" $ do
             Atom "x" `shouldBe` Atom "x"
@@ -68,9 +70,11 @@ spec = do
 
         it "shows an int AST value" $ do
             show (SInt 42) `shouldBe` "42"
+            show (SInt 0) `shouldBe` "0"
 
         it "shows a symbolic AST value" $ do
             show (SSymbol "foo") `shouldBe` "foo"
+            show (SSymbol "bar") `shouldBe` "bar"
 
         it "shows a boolean AST value (True)" $ do
             show (SBool True) `shouldBe` "#t"
@@ -107,3 +111,23 @@ spec = do
 
         it "compares two deeply nested AST values" $ do
             SList [SInt 1, SList [SSymbol "foo", SBool True]] `shouldBe` SList [SInt 1, SList [SSymbol "foo", SBool True]]
+
+        it "shows a List of AST nodes correctly" $ do
+            show (SList [SInt 1, SInt 2, SInt 3]) `shouldBe` "(1 2 3)"
+            show (SList [SSymbol "+", SInt 1, SInt 2]) `shouldBe` "(+ 1 2)"
+        
+        it "shows a nested SList correctly" $ do
+            show (
+                SList 
+                    [SSymbol "+", SInt 1, SList 
+                        [SSymbol "*", SInt 2, SInt 3]
+                    ]
+                ) `shouldBe` "(+ 1 (* 2 3))"
+        
+        it "shows a List of AST nodes correctly" $ do
+            show (SList [SInt 1, SInt 2, SInt 3]) `shouldBe` "(1 2 3)"
+            show (SList [SSymbol "+", SInt 1, SInt 2]) `shouldBe` "(+ 1 2)"
+        
+        it "shows a nested SList correctly" $ do
+            show (SList [SSymbol "+", SInt 1, SList [SSymbol "*", SInt 2, SInt 3]]) 
+                `shouldBe` "(+ 1 (* 2 3))"
