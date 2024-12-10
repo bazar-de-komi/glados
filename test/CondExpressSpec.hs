@@ -2,7 +2,7 @@ module CondExpressSpec (spec) where
 
 import Test.Hspec
 import Structure (AST(..))
-import HandleAST.ConditionalExpressions (condExpress, evalCondition, evalExpression)
+import HandleAST.HandleAST (condExpress, evalCondition)
 
 spec :: Spec
 spec = do
@@ -143,38 +143,3 @@ spec = do
 
         it "returns Nothing for unknown operator" $ do
             evalCondition (SList []) (SList [SSymbol "unknown", SInt 3, SInt 7]) `shouldBe` Nothing
-
-    describe "evalExpression" $ do
-        it "evaluates an integer" $ do
-            evalExpression (SList []) (SInt 42) `shouldBe` Just (SInt 42)
-
-        it "evaluates a boolean" $ do
-            evalExpression (SList []) (SBool False) `shouldBe` Just (SBool False)
-
-        -- it "evaluates a symbol from the environment" $ do
-        --     let env = SList [SList [SSymbol "x", SInt 100]]
-        --     evalExpression env (SSymbol "x") `shouldBe` Just (SInt 100)
-
-        it "evaluates addition" $ do
-            evalExpression (SList []) (SList [SSymbol "+", SInt 5, SInt 3]) `shouldBe` Just (SInt 8)
-
-        it "evaluates subtraction" $ do
-            evalExpression (SList []) (SList [SSymbol "-", SInt 10, SInt 3]) `shouldBe` Just (SInt 7)
-
-        it "evaluates multiplication" $ do
-            evalExpression (SList []) (SList [SSymbol "*", SInt 4, SInt 6]) `shouldBe` Just (SInt 24)
-
-        it "evaluates division" $ do
-            evalExpression (SList []) (SList [SSymbol "div", SInt 9, SInt 3]) `shouldBe` Just (SInt 3)
-
-        it "returns Nothing for division by zero" $ do
-            evalExpression (SList []) (SList [SSymbol "div", SInt 9, SInt 0]) `shouldBe` Nothing
-
-        it "evaluates modulo" $ do
-            evalExpression (SList []) (SList [SSymbol "mod", SInt 10, SInt 3]) `shouldBe` Just (SInt 1)
-
-        it "returns Nothing for modulo by zero" $ do
-            evalExpression (SList []) (SList [SSymbol "mod", SInt 10, SInt 0]) `shouldBe` Nothing
-
-        it "returns Nothing for unknown operator" $ do
-            evalExpression (SList []) (SList [SSymbol "unknown", SInt 3, SInt 7]) `shouldBe` Nothing
