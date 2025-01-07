@@ -34,3 +34,28 @@ spec = do
         expectedTestFile <- readFile expectedTestFile
 
         T.unpack (T.strip (T.pack output)) `shouldBe` T.unpack (T.strip (T.pack expectedTestFile))
+
+      -- it "handles invalid input gracefully" $ do
+      --       let inputFile = "functionalTest/inputs/invalid.scm"
+      --       let expectedFile = "functionalTest/expected/invalid.out"
+
+      --       (_, output, _) <- runTest inputFile
+      --       expectedOutput <- readFile expectedFile
+      --       T.unpack (T.strip (T.pack output)) `shouldBe` T.unpack (T.strip (T.pack expectedOutput))
+
+    describe "Functional Tests: Complex expressions" $ do
+        it "handles nested conditional expressions (nested_if.scm)" $ do
+            let inputFile = "functionalTest/inputs/nested_if.scm"
+            let expectedFile = "functionalTest/expected/nested_if.out"
+
+            (_, output, _) <- runTest inputFile
+            expectedOutput <- readFile expectedFile
+            T.unpack (T.strip (T.pack output)) `shouldBe` T.unpack (T.strip (T.pack expectedOutput))
+
+        it "handles multiple arithmetic operations (arithmetic.scm)" $ do
+            let inputFile = "functionalTest/inputs/arithmetic.scm"
+            let expectedFile = "functionalTest/expected/arithmetic.out"
+
+            (_, output, _) <- runTest inputFile
+            expectedOutput <- readFile expectedFile
+            T.unpack (T.strip (T.pack output)) `shouldBe` T.unpack (T.strip (T.pack expectedOutput))
