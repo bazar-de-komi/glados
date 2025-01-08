@@ -31,6 +31,12 @@ unit-tests:
 functional-tests:
 	$(STACK)	test :glados-functional-test
 
+test-functional:
+	$(MAKE) functional-tests
+
+test-unit:
+	$(MAKE) unit-tests
+
 test-coverage:	clean
 	$(STACK) test --coverage
 	@echo "Coverage report generated. Check HTML files in the coverage directory."
@@ -54,4 +60,4 @@ re:	fclean	all
 docs:
 	$(STACK) haddock
 
-.PHONY:	re	all	clean	fclean	docs	test	retest	test-coverage	unit-tests	functional-tests
+.PHONY:	re	all	clean	fclean	docs	test	retest	test-coverage	unit-tests	functional-tests	test-functional	test-unit	
