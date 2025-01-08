@@ -28,8 +28,9 @@ test:	unit-tests	functional-tests
 unit-tests:
 	$(STACK)	test :glados-test
 
-functional-tests:
+functional-tests: all
 	$(STACK)	test :glados-functional-test
+	$(MAKE) clean
 
 test-functional:
 	$(MAKE) functional-tests
