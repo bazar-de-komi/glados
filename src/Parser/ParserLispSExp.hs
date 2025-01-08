@@ -3,10 +3,75 @@
 -- 1. Parse a string into an `SExpr` data structure.
 -- 2. Split strings into meaningful components like atoms and lists.
 
-module Parser.ParserLispSExp (parseSExpr, takefstlist, removefstlist, splitWords) where
+module Parser.ParserLispSExp (parseSExpr, takefstlist, removefstlist, splitWords, pProgram) where
 
 import Structure (SExpr(..))
 import Data.Maybe (mapMaybe)
+import Text.Megaparsec
+import Text.Megaparsec.Char
+import Data.Void (Void)
+import Data.Char (isSpace)
+import Control.Monad (void)
+import qualified Text.Megaparsec.Char.Lexer as L
+
+import Debug.Trace (trace)
+
+data MyError =
+    LexicalError String
+  | SyntaxError String
+  | SemanticError String
+  deriving (Eq, Ord, Show)
+
+type MyParser = Parsec Void String
+
+noSpaceForNew :: MyParser ()
+noSpaceForNew = L.space
+        space1                     -- consomme espace, '\n' et tab
+        (L.skipBlockComment "<--" "-->") -- exemple : commentaire multiligne
+        (L.skipLineComment "<-")         -- exemple : commentaire monoligne
+
+noSpace :: MyParser ()
+noSpace = L.space
+        (void $ some (oneOf " \t"))                     -- consomme espace et tab
+        (L.skipBlockComment "<--" "-->") -- exemple : commentaire multiligne
+        (L.skipLineComment "<-")         -- exemple : commentaire monoligne
+
+clean :: MyParser a -> MyParser a
+clean p = p <* noSpace
+
+parsInt :: MyParser Int
+parsInt = clean $ L.decimal
+
+parseString :: MyParser String
+parseString = clean $ ("#@" <>) <$> (string "#@" *> manyTill anySingle (lookAhead (char '#')) <* char '#')
+
+parseAtom :: MyParser String
+parseAtom = clean $ do
+  content <- some (noneOf (" \t\n\r")) <* optional (try (char '\n' <* notFollowedBy (char '\n')))
+  trace (content ++ "ça reprend ici") $ return ()
+  return content
+pExpr :: MyParser SExpr
+pExpr = clean $ choice
+      [ SEInt <$> parsInt
+      , Atom  <$> parseString
+      , Atom  <$> parseAtom
+      ]
+
+pList :: MyParser SExpr
+pList = List <$> some pExpr
+
+pEmptyGroup :: MyParser SExpr
+pEmptyGroup = return (List [])
+
+pNonEmptyGroup :: MyParser SExpr
+pNonEmptyGroup = noSpaceForNew *> choice [pList, pEmptyGroup]
+
+pGroupedExpr :: MyParser SExpr
+pGroupedExpr =
+    List <$> (sepBy1 pNonEmptyGroup (string "\n\n") <* skipMany (char '\n'))
+
+pProgram :: MyParser SExpr
+pProgram = pGroupedExpr <* eof
 
 -- | Extracts the first list (or group) from a string.
 --

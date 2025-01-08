@@ -1,0 +1,44 @@
+<-- coucou
+commentaire
+sur plusieurs lignes -->
+
+<- juste sur une ligne >
+
+coucou : int (9)
+
+carre : int [int (a)] result a * a
+
+structure : test (
+    nomentier : int
+    nomchar : char(#p)
+    list : str {#@coucou# | #@ prout#}
+)
+
+test.nomentier : int (12)
+
+test.list.ajout : str {#@ prout encore#}
+
+addition : int [int (a b)]
+    result a + b
+
+addition : float [float (a b)]
+    result a + b
+
+square : int [int (z)]
+    result z * z
+
+max : int [int (a) int (b)]
+    si a > b
+        result a
+    sinon
+        result b
+
+recherche : bool [str (bob) char (c)]
+    si bob == #@#
+        result False
+    si bob{0} == c
+        result True
+    sinon
+        result recherche str(bob + 1) c
+
+resultat : int (addition 3 5) + test.nomentier

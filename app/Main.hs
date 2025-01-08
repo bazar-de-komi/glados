@@ -3,7 +3,8 @@
 module Main (main) where
 
 import Lib (checkArgs, litostr, needParenthese, backToFile)
-import Parser.ParserLispSExp (parseSExpr)
+import Parser.ParserLispSExp (parseSExpr, pProgram)
+import Text.Megaparsec
 import Parser.ParserSExpAST (parseAST)
 import HandleAST.HandleAST (handleAST)
 import CheckLisp (checkLisp)
@@ -20,7 +21,8 @@ import System.Exit (exitWith, ExitCode(..))
 main :: IO ()
 main = do
   input <- checkArgs
-  let check = checkLisp (backToFile (input))
-  case check of
-    "OK" -> handleAST (parseAST (parseSExpr (needParenthese (litostr input))))
-    _ -> putStrLn check >> exitWith (ExitFailure 84)
+  putStrLn ("FILE CONTENT: " ++ (litostr input))
+  let result = parse pProgram "Input" (litostr input)
+  case result of
+    Left err -> putStrLn (errorBundlePretty err)
+    Right expr -> putStrLn "good" >> print expr

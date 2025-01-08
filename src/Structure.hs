@@ -10,15 +10,16 @@ module Structure (SExpr(..), AST(..)) where
 -- - `Atom`: A single atomic value represented as a string.
 -- - `List`: A list of other S-expressions.
 data SExpr =
-    Atom String    -- ^ An atomic value (e.g., a symbol or a number).
+    Atom String    -- ^ An atomic value (e.g., a string).
+  | SEInt Int      -- ^ An atomic value (e.g., a number).
   | List [SExpr]   -- ^ A list of S-expressions.
-  deriving (Eq)
+  deriving (Eq, Show)
 
 -- | Custom `Show` instance for `SExpr`.
 -- Converts an `SExpr` into a human-readable string representation.
-instance Show SExpr where
-    show (Atom str) = str
-    show (List xs)  = "(" ++ unwords (map show xs) ++ ")"
+--instance Show SExpr where
+--    show (Atom str) = str
+--    show (List xs)  = "(" ++ unwords (map show xs) ++ ")"
 
 -- | Represents an Abstract Syntax Tree (AST).
 -- The AST supports:
