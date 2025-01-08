@@ -31,17 +31,17 @@ spec = do
         let expectedTestFile = "functionalTest/expected/addition.out"
   
         (_, output, _) <- runTest addTestFile
-        expectedTestFile <- readFile expectedTestFile
+        expectedContent <- readFile expectedTestFile
 
-        T.unpack (T.strip (T.pack output)) `shouldBe` T.unpack (T.strip (T.pack expectedTestFile))
+        T.unpack (T.strip (T.pack output)) `shouldBe` T.unpack (T.strip (T.pack expectedContent))
 
-      -- it "handles invalid input gracefully" $ do
-      --       let inputFile = "functionalTest/inputs/invalid.scm"
-      --       let expectedFile = "functionalTest/expected/invalid.out"
+      it "handles invalid input gracefully" $ do
+            let inputFile = "functionalTest/inputs/invalid.scm"
+            let expectedFile = "functionalTest/expected/invalid.out"
 
-      --       (_, output, _) <- runTest inputFile
-      --       expectedOutput <- readFile expectedFile
-      --       T.unpack (T.strip (T.pack output)) `shouldBe` T.unpack (T.strip (T.pack expectedOutput))
+            (_, output, _) <- runTest inputFile
+            expectedOutput <- readFile expectedFile
+            T.unpack (T.strip (T.pack output)) `shouldBe` T.unpack (T.strip (T.pack expectedOutput))
 
     describe "Functional Tests: Complex expressions" $ do
         it "handles nested conditional expressions (nested_if.scm)" $ do
