@@ -10,11 +10,8 @@ import Data.Maybe (mapMaybe)
 import Text.Megaparsec
 import Text.Megaparsec.Char
 import Data.Void (Void)
-import Data.Char (isSpace)
 import Control.Monad (void)
 import qualified Text.Megaparsec.Char.Lexer as L
-
-import Debug.Trace (trace)
 
 data MyError =
     LexicalError String
@@ -26,36 +23,36 @@ type MyParser = Parsec Void String
 
 noSpaceForNew :: MyParser ()
 noSpaceForNew = L.space
-        space1                     -- consomme espace, '\n' et tab
-        (L.skipBlockComment "<--" "-->") -- exemple : commentaire multiligne
-        (L.skipLineComment "<-")         -- exemple : commentaire monoligne
+  space1
+  (L.skipBlockComment "<--" "-->")
+  (L.skipLineComment "<-")
 
 noSpace :: MyParser ()
 noSpace = L.space
-        (void $ some (oneOf " \t"))                     -- consomme espace et tab
-        (L.skipBlockComment "<--" "-->") -- exemple : commentaire multiligne
-        (L.skipLineComment "<-")         -- exemple : commentaire monoligne
-
-clean :: MyParser a -> MyParser a
-clean p = p <* noSpace
+  (void $ some (oneOf " \t"))
+  (L.skipBlockComment "<--" "-->")
+  (L.skipLineComment "<-")
 
 parsInt :: MyParser Int
-parsInt = clean $ L.decimal
+parsInt = L.decimal
 
 parseString :: MyParser String
-parseString = clean $ ("#@" <>) <$> (string "#@" *> manyTill anySingle (lookAhead (char '#')) <* char '#')
+parseString = ("#@" <>) <$> (
+  string "#@"
+  *> manyTill anySingle (lookAhead (char '#'))
+  <* char '#')
 
 parseAtom :: MyParser String
-parseAtom = clean $ do
-  content <- some (noneOf (" \t\n\r")) <* optional (try (char '\n' <* notFollowedBy (char '\n')))
-  trace (content ++ "ça reprend ici") $ return ()
-  return content
+parseAtom = optional (try (char '\n' <* notFollowedBy (char '\n')))
+  *> optional (void $ many (oneOf " \t"))
+  *> some (noneOf (" \t\n\r"))
+
 pExpr :: MyParser SExpr
-pExpr = clean $ choice
-      [ SEInt <$> parsInt
-      , Atom  <$> parseString
-      , Atom  <$> parseAtom
-      ]
+pExpr = choice
+  [ SEInt <$> parsInt
+  , Atom  <$> parseString
+  , Atom  <$> parseAtom
+  ] <* noSpace
 
 pList :: MyParser SExpr
 pList = List <$> some pExpr
@@ -67,8 +64,10 @@ pNonEmptyGroup :: MyParser SExpr
 pNonEmptyGroup = noSpaceForNew *> choice [pList, pEmptyGroup]
 
 pGroupedExpr :: MyParser SExpr
-pGroupedExpr =
-    List <$> (sepBy1 pNonEmptyGroup (string "\n\n") <* skipMany (char '\n'))
+pGroupedExpr = List <$> (
+  sepBy1 pNonEmptyGroup (string "\n\n")
+  <* skipMany (char '\n')
+  )
 
 pProgram :: MyParser SExpr
 pProgram = pGroupedExpr <* eof
