@@ -7,3 +7,4 @@ scm_files/**
 ChezScheme-10.1.0/**
 csv10.1.0/**
 .hpc/*
+*.txt
