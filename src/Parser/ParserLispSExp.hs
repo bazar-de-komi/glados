@@ -31,42 +31,83 @@ noSpaceForNew = L.space
 --   It also skips block and line comments.
 noSpace :: MyParser ()
 noSpace = L.space
-  (void $ some (oneOf " \t"))       -- ^ Consumes spaces and tabs only.
+  (void $ some (oneOf " \t"))        -- ^ Consumes spaces and tabs only.
   (L.skipBlockComment "<--" "-->")  -- ^ Skips block comments of the form `<-- ... -->`.
   (L.skipLineComment "<-")          -- ^ Skips single-line comments starting with `<-`.
 
--- | Parser for an integer value.
---   Consumes digits.
+noUselessN :: MyParser ()
+noUselessN = void $ optional (try (char '\n' <* notFollowedBy (char '\n')))
+
 parsInt :: MyParser Int
-parsInt = L.decimal
+parsInt = try $ L.signed (return ()) L.decimal
 
--- | Parser for a custom string enclosed between `#@` and `#`.
---   Example: `#@hello world#` will be parsed as `#@hello world`.
+parsFloat :: MyParser Float
+parsFloat = try $ L.signed (return ()) L.float <* notFollowedBy letterChar
+
 parseString :: MyParser String
-parseString = ("#@" <>) <$> (
-  string "#@"                                  -- ^ Consumes the `#@` prefix.
-  *> manyTill anySingle (lookAhead (char '#')) -- ^ Parses content until the next `#` is encountered.
-  <* char '#'                                  -- ^ Consumes the ending `#`.
-  )
+parseString = string "#@" *> manyTill anySingle (lookAhead (char '#')) <* char '#'
 
--- | Parser for an atom, which is a sequence of non-whitespace characters.
---   Ignores a single newline if present before the atom and consumes any trailing spaces.
---   Example: `abc`, `:`, `(x)` are all valid atoms.
+parseType :: MyParser String
+parseType = try $ choice
+  [ string "int" <* lookAhead (char ' ')
+  , string "str" <* lookAhead (char ' ')
+  , string "float" <* lookAhead (char ' ')
+  , string "bool" <* lookAhead (char ' ')
+  , string "char" <* lookAhead (char ' ')
+  ]
+
+parseBasicFunc :: MyParser String
+parseBasicFunc = some (oneOf ":|/+-*=")
+
+parseBool :: MyParser String
+parseBool = choice
+  [ string "True"
+  , string "False"
+  ]
+
+parseParam :: MyParser SExpr
+parseParam = do
+  _ <- char '[' <* noSpace
+  content <- Param <$> some pExpr
+  _ <- char ']' <* noSpace <* noUselessN
+  return content
+
+parseList :: MyParser SExpr
+parseList = do
+  _ <- char '(' <* noSpace
+  content <- List <$> some pExpr
+  _ <- char ')' <* noSpace <* noUselessN
+  return content
+
+parseSEList :: MyParser SExpr
+parseSEList = do
+  _ <- char '{' <* noSpace
+  content <- SEList <$> some pExpr
+  _ <- char '}' <* noSpace <* noUselessN
+  return content
+
+parsChar :: MyParser Char
+parsChar = do
+  _ <- char '#'
+  content <- anySingle
+  return content
+
 parseAtom :: MyParser String
-parseAtom = optional (try (char '\n' <* notFollowedBy (char '\n'))) -- ^ Optionally consume a single newline if not part of `\n\n`.
-  *> optional (void $ many (oneOf " \t"))                           -- ^ Optionally consume spaces or tabs after a newline.
-  *> some (noneOf (" \t\n\r"))                                      -- ^ Parses the atom content until whitespace or control characters are found.
+parseAtom = noUselessN *> optional (noSpace) *> some (noneOf (" \t\n\r{([])}"))
 
--- | Main parser for a single S-expression.
---   An S-expression can be one of the following:
---   1. An integer (`SEInt`).
---   2. A custom string enclosed by `#@` and `#`.
---   3. A generic atom (e.g., `abc`, `:`).
 pExpr :: MyParser SExpr
 pExpr = choice
-  [ SEInt <$> parsInt           -- ^ Parses an integer as `SEInt`.
-  , Atom  <$> parseString       -- ^ Parses a custom string as `Atom`.
-  , Atom  <$> parseAtom         -- ^ Parses a generic atom as `Atom`.
+  [ SEFloat  <$> parsFloat
+  , SEInt <$> parsInt
+  , SEString  <$> parseString
+  , SEChar <$> parsChar
+  , Type  <$> parseType
+  , BasicFunc  <$> parseBasicFunc
+  , Boolean <$> parseBool
+  , parseParam
+  , parseList
+  , parseSEList
+  , Atom  <$> parseAtom
   ] <* noSpace
 
 -- | Parser for a list of one or more S-expressions.

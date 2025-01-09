@@ -4,6 +4,7 @@ module Main (main) where
 
 import Lib (checkArgs, litostr)
 import Parser.ParserLispSExp (pProgram)
+import Parser.ParserSExpAST (noMaybeParseAST)
 import System.Exit (exitWith, ExitCode(..))
 import Text.Megaparsec
 

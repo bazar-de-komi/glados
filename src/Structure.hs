@@ -10,42 +10,51 @@ module Structure (SExpr(..), AST(..)) where
 -- - `Atom`: A single atomic value represented as a string.
 -- - `List`: A list of other S-expressions.
 data SExpr =
-    Atom String    -- ^ An atomic value (e.g., a string).
-  | SEInt Int      -- ^ An atomic value (e.g., a number).
-  | List [SExpr]   -- ^ A list of S-expressions.
+    Atom String
+  | SEInt Int
+  | SEChar Char
+  | SEString String
+  | SEFloat Float
+  | Boolean String
+  | Type String
+  | BasicFunc String
+  | Param [SExpr]
+  | SEList [SExpr]
+  | List [SExpr]
   deriving (Eq, Show)
 
--- | Custom `Show` instance for `SExpr`.
--- Converts an `SExpr` into a human-readable string representation.
---instance Show SExpr where
---    show (Atom str) = str
---    show (List xs)  = "(" ++ unwords (map show xs) ++ ")"
+-- | Represents an Abstract Syntax Tree (AST) for a Lisp-like programming language.
+--
+-- The AST supports various constructs, including:
+--
+-- - `SBool`: Represents a generic boolean value (`True` or `False`).
+-- - `SFloat`: Represents a floating-point number.
+-- - `SInt`: Represents an integer value.
+-- - `SString`: Represents a string value.
+-- - `SOperation`: Represents the name of an operation (e.g., `+`, `-`, `*`).
+-- - `SCall`: Represents a function call with the function name, parameters, and body.
+-- - `SDefine`: Represents the definition of a variable or function that takes no parameters.
+-- - `SLoop`: Represents a `while` loop, including its condition and body.
+-- - `SFor`: Represents a `for` loop with initialization, condition, update, and body.
+-- - `SIf`: Represents a conditional `if` expression with a condition, a `then` branch, and an `else` branch.
+-- - `SList`: Represents a list containing multiple AST nodes.
+--
+-- Each constructor is designed to model a specific component of the language's syntax and semantics.
 
--- | Represents an Abstract Syntax Tree (AST).
--- The AST supports:
--- - `SInt`: Integer values.
--- - `SSymbol`: Symbolic values represented as strings.
--- - `SList`: A list of AST nodes.
--- - `SBool`: Boolean values.
 data AST =
-    SInt Int        -- ^ Integer values.
-  | SSymbol String  -- ^ Symbolic values.
-  | SList [AST]     -- ^ A list of AST nodes.
-  | SBool Bool      -- ^ Boolean values (`True` or `False`).
-
--- | Custom `Eq` instance for `AST`.
--- Check for each constructors if there are equal
-instance Eq AST where
-  SInt x == SInt y = x == y
-  SSymbol x == SSymbol y = x == y
-  SBool x == SBool y = x == y
-  SList x == SList y = x == y
-  _ == _ = False
-
--- | Custom `Show` instance for `AST`.
--- Converts an `AST` into a human-readable string representation.
-instance Show AST where
-  show (SInt i) = show i
-  show (SSymbol str) = str
-  show (SBool b) = if b then "#t" else "#f"
-  show (SList xs) = "(" ++ unwords (map show xs) ++ ")"
+    SBool Bool            -- ^ A generic boolean value.
+  | SFloat Float          -- ^ A generic float value.
+  | SInt Int              -- ^ A generic integer value.
+  | SChar Char              -- ^ A generic integer value.
+  | SType String             -- ^ A generic integer value.
+  | SString String        -- ^ A generic string value.
+  | SVariable String
+  | SOperation String     -- ^ Represents the name of an operation.
+  | SCall String AST AST      -- ^ Represents a function call with the function name, parameter(s), and body.
+  | SFunc String AST AST AST
+  | SDefine String AST AST    -- ^ Defines a function or variable that does not take any parameters.
+  | SLoop AST AST         -- ^ Represents a `while` loop with a condition and a body.
+  | SFor AST AST AST AST  -- ^ Represents a `for` loop with initialization, condition, update, and body.
+  | SIf AST AST AST       -- ^ Represents a conditional `if` with a condition, a `then` branch, and an `else` branch.
+  | SList [AST]           -- ^ Represents a list of multiple AST nodes.
+  deriving (Eq, Show)
