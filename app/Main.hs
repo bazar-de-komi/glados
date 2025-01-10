@@ -23,4 +23,4 @@ main = do
   let result = parse pProgram "Input" (litostr input)
   case result of
     Left err -> putStrLn (errorBundlePretty err)
-    Right expr -> print expr
+    Right expr -> print (noMaybeParseAST expr)
