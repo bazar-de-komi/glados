@@ -15,12 +15,36 @@ data SExpr =
   | SEChar Char
   | SEString String
   | SEFloat Float
-  | Boolean String
+  | Boolean Bool
   | Type String
   | BasicFunc String
   | Param [SExpr]
+  | SEIf SExpr SExpr SExpr       -- ^ Represents a conditional `if` with a condition, a `then` branch, and an `else` branch.
+  | SELoop SExpr SExpr         -- ^ Represents a `while` loop with a condition and a body.
+  | SEFor SExpr SExpr SExpr SExpr  -- ^ Represents a `for` loop with initialization, condition, update, and body.
   | SEList [SExpr]
   | List [SExpr]
+  | Return SExpr
+  deriving (Eq, Show)
+
+data AST =
+    SBool Bool            -- ^ A generic boolean value.
+  | SFloat Float          -- ^ A generic float value.
+  | SInt Int              -- ^ A generic integer value.
+  | SChar Char              -- ^ A generic integer value.
+  | SType String             -- ^ A generic integer value.
+  | SString String        -- ^ A generic string value.
+  | SVariable String
+  | SOperation String     -- ^ Represents the name of an operation.
+  | SCall String AST AST      -- ^ Represents a function call with the function name, parameter(s), and body.
+  | SFunc String AST AST AST
+  | SDefine String AST AST    -- ^ Defines a function or variable that does not take any parameters.
+  | SReturn AST     -- ^ Represents the name of an operation.
+  | SLoop AST AST         -- ^ Represents a `while` loop with a condition and a body.
+  | SFor AST AST AST AST  -- ^ Represents a `for` loop with initialization, condition, update, and body.
+  | SIf AST AST AST       -- ^ Represents a conditional `if` with a condition, a `then` branch, and an `else` branch.
+  | SListOf [AST]     -- ^ Represents the name of an operation.
+  | SList [AST]           -- ^ Represents a list of multiple AST nodes.
   deriving (Eq, Show)
 
 -- | Represents an Abstract Syntax Tree (AST) for a Lisp-like programming language.
@@ -41,20 +65,3 @@ data SExpr =
 --
 -- Each constructor is designed to model a specific component of the language's syntax and semantics.
 
-data AST =
-    SBool Bool            -- ^ A generic boolean value.
-  | SFloat Float          -- ^ A generic float value.
-  | SInt Int              -- ^ A generic integer value.
-  | SChar Char              -- ^ A generic integer value.
-  | SType String             -- ^ A generic integer value.
-  | SString String        -- ^ A generic string value.
-  | SVariable String
-  | SOperation String     -- ^ Represents the name of an operation.
-  | SCall String AST AST      -- ^ Represents a function call with the function name, parameter(s), and body.
-  | SFunc String AST AST AST
-  | SDefine String AST AST    -- ^ Defines a function or variable that does not take any parameters.
-  | SLoop AST AST         -- ^ Represents a `while` loop with a condition and a body.
-  | SFor AST AST AST AST  -- ^ Represents a `for` loop with initialization, condition, update, and body.
-  | SIf AST AST AST       -- ^ Represents a conditional `if` with a condition, a `then` branch, and an `else` branch.
-  | SList [AST]           -- ^ Represents a list of multiple AST nodes.
-  deriving (Eq, Show)

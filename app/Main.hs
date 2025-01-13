@@ -4,7 +4,7 @@ module Main (main) where
 
 import Lib (checkArgs, litostr)
 import Parser.ParserLispSExp (pProgram)
-import Parser.ParserSExpAST (noMaybeParseAST)
+import Parser.ParserSExpAST (parseFinalAST)
 import System.Exit (exitWith, ExitCode(..))
 import Text.Megaparsec
 
@@ -23,4 +23,6 @@ main = do
   let result = parse pProgram "Input" (litostr input)
   case result of
     Left err -> putStrLn (errorBundlePretty err)
-    Right expr -> print (noMaybeParseAST expr)
+    Right expr -> case parseFinalAST expr of
+      Left erro -> putStrLn (erro)
+      Right exprp -> print exprp

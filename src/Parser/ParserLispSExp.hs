@@ -1,5 +1,5 @@
 -- | A parser module for processing a string into S-expressions.
-module Parser.ParserLispSExp (pProgram, pGroupedExpr, pNonEmptyGroup, pEmptyGroup, pList, pExpr, parseAtom, parseString, parsInt, noSpace, noSpaceForNew) where
+module Parser.ParserLispSExp (pProgram, pGroupedExpr, pNonEmptyGroup, pList, pExpr, parseAtom, parseString, parsInt, noSpace, noSpaceForNew) where
 
 import Structure (SExpr(..))
 import Text.Megaparsec
@@ -38,6 +38,9 @@ noSpace = L.space
 noUselessN :: MyParser ()
 noUselessN = void $ optional (try (char '\n' <* notFollowedBy (char '\n')))
 
+nextLine :: MyParser ()
+nextLine = noSpace <* noUselessN <* noSpace
+
 parsInt :: MyParser Int
 parsInt = try $ L.signed (return ()) L.decimal
 
@@ -56,44 +59,62 @@ parseType = try $ choice
   , string "char" <* lookAhead (char ' ')
   ]
 
-parseBasicFunc :: MyParser String
-parseBasicFunc = some (oneOf ":|/+-*=")
-
-parseBool :: MyParser String
-parseBool = choice
-  [ string "True"
-  , string "False"
+parseBool :: MyParser Bool
+parseBool = try $ choice
+  [ True <$ string "True" <* lookAhead (char ' ')
+  , False <$ string "False" <* lookAhead (char ' ')
   ]
 
-parseParam :: MyParser SExpr
-parseParam = do
-  _ <- char '[' <* noSpace
-  content <- Param <$> some pExpr
-  _ <- char ']' <* noSpace <* noUselessN
-  return content
-
-parseList :: MyParser SExpr
-parseList = do
-  _ <- char '(' <* noSpace
-  content <- List <$> some pExpr
-  _ <- char ')' <* noSpace <* noUselessN
-  return content
-
-parseSEList :: MyParser SExpr
-parseSEList = do
-  _ <- char '{' <* noSpace
-  content <- SEList <$> some pExpr
-  _ <- char '}' <* noSpace <* noUselessN
-  return content
+parseBasicFunc :: MyParser String
+parseBasicFunc = some (oneOf ":|/+<>-*=")
 
 parsChar :: MyParser Char
-parsChar = do
-  _ <- char '#'
-  content <- anySingle
-  return content
+parsChar = char '#' *> anySingle
 
 parseAtom :: MyParser String
-parseAtom = noUselessN *> optional (noSpace) *> some (noneOf (" \t\n\r{([])}"))
+parseAtom = some (noneOf (" \t\n\r{([<:|/+-*=>])}"))
+
+parseParam :: MyParser SExpr
+parseParam =
+  Param <$> (char '[' <* noSpace *> some pExpr <* char ']' <* nextLine)
+
+parseList :: MyParser SExpr
+parseList =
+  List <$> (char '(' <* nextLine *> some pExpr <* char ')' <* nextLine)
+
+parseSEList :: MyParser SExpr
+parseSEList =
+  SEList <$> (char '{' <* nextLine *> some pExpr <* char '}' <* nextLine)
+
+parseReturn :: MyParser SExpr
+parseReturn = List <$> (
+    try (choice [string "résult" <* lookAhead (char ' '), string "result" <* lookAhead (char ' ')])
+    *> noSpace *> some pExpr <* nextLine
+  )
+
+parseIf :: MyParser SExpr
+parseIf = do
+  _ <- try $ string "si" <* lookAhead (char ' ') <* noSpace
+  cond <- parseParam
+  content <- parseList
+  contentelse <- option (List []) $ (string "sinon" <* nextLine *> parseList)
+  return $ SEIf cond content contentelse
+
+parseLoop :: MyParser SExpr
+parseLoop = do
+  _ <- try $ string "tankeu" <* lookAhead (char ' ') <* noSpace
+  cond <- parseParam
+  content <- parseList
+  return $ SELoop cond content
+
+parseFor :: MyParser SExpr
+parseFor = do
+  _ <- try $ string "pour" <* lookAhead (char ' ') <* noSpace
+  initc <- parseList
+  cond <- parseParam
+  update <- parseList
+  content <- parseList
+  return $ SEFor initc cond update content
 
 pExpr :: MyParser SExpr
 pExpr = choice
@@ -105,7 +126,11 @@ pExpr = choice
   , BasicFunc  <$> parseBasicFunc
   , Boolean <$> parseBool
   , parseParam
+  , Return <$> parseReturn
   , parseList
+  , parseLoop
+  , parseFor
+  , parseIf
   , parseSEList
   , Atom  <$> parseAtom
   ] <* noSpace
@@ -115,15 +140,10 @@ pExpr = choice
 pList :: MyParser SExpr
 pList = List <$> some pExpr
 
--- | Parser for an empty group.
---   Always returns an empty `List []`.
-pEmptyGroup :: MyParser SExpr
-pEmptyGroup = return (List [])
-
 -- | Parser for a non-empty group.
 --   Consumes leading spaces or comments before attempting to parse either a list or an empty group.
 pNonEmptyGroup :: MyParser SExpr
-pNonEmptyGroup = noSpaceForNew *> choice [pList, pEmptyGroup]
+pNonEmptyGroup = noSpaceForNew *> pList
 
 -- | Parser for groups of S-expressions separated by double newlines (`\n\n`).
 --   Consumes extra trailing newlines at the end.
