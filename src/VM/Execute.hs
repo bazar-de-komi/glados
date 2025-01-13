@@ -71,49 +71,51 @@ execute line vm =
     Just inst -> Right $ executeInst vm inst
     Nothing -> Left $ "Invalid inst: " ++ line
 
-parseInst :: [String] -> Maybe Instruction
+parseInst :: [String] -> Either String Instruction
 parseInst ("STORE_CONST" : val : _) =
-  Just (STORE_CONST (parseVal val))
+  Right (STORE_CONST (parseVal val))
 parseInst ("STORE_VAR" : name : _) =
-  Just (STORE_VAR (stripQuotes name))
+  Right (STORE_VAR (stripQuotes name))
 parseInst ("LOAD_VAR" : name : _) =
-  Just (LOAD_VAR (stripQuotes name))
+  Right (LOAD_VAR (stripQuotes name))
 parseInst ("ADD" : _) =
-  Just (OPERATOR ADD)
+  Right (OPERATOR ADD)
 parseInst ("SUBTRACT" : _) =
-  Just (OPERATOR SUBTRACT)
+  Right (OPERATOR SUBTRACT)
 parseInst ("MULTIPLY" : _) =
-  Just (OPERATOR MULTIPLY)
+  Right (OPERATOR MULTIPLY)
 parseInst ("DIVIDE" : _) =
-  Just (OPERATOR DIVIDE)
+  Right (OPERATOR DIVIDE)
 parseInst ("MODULO" : _) =
-  Just (OPERATOR MODULO)
+  Right (OPERATOR MODULO)
 parseInst ("COMPARE_GT" : _) =
-  Just (COMPARATOR COMPARE_GT)
+  Right (COMPARATOR COMPARE_GT)
 parseInst ("COMPARE_LT" : _) =
-  Just (COMPARATOR COMPARE_LT)
+  Right (COMPARATOR COMPARE_LT)
 parseInst ("COMPARE_EQ" : _) =
-  Just (COMPARATOR COMPARE_EQ)
+  Right (COMPARATOR COMPARE_EQ)
 parseInst ("COMPARE_NE" : _) =
-  Just (COMPARATOR COMPARE_NE)
+  Right (COMPARATOR COMPARE_NE)
 parseInst ("COMPARE_GE" : _) =
-  Just (COMPARATOR COMPARE_GE)
+  Right (COMPARATOR COMPARE_GE)
 parseInst ("COMPARE_LE" : _) =
-  Just (COMPARATOR COMPARE_LE)
+  Right (COMPARATOR COMPARE_LE)
 parseInst ("JUMP" : label : _) =
-  Just (JUMP (stripQuotes label))
+  Right (JUMP (stripQuotes label))
 parseInst ("JUMP_IF_FALSE" : label : _) =
-  Just (JUMP_IF_FALSE (stripQuotes label))
+  Right (JUMP_IF_FALSE (stripQuotes label))
 parseInst ("LABEL" : name : _) =
-  Just (LABEL (stripQuotes name))
+  Right (LABEL (stripQuotes name))
 parseInst ("CALL" : name : _) =
-  Just (CALL (stripQuotes name))
+  Right (CALL (stripQuotes name))
 parseInst ("RETURN" : _) =
-  Just RETURN
+  Right RETURN
 parseInst ("HALT" : _) =
-  Just HALT
+  Right HALT
+parseInst [] =
+  Left "Error: Empty intruction line."
 parseInst _ =
-  Nothing
+  Left "Error: Unknown instuction"
 
 stripQuotes :: String -> String
 stripQuotes str =
