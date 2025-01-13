@@ -1,29 +1,33 @@
-module VariableTable (
-    VariableTable,
+module ConstAndVarTable (
+    ConstAndVarTable,
     emptyTable,
-    writeVar,
-    readVar,
+    storeConst,
+    storeVar,
+    loadVar,
     varExists
 ) where
 
 import qualified Data.Map as Map
 
--- Définir une table de variables comme une Map
--- String : nom de la variable, a : type de la valeur
-newtype VariableTable a = VariableTable (Map.Map String a)
+-- Définir une table de constantes et de variables comme une Map
+-- String : nom de la variable ou constante, a : type de la valeur
+newtype ConstAndVarTable a = ConstAndVarTable (Map.Map String a)
   deriving (Show, Eq)
 
-emptyTable :: VariableTable a
-emptyTable = VariableTable Map.empty
+emptyTable :: ConstAndVarTable a
+emptyTable = ConstAndVarTable Map.empty
 
-writeVar :: String -> a -> VariableTable a -> VariableTable a
-writeVar name value (VariableTable table) = VariableTable (Map.insert name value table)
+storeConst :: String -> a -> ConstAndVarTable a -> ConstAndVarTable a
+storeConst name value (ConstAndVarTable table) = ConstAndVarTable (Map.insert name value table)
 
-readVar :: String -> VariableTable a -> Either String a
-readVar name (VariableTable table) =
+storeVar :: String -> a -> ConstAndVarTable a -> ConstAndVarTable a
+storeVar = storeConst
+
+loadVar :: String -> ConstAndVarTable a -> Either String a
+loadVar name (ConstAndVarTable table) =
     case Map.lookup name table of
         Just value -> Right value
-        Nothing    -> Left $ "Erreur : La variable '" ++ name ++ "' n'existe pas."
+        Nothing    -> Left $ "Erreur : La variable ou constante '" ++ name ++ "' n'existe pas."
 
-varExists :: String -> VariableTable a -> Bool
-varExists name (VariableTable table) = Map.member name table
+varExists :: String -> ConstAndVarTable a -> Bool
+varExists name (ConstAndVarTable table) = Map.member name table

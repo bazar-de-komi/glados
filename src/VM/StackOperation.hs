@@ -1,9 +1,9 @@
 module Stack (
     Stack,
     emptyStack,
-    push,
-    pop,
-    peek
+    pushValue,
+    popValue,
+    peekValue
 ) where
 
 type Stack a = [a]
@@ -11,13 +11,13 @@ type Stack a = [a]
 emptyStack :: Stack a
 emptyStack = []
 
-push :: a -> Stack a -> Stack a
-push value stack = value : stack
+pushValue :: a -> Stack a -> Stack a
+pushValue value stack = value : stack
 
-pop :: Stack a -> Either String (a, Stack a)
-pop [] = Left "Erreur : La pile est vide, impossible de retirer un élément."
-pop (x:xs) = Right (x, xs)
+popValue :: Stack a -> Either String (a, Stack a)
+popValue [] = Left "Erreur : La pile est vide, impossible de retirer un élément."
+popValue (x:xs) = Right (x, xs)
 
-peek :: Stack a -> Either String a
-peek [] = Left "Erreur : La pile est vide, impossible de consulter le sommet."
-peek (x:_) = Right x
+peekValue :: Stack a -> Either String a
+peekValue [] = Left "Erreur : La pile est vide, impossible de consulter le sommet."
+peekValue (x:_) = Right x
