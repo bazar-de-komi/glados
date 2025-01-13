@@ -86,10 +86,22 @@ If you already have an instance of the repository on your computer you can skip 
 
 ### Automated testing
 
-In order to run the tests for this projects we use the Makefile to run unit tests:
+In order to run the tests for this projects we use the Makefile to run unit tests and functional tests:
 
+launch all test (unit and functional)
 ```bash
 make test
+```
+launch unit test
+```bash
+make test-unit
+```
+launch functional test
+```bash
+make test-functional
+```
+launch coverage
+```bash
 make test-coverage
 ```
 
