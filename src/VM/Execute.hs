@@ -11,7 +11,7 @@ data Val = IntVal Int
          | BoolVal Bool
          deriving (Show, Eq)
 
-data Inst = STORE_CONST Val
+data Instruction = STORE_CONST Val
           | STORE_VAR String
           | LOAD_VAR String
           | ADD
@@ -65,7 +65,7 @@ execute line vm =
     Just inst -> Left "Need to create execute inst function"
     Nothing -> Left $ "Invalid inst: " ++ line
 
-parseInst :: [String] -> Maybe Inst
+parseInst :: [String] -> Maybe Instruction
 parseInst ("STORE_CONST" : val : _) = Just (STORE_CONST (parseVal val))
 parseInst ("STORE_VAR" : name : _) = Just (STORE_VAR (stripQuotes name))
 parseInst ("LOAD_VAR" : name : _) = Just (LOAD_VAR (stripQuotes name))
