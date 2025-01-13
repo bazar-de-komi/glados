@@ -4,34 +4,44 @@ module Execute (execute) where
 import Data.Map (Map)
 import qualified Data.Map as Map
 
-data Val = IntVal Int
-         | FloatVal Float
-         | StringVal String
-         | CharVal Char
-         | BoolVal Bool
-         deriving (Show, Eq)
+data Val
+  = IntVal Int
+  | FloatVal Float
+  | StringVal String
+  | CharVal Char
+  | BoolVal Bool
+  deriving (Show, Eq)
 
-data Instruction = STORE_CONST Val
-          | STORE_VAR String
-          | LOAD_VAR String
-          | ADD
-          | SUBTRACT
-          | MULTIPLY
-          | DIVIDE
-          | MODULO
-          | COMPARE_GT
-          | COMPARE_LT
-          | COMPARE_EQ
-          | COMPARE_NE
-          | COMPARE_GE
-          | COMPARE_LE
-          | JUMP String
-          | JUMP_IF_FALSE String
-          | LABEL String
-          | CALL String
-          | RETURN
-          | HALT
-          deriving (Show, Eq)
+data BynaryOperator
+  = ADD
+  | SUBTRACT
+  | MULTIPLY
+  | DIVIDE
+  | MODULO
+
+data BynaryComparator
+  = COMPARE_GT
+  | COMPARE_LT
+  | COMPARE_EQ
+  | COMPARE_NE
+  | COMPARE_GE
+  | COMPARE_LE
+
+data Instruction
+  = STORE_CONST Value
+  | STORE_VAR String
+  | LOAD_VAR String
+  | OPERATOR BynaryOperator
+  | COMPARATOR BynaryComparator
+  | JUMP String
+  | JUMP_IF_FALSE String
+  | LABEL String
+  | LABEL_FUNC String
+  | LABEL_FUNC_END String
+  | CALL String
+  | RETURN
+  | HALT
+  deriving (Show, Eq)
 
 -- data Function = Function
 --   {
