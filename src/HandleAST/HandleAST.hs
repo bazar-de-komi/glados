@@ -76,9 +76,7 @@ evalCondition _ _ = Nothing
 returnValueAST :: AST -> AST -> Maybe AST
 returnValueAST _ (SInt a) = Just (SInt a)
 returnValueAST _ (SBool a) = Just (SBool a)
-returnValueAST inast (SSymbol a)
-    | getValue inast (SSymbol a) == Nothing = Just (SSymbol a)
-    | otherwise = getValue inast (SSymbol a)
+returnValueAST inast (SSymbol a) = getValue inast (SSymbol a)
 returnValueAST inast (SList (SList (SSymbol "lambda" : body) : values)) =
     handleFunctions inast (SList body) (SList values)
 returnValueAST inast (SList (SList (SSymbol "define" : _) : a)) = returnValueAST inast (SList a)
