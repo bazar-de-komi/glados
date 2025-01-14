@@ -54,11 +54,10 @@ data AST
   | SString String      -- ^ Represents a string value.
   | SVariable String    -- ^ Represents a variable or symbol.
   | SOperation String   -- ^ Represents an operation (e.g., `+`, `-`, `*`).
-  | SCall String AST AST
+  | SCall String AST
       -- ^ Represents a function call with:
       -- 1. The function name (`String`),
       -- 2. The function's parameters (`AST`),
-      -- 3. The function's body (`AST`).
   | SFunc String AST AST AST
       -- ^ Represents a function definition with:
       -- 1. The function name (`String`),
