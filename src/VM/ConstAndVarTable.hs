@@ -1,4 +1,4 @@
-module ConstAndVarTable (
+module VM.ConstAndVarTable (
     ConstAndVarTable,
     emptyTable,
     storeConst,

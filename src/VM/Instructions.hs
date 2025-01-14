@@ -1,6 +1,8 @@
-module Instruction (handleStoreConst, handleStoreVar, handleLoadVar, handleOperator, handleComparator, handleJump, handleJumpIfFalse, handleCall, handleReturn, handleHalt) where
+module VM.Instructions (handleStoreConst, handleStoreVar, handleLoadVar,
+  handleOperator, handleComparator, handleJump, handleJumpIfFalse,
+  handleCall, handleReturn, handleHalt) where
 
-import Execute (Val, BinaryOperator, BinaryComparator, Instruction, VM)
+import VM.VMData (Value, BinaryOperator, BinaryComparator, Instruction, VM)
 
 handleStoreConst :: VM -> Value -> Either String VM
 handleStoreConst vm val =
@@ -18,36 +20,42 @@ handleLoadVar vm name =
     Just val -> Right vm { stack = storeConst val (stack vm) }
     Nothing -> Left $ "Error: Variable not found: " ++ name
 
-handleOperator :: VM -> Operator -> Either String VM
-handleOperator vm op =
-  if length (stack vm) < 2
-  then Left "Error: Operator requires two values on the stack."
-  else case stack vm of
-    (IntVal x : IntVal y : rest) ->
-      let result = case op of
-        ADD -> y + x
-        SUBTRACT -> y - x
-        MULTIPLY -> y * x
-        DIVIDE -> if x /= 0 then y `div` x else error "Division by zero"
-        MODULO -> if x /= 0 then y `mod` x else error "Modulo by zero"
-      in Right vm { stack = storeConst (IntVal result) rest }
-    _ -> Left "Error: Operator requires two integers on the stack."
+handleOperator :: IntVal -> IntVal -> BinaryOperator -> Either String VM
+handleOperator x y ADD =
+  let result = y + x
+  in Right vm { stack = storeConst (IntVal result) rest }
+handleOperator x y SUBTRACT =
+  let result = y - x
+  in Right vm { stack = storeConst (IntVal result) rest } 
+handleOperator x y MULTIPLY =
+  let result = y * x
+  in Right vm { stack = storeConst (IntVal result) rest } 
+handleOperator x y DIVIDE =
+  let result = if x /= 0 then y `div` x else error "Division by zero"
+  in Right vm { stack = storeConst (IntVal result) rest } 
+handleOperator x y MODULO =
+  let result = if x /= 0 then y `mod` x else error "Modulo by zero"
+  in Right vm { stack = storeConst (IntVal result) rest } 
 
-handleComparator :: VM -> Comparator -> Either String VM
-handleComparator vm comp =
-  if length (stack vm) < 2
-  then Left "Error: Comparator requires two values on the stack."
-  else case stack vm of
-    (IntVal x : IntVal y : rest) ->
-      let result = case comp of
-        COMPARE_GT -> y > x
-        COMPARE_LT -> y < x
-        COMPARE_EQ -> y == x
-        COMPARE_NE -> y /= x
-        COMPARE_GE -> y >= x
-        COMPARE_LE -> y <= x
-      in Right vm { stack = storeConst (BoolVal result) rest }
-    _ -> Left "Error: Comparator requires two integers on the stack."
+handleComparator :: IntVal -> IntVal -> BinaryComparator -> Either String VM
+handleComparator x y COMPARE_GT =
+  let result = y > x
+  in Right vm { stack = storeConst (BoolVal result) rest } 
+handleComparator x y COMPARE_LT =
+  let result = y < x
+  in Right vm { stack = storeConst (BoolVal result) rest } 
+handleComparator x y COMPARE_EQ =
+  let result = y == x
+  in Right vm { stack = storeConst (BoolVal result) rest } 
+handleComparator x y COMPARE_NE =
+  let result = y /= x
+  in Right vm { stack = storeConst (BoolVal result) rest } 
+handleComparator x y COMPARE_GE =
+  let result = y >= x
+  in Right vm { stack = storeConst (BoolVal result) rest } 
+handleComparator x y COMPARE_LE =
+  let result = y <= x
+  in Right vm { stack = storeConst (BoolVal result) rest } 
 
 handleJump :: VM -> String -> Either String VM
 handleJump vm label =

@@ -1,59 +1,12 @@
-module Execute (execute, Val, BinaryOperator, BinaryComparator, Instruction, VM) where
+module VM.Execute (initialState, execute, parseInst, stripQuotes,
+  parseVal, executeInstruction) where
 
--- import Data.Either (either)
-import Data.Map (Map)
+import Data.Either (either)
 import qualified Data.Map as Map
-import Instructions (handleStoreConst, handleStoreVar, handleLoadVar, handleOperator, handleComparator, handleJump, handleJumpIfFalse, handleCall, handleReturn, handleHalt)
-
-data Val
-  = IntVal Int
-  | FloatVal Float
-  | StringVal String
-  | CharVal Char
-  | BoolVal Bool
-  deriving (Show, Eq)
-
-data BinaryOperator
-  = ADD
-  | SUBTRACT
-  | MULTIPLY
-  | DIVIDE
-  | MODULO
-  deriving (Show, Eq)
-
-data BinaryComparator
-  = COMPARE_GT
-  | COMPARE_LT
-  | COMPARE_EQ
-  | COMPARE_NE
-  | COMPARE_GE
-  | COMPARE_LE
-  deriving (Show, Eq)
-
-data Instruction
-  = STORE_CONST Value
-  | STORE_VAR String
-  | LOAD_VAR String
-  | OPERATOR BinaryOperator
-  | COMPARATOR BinaryComparator
-  | JUMP String
-  | JUMP_IF_FALSE String
-  | LABEL String
-  | LABEL_FUNC String
-  | LABEL_FUNC_END String
-  | CALL String
-  | RETURN
-  | HALT
-  deriving (Show, Eq)
-
-data VM = VM
-  {
-    stack :: [Val],
-    variables :: Map String Val,
-    program :: [Inst],
-    index :: Int,
-    labels :: Map String Int
-  } deriving (Show)
+import VM.VMData (Value, BinaryOperator, BinaryComparator, Instruction, VM)
+import VM.Instructions (handleStoreConst, handleStoreVar, handleLoadVar,
+  handleOperator, handleComparator, handleJump, handleJumpIfFalse,
+  handleCall, handleReturn, handleHalt)
 
 initialState :: VM
 initialState = VM
@@ -68,7 +21,7 @@ initialState = VM
 execute :: String -> VM -> Either String VM
 execute line vm =
   case parseInst (words line) of
-    Just inst -> Right $ executeInst vm inst
+    Just inst -> Right $ executeInstruction vm inst
     Nothing -> Left $ "Invalid inst: " ++ line
 
 parseInst :: [String] -> Either String Instruction
@@ -123,7 +76,7 @@ stripQuotes str =
   then init (tail str)
   else str
 
-parseVal :: String -> Val
+parseVal :: String -> Value
 parseVal val
   | val == "True" = BoolVal True
   | val == "False" = BoolVal False
@@ -135,8 +88,16 @@ executeInstruction :: VM -> Instruction -> Either String VM
 executeInstruction vm (STORE_CONST val) = handleStoreConst vm val
 executeInstruction vm (STORE_VAR name) = handleStoreVar vm name
 executeInstruction vm (LOAD_VAR name) = handleLoadVar vm name
-executeInstruction vm (OPERATOR op) = handleOperator vm op
-executeInstruction vm (COMPARATOR comp) = handleComparator vm comp
+executeInstruction vm (OPERATOR op) =
+  | length (stack vm) < 2 = Left "Error: Operator requires two values on the stack."
+  | case stack vm of
+    (IntVal x : IntVal y : rest) -> handleOperator x y op
+  | otherwise = Left "Error: Operator requires two integers on the stack."
+executeInstruction vm (COMPARATOR comp) =
+  | length (stack vm) < 2 = Left "Error: Comparator requires two values on the stack."
+  | case stack vm of
+    (IntVal x : IntVal y : rest) -> handleComparator x y comp
+  | otherwise = Left "Error: Comparator requires two values on the stack."
 executeInstruction vm (JUMP label) = handleJump vm label
 executeInstruction vm (JUMP_IF_FALSE label) = handleJumpIfFalse vm label
 executeInstruction vm (CALL label) = handleCall vm label

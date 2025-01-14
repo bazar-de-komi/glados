@@ -1,4 +1,4 @@
-module Stack (
+module VM.StackOperation (
     Stack,
     emptyStack,
     pushValue,
