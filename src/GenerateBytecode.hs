@@ -1,3 +1,5 @@
+{-# LANGUAGE LambdaCase #-}
+
 module GenerateBytecode
   ( generateInstructionsList,
   )
@@ -163,7 +165,11 @@ generateBytecode (SFunc name (SType _) params body) state =
         SList ps -> 
           let processParams [] = []
               processParams (SType _:SList vars:rest) =
-                let varsInstructions = concatMap (\(SVariable param) -> [STORE_VAR param]) vars
+                let varsInstructions =
+                      concatMap (\case
+                        SVariable param -> [STORE_VAR param]
+                        _ -> error "Unsupported parameter format in vars"
+                      ) vars
                 in varsInstructions ++ processParams rest
               processParams _ = error "Invalid parameter format in function definition"
           in processParams ps
