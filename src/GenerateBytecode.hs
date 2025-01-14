@@ -5,6 +5,15 @@ where
 
 import Structure (AST(..), Instruction(..), BinaryOperator (..), BinaryComparator (..), Value(..), LabelState(..))
 
+generateLabel :: LabelState -> String -> (String, LabelState)
+generateLabel (LabelState loop ifCount) labelType =
+  case labelType of
+    "loop" -> let newState = LabelState (loop + 1) ifCount
+              in ("loop_" ++ show loop, newState)
+    "if"   -> let newState = LabelState loop (ifCount + 1)
+              in ("if_" ++ show ifCount, newState)
+    _      -> error "Unknown label type"
+
 generateBytecode :: AST -> LabelState -> ([Instruction], LabelState)
 
 -- Assignment
@@ -93,6 +102,101 @@ generateBytecode (SFloat f) state = ([STORE_CONST (VFloat f)], state)
 generateBytecode (SBool b) state = ([STORE_CONST (VBool b)], state)
 generateBytecode (SString s) state = ([STORE_CONST (VString s)], state)
 generateBytecode (SChar c) state = ([STORE_CONST (VChar c)], state)
+
+-- If
+generateBytecode (SIf condition thenBranch elseBranch) state =
+  let (elseLabel, state1) = generateLabel state "if"
+      (endLabel, state2) = generateLabel state1 "if"
+      (conditionInstructions, state3) = generateBytecode condition state2
+      (thenInstructions, state4) = generateBytecode thenBranch state3
+      (elseInstructions, state5) = generateBytecode elseBranch state4
+  in (
+    conditionInstructions ++
+    [JUMP_IF_FALSE elseLabel] ++
+    thenInstructions ++
+    [JUMP endLabel, LABEL elseLabel] ++
+    elseInstructions ++
+    [LABEL endLabel],
+    state5
+  )
+
+-- For loop
+generateBytecode (SFor initExpr condExpr updateExpr body) state =
+  let (initInstrs, initState) = generateBytecode initExpr state
+      (loopCondLabel, loopState1) = generateLabel initState "loop"
+      (loopEndLabel, loopState2) = generateLabel loopState1 "loop"
+      (condInstrs, condState) = generateBytecode condExpr loopState2
+      condJumpInstr = [JUMP_IF_FALSE loopEndLabel]
+      (bodyInstrs, bodyState) = generateBytecode body condState
+      (updateInstrs, finalState) = generateBytecode updateExpr bodyState
+  in (
+    initInstrs ++
+    [LABEL loopCondLabel] ++
+    condInstrs ++
+    condJumpInstr ++
+    bodyInstrs ++
+    updateInstrs ++
+    [JUMP loopCondLabel] ++
+    [LABEL loopEndLabel], finalState
+  )
+
+-- While loop
+generateBytecode (SLoop condExpr body) state =
+  let (loopCondLabel, loopState1) = generateLabel state "loop"
+      (loopEndLabel, loopState2) = generateLabel loopState1 "loop"
+      (condInstrs, condState) = generateBytecode condExpr loopState2
+      condJumpInstr = [JUMP_IF_FALSE loopEndLabel]
+      (bodyInstrs, finalState) = generateBytecode body condState
+  in (
+    [LABEL loopCondLabel] ++
+    condInstrs ++
+    condJumpInstr ++
+    bodyInstrs ++
+    [JUMP loopCondLabel] ++
+    [LABEL loopEndLabel], finalState
+  )
+
+-- SFunc
+generateBytecode (SFunc name (SType _) params body) state =
+  let funcLabel = name
+      paramInstructions = case params of
+        SList ps -> 
+          let processParams [] = []
+              processParams (SType _:SList vars:rest) =
+                let varsInstructions = concatMap (\(SVariable param) -> [STORE_VAR param]) vars
+                in varsInstructions ++ processParams rest
+              processParams _ = error "Invalid parameter format in function definition"
+          in processParams ps
+        _ -> error "Invalid parameter format in function definition"
+      (bodyInstructions, newState) = generateBytecode body state
+  in (
+    [LABEL_FUNC funcLabel] ++
+    paramInstructions ++
+    bodyInstructions ++
+    [LABEL_FUNC_END funcLabel],
+    newState
+  )
+
+-- Return
+generateBytecode (SReturn returnValue) state =
+  let (returnInstructions, newState) = generateBytecode returnValue state
+  in (
+    returnInstructions ++
+    [RETURN],
+    newState
+  )
+
+-- Function Call
+generateBytecode (SCall funcName (SList args)) state =
+  let
+    (argInstructions, newState) = foldl
+      (\(accInstr, accState) arg ->
+        let (argInstr, nextState) = generateBytecode arg accState
+        in (argInstr ++ accInstr, nextState))
+      ([], state)
+      args
+  in 
+    (argInstructions ++ [CALL funcName], newState)
 
 -- Unsupported cases
 generateBytecode _ state = ([], state)
