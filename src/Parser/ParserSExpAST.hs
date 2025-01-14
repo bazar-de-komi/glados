@@ -121,6 +121,28 @@ findFor (SEFor (List d) (Param a) (List b) (List c)) =
       (_, _, _, Left err) -> Left err
 findFor a = Left $ "Unsupported SExpr: " ++ show a
 
+-- | `findFor` - Parses a `for` loop expression.
+--
+-- This function identifies:
+-- - name of the function, parameter given to it.
+--
+-- ==== Parameters:
+-- - `SExpr`: A symbolic `List` call expression.
+--
+-- ==== Returns:
+-- - `Right AST`: An `AST` structure representing the call.
+-- - `Left String`: An error if the input is not recognized.
+--
+-- ==== Example:
+-- >>> findCall (List [Atom "name", Slist[SEInt 1]])
+-- Right (SCall "name" (SList[SInt 1]))
+findCall :: SExpr -> Either String AST
+findCall (List (Atom a : List b : [])) =
+    case (a, parseFinalAST (List b)) of
+      (name, Right paramAST) -> Right (SCall name paramAST)
+      (_, Left err) -> Left err
+findCall a = Left $ "Unsupported SExpr: " ++ show a
+
 -- | `parseFinalAST` - Converts a symbolic expression (`SExpr`) into an `AST` structure.
 --
 -- This function handles a variety of expression types, including:
@@ -162,6 +184,7 @@ parseFinalAST (Return a) =
       Right astList -> Right (SReturn astList)
       Left err -> Left err
 parseFinalAST (List (Atom n : BasicFunc ":" : rest)) = findFuncOrDef (Atom n : rest)
+parseFinalAST (List (Atom n : List a: [])) = findCall (List (Atom n : List a: []))
 parseFinalAST (List a) =
     case mapM parseFinalAST a of
       Right astList -> Right (SList astList)
