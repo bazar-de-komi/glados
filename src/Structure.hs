@@ -5,7 +5,7 @@
 -- 1. The `SExpr` type for representing Kleftis symbolic expressions (S-Expressions).
 -- 2. The `AST` type for representing parsed and processed Abstract Syntax Trees.
 
-module Structure (SExpr(..), AST(..)) where
+module Structure (SExpr(..), AST(..), Instruction (..), BinaryOperator (..), BinaryComparator (..), Value(..), LabelState(..)) where
 
 -- | Represents a Kleftis S-Expression (SExpr).
 --
