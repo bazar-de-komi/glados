@@ -1,70 +1,173 @@
--- | A parser for converting S-expressions into Abstract Syntax Trees (ASTs).
--- This module provides functions to:
--- 1. Identify the type of an S-expression (integer, boolean, or symbol).
--- 2. Convert `SExpr` into `AST`.
+-- | Parser.ParserSExpAST
+--
+-- This module provides functions for converting `SExpr` (Kleftis symbolic expressions)
+-- into an `AST` (Abstract Syntax Tree) structure. These functions handle
+-- conditional expressions, loops, definitions, and other language-specific constructs.
 
-module Parser.ParserSExpAST (parseAST, isInt, isBool, finBool, noMaybeParseAST) where
+module Parser.ParserSExpAST (parseFinalAST, findFuncOrDef, findIf, findLoop, findFor) where
 
 import Structure (SExpr(..), AST(..))
-import Data.Maybe (mapMaybe)
 
--- | Checks if a string represents an integer.
+-- | `findFuncOrDef` - Parses a list of `SExpr` to identify a function or definition.
 --
--- A valid integer is a sequence of digits (0-9).
-isInt :: String -> Bool
-isInt [] = True
-isInt (a:b)
-    | a `elem` ['0'..'9'] = isInt b
-    | otherwise = False
+-- The function handles both:
+-- - Functions with parameters and a body.
+-- - Simple variable or type definitions.
+--
+-- ==== Parameters:
+-- - `[SExpr]`: A list of symbolic expressions representing a function or definition.
+--
+-- ==== Returns:
+-- - `Right AST`: An `AST` structure representing the function or definition.
+-- - `Left String`: An error if the input does not match the expected patterns.
+--
+-- ==== Example:
+-- >>> findFuncOrDef [Atom "add", Type "int", Param [Atom "a", Atom "b"], List [BasicFunc "+", Atom "a", Atom "b"]]
+-- Right (SFunc "add" (SType "int") (SList [SVariable "a", SVariable "b"]) (SList [SOperation "+", SVariable "a", SVariable "b"]))
+findFuncOrDef :: [SExpr] -> Either String AST
+findFuncOrDef (Atom n : Type a : Param b : List r : []) =
+    case (mapM parseFinalAST b, mapM parseFinalAST r) of
+      (Right paramAST, Right bodyAST) -> Right (SFunc n (SType a) (SList paramAST) (SList bodyAST))
+      (Left err, _) -> Left err
+      (_, Left err) -> Left err
+findFuncOrDef (Atom n : Type a : Param b : r) =
+    case (mapM parseFinalAST b, mapM parseFinalAST r) of
+      (Right paramAST, Right bodyAST) -> Right (SFunc n (SType a) (SList paramAST) (SList bodyAST))
+      (Left err, _) -> Left err
+      (_, Left err) -> Left err
+findFuncOrDef (Atom n : Type a : List r : []) =
+    case mapM parseFinalAST r of
+      Right bodyAST -> Right (SDefine n (SType a) (SList bodyAST))
+      Left err -> Left err
+findFuncOrDef (Atom n : Type a : r) =
+    case mapM parseFinalAST r of
+      Right bodyAST -> Right (SDefine n (SType a) (SList bodyAST))
+      Left err -> Left err
+findFuncOrDef _ = Left $ "Unsupported function or definition: "
 
--- | Checks if a string represents a boolean value.
+-- | `findIf` - Parses a conditional `if ... else` expression.
 --
--- A valid boolean starts with `#` followed by `t` (true) or `f` (false).
-isBool :: String -> Bool
-isBool (a:b:_) = a == '#' && (b == 'f' || b == 't')
-isBool _ = False
+-- This function identifies:
+-- - The "if" branch (condition).
+-- - The "then" branch (content).
+-- - The "else" branch (alternative content).
+--
+-- ==== Parameters:
+-- - `SExpr`: A symbolic conditional expression.
+--
+-- ==== Returns:
+-- - `Right AST`: An `AST` structure representing the conditional expression.
+-- - `Left String`: An error if the input is not recognized.
+--
+-- ==== Example:
+-- >>> findIf (SEIf (Param [Atom "a", BasicFunc ">", Atom "b"]) (List [Atom "result", Atom "a"]) (List [Atom "result", Atom "b"]))
+-- Right (SIf (SList [SVariable "a", SOperation ">", SVariable "b"]) (SList [SVariable "result", SVariable "a"]) (SList [SVariable "result", SVariable "b"]))
+findIf :: SExpr -> Either String AST
+findIf (SEIf (Param a) (List b) (List c)) =
+    case (mapM parseFinalAST a, parseFinalAST (List b), parseFinalAST (List c)) of
+      (Right paramIf, Right bodyThen, Right bodyElse ) -> Right (SIf (SList paramIf) bodyThen bodyElse)
+      (Left err, _, _) -> Left err
+      (_, Left err, _) -> Left err
+      (_, _, Left err) -> Left err
+findIf a = Left $ "Unsupported SExpr: " ++ show a
 
--- | Determines the boolean value from a boolean string.
+-- | `findLoop` - Parses a `while` loop expression.
 --
--- If the second character is `t`, it returns `True`. Otherwise, `False`.
-finBool :: String -> Bool
-finBool (_:b:_) = b == 't'
-finBool _ = False
+-- This function identifies:
+-- - The parameters of the loop.
+-- - The body of the loop.
+--
+-- ==== Parameters:
+-- - `SExpr`: A symbolic `while` loop expression.
+--
+-- ==== Returns:
+-- - `Right AST`: An `AST` structure representing the loop.
+-- - `Left String`: An error if the input is not recognized.
+--
+-- ==== Example:
+-- >>> findLoop (SELoop (Param [Atom "i", BasicFunc "<", SEInt 10]) (List [BasicFunc "+=", Atom "i", SEInt 1]))
+-- Right (SLoop (SList [SVariable "i", SOperation "<", SInt 10]) (SList [SOperation "+=", SVariable "i", SInt 1]))
+findLoop :: SExpr -> Either String AST
+findLoop (SELoop (Param a) (List b)) =
+    case (mapM parseFinalAST a, parseFinalAST (List b)) of
+      (Right paramIf, Right bodyThen) -> Right (SLoop (SList paramIf) bodyThen)
+      (Left err, _) -> Left err
+      (_, Left err) -> Left err
+findLoop a = Left $ "Unsupported SExpr: " ++ show a
 
--- | Checks if a string represents an negative integer.
+-- | `findFor` - Parses a `for` loop expression.
 --
--- A valid negative integer is a sequence of digits (0-9) with a '-' behind.
-isNegInt :: String -> Bool
-isNegInt (a:b)
-    | a == '-' && isInt b && b /= [] = True
-    | otherwise = False
-isNegInt _ = False
+-- This function identifies:
+-- - Initialization, condition, and increment parts of the loop.
+-- - The body of the loop.
+--
+-- ==== Parameters:
+-- - `SExpr`: A symbolic `for` loop expression.
+--
+-- ==== Returns:
+-- - `Right AST`: An `AST` structure representing the loop.
+-- - `Left String`: An error if the input is not recognized.
+--
+-- ==== Example:
+-- >>> findFor (SEFor (List [BasicFunc "=", Atom "i", SEInt 0]) (Param [Atom "i", BasicFunc "<", SEInt 10]) (List [BasicFunc "+=", Atom "i", SEInt 1]) (List [Atom "print", Atom "i"]))
+-- Right (SFor (SList [SOperation "=", SVariable "i", SInt 0]) (SList [SVariable "i", SOperation "<", SInt 10]) (SList [SOperation "+=", SVariable "i", SInt 1]) (SList [SVariable "print", SVariable "i"]))
+findFor :: SExpr -> Either String AST
+findFor (SEFor (List d) (Param a) (List b) (List c)) =
+    case (mapM parseFinalAST a, parseFinalAST (List b), parseFinalAST (List c), parseFinalAST (List d)) of
+      (Right paramIf, Right bodyThen, Right bodyElse, Right initfor) -> Right (SFor initfor (SList paramIf) bodyThen bodyElse)
+      (Left err, _, _, _) -> Left err
+      (_, Left err, _, _) -> Left err
+      (_, _, Left err, _) -> Left err
+      (_, _, _, Left err) -> Left err
+findFor a = Left $ "Unsupported SExpr: " ++ show a
 
--- | Converts a single `SExpr` into `AST` without `Maybe`.
+-- | `parseFinalAST` - Converts a symbolic expression (`SExpr`) into an `AST` structure.
 --
--- This function is used to process individual elements of an S-expression.
-noMaybeParseAST :: SExpr -> Maybe AST
-noMaybeParseAST (List a) = Just . SList $ mapMaybe noMaybeParseAST a
-noMaybeParseAST (Atom a)
-    | isInt a = Just (SInt (read a))
-    | isNegInt a = Just (SInt (read a))
-    | isBool a = Just (SBool (finBool a))
-    | otherwise = Just (SSymbol a)
-
--- | Parses an `SExpr` into an `AST`.
+-- This function handles a variety of expression types, including:
+-- - Booleans (`Boolean`).
+-- - Floats (`SEFloat`).
+-- - Integers (`SEInt`).
+-- - Strings (`SEString`).
+-- - Functions (`SFunc`).
+-- - Definitions (`SDefine`).
+-- - Conditional structures (`SEIf`).
+-- - Loops (`SELoop`, `SEFor`).
 --
--- The function handles both atomic and list expressions.
+-- ==== Parameters:
+-- - `SExpr`: The symbolic expression to convert.
 --
--- ==== Parameters
--- - `Maybe SExpr`: The input `SExpr`, potentially `Nothing` for invalid input.
+-- ==== Returns:
+-- - `Right AST`: An `AST` structure corresponding to the input.
+-- - `Left String`: An error if the input is unrecognized or invalid.
 --
--- ==== Returns
--- A `Maybe AST` representing the parsed structure, or `Nothing` if parsing fails.
-parseAST :: Maybe SExpr -> Maybe AST
-parseAST Nothing = Nothing
-parseAST (Just (List a)) = Just . SList $ mapMaybe noMaybeParseAST a
-parseAST (Just (Atom a))
-    | isInt a = Just (SInt (read a))
-    | isNegInt a = Just (SInt (read a))
-    | isBool a = Just (SBool (finBool a))
-    | otherwise = Just (SSymbol a)
+-- ==== Example:
+-- >>> parseFinalAST (SEInt 42)
+-- Right (SInt 42)
+-- >>> parseFinalAST (SEIf (Param [Atom "a", BasicFunc ">", Atom "b"]) (List [Atom "result", Atom "a"]) (List [Atom "result", Atom "b"]))
+-- Right (SIf (SList [SVariable "a", SOperation ">", SVariable "b"]) (SList [SVariable "result", SVariable "a"]) (SList [SVariable "result", SVariable "b"]))
+parseFinalAST :: SExpr -> Either String AST
+parseFinalAST (Boolean a) = Right (SBool a)
+parseFinalAST (SEFloat a) = Right (SFloat a)
+parseFinalAST (SEInt a) = Right (SInt a)
+parseFinalAST (SEChar a) = Right (SChar a)
+parseFinalAST (Type a) = Right (SType a)
+parseFinalAST (SEString a) = Right (SString a)
+parseFinalAST (Atom a) = Right (SVariable a)
+parseFinalAST (BasicFunc a) = Right (SOperation a)
+parseFinalAST (SEIf a b c) = findIf (SEIf a b c)
+parseFinalAST (SELoop a b) = findLoop (SELoop a b)
+parseFinalAST (SEFor a b c d) = findFor (SEFor a b c d)
+parseFinalAST (Return a) =
+    case parseFinalAST a of
+      Right astList -> Right (SReturn astList)
+      Left err -> Left err
+parseFinalAST (List (Atom n : BasicFunc ":" : rest)) = findFuncOrDef (Atom n : rest)
+parseFinalAST (List a) =
+    case mapM parseFinalAST a of
+      Right astList -> Right (SList astList)
+      Left err -> Left err
+parseFinalAST (SEList a) =
+    case mapM parseFinalAST a of
+      Right astList -> Right (SListOf astList)
+      Left err -> Left err
+parseFinalAST expr = Left $ "Unsupported SExpr: " ++ show expr

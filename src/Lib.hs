@@ -53,14 +53,20 @@ whilegetline = do
 checkparenthese :: String -> String
 checkparenthese [] = []
 checkparenthese (a:b)
-    | a == '(' = ' ' : a : checkparenthese b
+    | a == '(' = ' ' : a : ' ' : checkparenthese b
+    | a == ')' = ' ' : a : ' ' : checkparenthese b
+    | a == '{' = ' ' : a : ' ' : checkparenthese b
+    | a == '}' = ' ' : a : ' ' : checkparenthese b
+    | a == '[' = ' ' : a : ' ' : checkparenthese b
+    | a == ']' = ' ' : a : ' ' : checkparenthese b
     | otherwise = a : checkparenthese b
 
 -- | Convert a list of strings into a single space-separated string,
 -- ensuring proper spacing for parentheses.
 litostr :: [String] -> String
 litostr [] = ""
-litostr (a:b) = checkparenthese a ++ " " ++ litostr b
+litostr (a:[]) = a
+litostr (a:b) = checkparenthese a ++ "\n" ++ litostr b
 
 -- | Check if a string has any non-space characters.
 checkNotEnd :: String -> Bool

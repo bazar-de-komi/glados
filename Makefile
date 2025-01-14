@@ -23,7 +23,7 @@ $(NAME):
 	$(STACK) build
 	@cp $(PATHBIN)/bin/glados-exe ./$(NAME)
 
-test:	unit-tests	functional-tests
+test:	fclean	unit-tests	functional-tests
 
 unit-tests:
 	$(STACK)	test :glados-test
