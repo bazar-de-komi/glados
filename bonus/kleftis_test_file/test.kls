@@ -1,0 +1,43 @@
+<-- coucou
+commentaire
+sur plusieurs lignes -->
+
+<- juste sur une ligne >
+
+coucou : int (9)
+
+carre : int [int (a)] result a * a
+
+test.nomentier : int (12)
+
+addition : int [int (a b)]
+    result a + b
+
+addition_float : float [float (a b)]
+    result a + b
+
+square : int [int (z)] (
+    (z = z + 1)
+    result z * z
+)
+
+max : int [int (a) int (b)]
+    si [a > b]
+        (
+            result a)
+    sinon
+        (result b)
+
+test : int [int(i)] (
+    (a:int(0))
+    tankeu[i>0] (
+        (i=i- 1)
+        (a = a+1)
+    )
+    pour (i:int(0)) [i<3] (i = i + 1) (
+        (a = a * a)
+    )
+    result a
+)
+
+(addition (3 5)) + test.nomentier
