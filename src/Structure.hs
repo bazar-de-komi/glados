@@ -5,7 +5,7 @@
 -- 1. The `SExpr` type for representing Kleftis symbolic expressions (S-Expressions).
 -- 2. The `AST` type for representing parsed and processed Abstract Syntax Trees.
 
-module Structure (SExpr(..), AST(..)) where
+module Structure (SExpr(..), AST(..), Instruction (..), BinaryOperator (..), BinaryComparator (..), Value(..), LabelState(..)) where
 
 -- | Represents a Kleftis S-Expression (SExpr).
 --
@@ -91,3 +91,56 @@ data AST
   | SList [AST]
       -- ^ Represents a list of AST nodes.
   deriving (Eq, Show)
+
+-- Data
+data Value
+  = VInt Int
+  | VFloat Float
+  | VBool Bool
+  | VString String
+  | VChar Char
+  deriving (Eq)
+
+instance Show Value where
+  show (VInt int) = show int
+  show (VBool bool) = show bool
+  show (VFloat float) = show float
+  show (VString string) = show string
+  show (VChar char) = show char
+
+data BinaryOperator
+  = ADD
+  | SUBTRACT
+  | MULTIPLY
+  | DIVIDE
+  | MODULO
+  deriving (Show, Eq)
+
+data BinaryComparator
+  = COMPARE_GT
+  | COMPARE_LT
+  | COMPARE_EQ
+  | COMPARE_NE
+  | COMPARE_GE
+  | COMPARE_LE
+  deriving (Show, Eq)
+
+-- Instruction
+data Instruction
+  = STORE_CONST Value
+  | STORE_VAR String
+  | LOAD_VAR String
+  | OPERATOR BinaryOperator
+  | COMPARATOR BinaryComparator
+  | JUMP String
+  | JUMP_IF_FALSE String
+  | LABEL String
+  | LABEL_FUNC String
+  | LABEL_FUNC_END String
+  | CALL String
+  | RETURN
+  | HALT
+  deriving (Show, Eq)
+
+-- Etat global pour générer des labels uniques
+data LabelState = LabelState { loopCounter :: Int, ifCounter :: Int }

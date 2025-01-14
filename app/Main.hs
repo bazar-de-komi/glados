@@ -10,6 +10,7 @@ import Lib (checkArgs, litostr)
 import Parser.ParserKleftisSExp (pProgram)
 import Parser.ParserSExpAST (parseFinalAST)
 import Text.Megaparsec
+import GenerateBytecode (generateInstructionsList)
 
 -- | The `main` function is the entry point of the program.
 --
@@ -60,5 +61,5 @@ main = do
     Left err -> putStrLn (errorBundlePretty err)
     Right expr -> case parseFinalAST expr of
       Left errror -> putStrLn errror
-      Right ast -> print ast
+      Right ast -> mapM_ print (generateInstructionsList ast)
 
