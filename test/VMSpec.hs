@@ -1,7 +1,12 @@
 module VMSpec (spec) where
 
 import Test.Hspec
-import Execute.Execute (execute)
+import VM.VMData (Value, BinaryOperator, BinaryComparator, Instruction, VM)
+import VM.Execute (initialState, execute, parseInst, stripQuotes,
+    parseVal, executeInstruction)
+import VM.Instructions (handleStoreConst, handleStoreVar,
+    handleLoadVar, handleOperator, handleComparator, handleJump,
+    handleJumpIfFalse, handleCall, handleReturn, handleHalt)
 
 spec :: Spec
 spec = do
