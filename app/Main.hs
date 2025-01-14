@@ -61,7 +61,5 @@ main = do
     Left err -> putStrLn (errorBundlePretty err)
     Right expr -> case parseFinalAST expr of
       Left errror -> putStrLn errror
-      Right ast -> do
-        let instructions = generateInstructionsList ast
-        mapM_ print instructions
+      Right ast -> mapM_ print (generateInstructionsList ast)
 
