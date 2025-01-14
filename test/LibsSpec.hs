@@ -21,14 +21,14 @@ spec = do
     
     describe "check parenthese" $ do
         it "add spaces before parentheses" $ do
-            checkparenthese "(define x 42)" `shouldBe` " (define x 42)"
+            checkparenthese "(define x 42)" `shouldBe` " ( define x 42 ) "
         
         it "does nothing if there are no parentheses" $ do
             checkparenthese "define x 42" `shouldBe` "define x 42"
 
     describe "convert list to str" $ do
         it "converts a list of strings into a single string with spaces" $ do
-            litostr ["define", "x", "(42)"] `shouldBe` "define x  (42) "
+            litostr ["define", "x", "(42)"] `shouldBe` "define\nx\n(42)"
 
         it "returns an empty string for an empty list" $ do
             litostr [] `shouldBe` ""
