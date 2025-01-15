@@ -4,7 +4,7 @@
 
 {-# LANGUAGE NamedFieldPuns #-}
 
-module RunVM (runVM) where
+module RunVM (initializeVM, findLabel, execute, executeInstructions, runVM) where
 
 import qualified Data.Map as Map
 import Structure (Value (..), BinaryOperator (..), BinaryComparator (..), Instruction (..), VM (..))
@@ -150,6 +150,15 @@ execute (COMPARATOR cmp) vm =
                     COMPARE_LE -> VBool (y <= x)
       in vm { stack = result : rest, index = index vm + 1 }
     (VString x : VString y : rest) ->
+      let result = case cmp of
+                    COMPARE_GT -> VBool (y > x)
+                    COMPARE_LT -> VBool (y < x)
+                    COMPARE_EQ -> VBool (y == x)
+                    COMPARE_NE -> VBool (y /= x)
+                    COMPARE_GE -> VBool (y >= x)
+                    COMPARE_LE -> VBool (y <= x)
+      in vm { stack = result : rest, index = index vm + 1 }
+    (VChar x : VChar y : rest) ->
       let result = case cmp of
                     COMPARE_GT -> VBool (y > x)
                     COMPARE_LT -> VBool (y < x)
