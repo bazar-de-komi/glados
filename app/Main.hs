@@ -4,8 +4,6 @@
 -- the reading, parsing, and processing of Kleftis expressions, transforming
 -- them into an abstract syntax tree (AST) for further computation or evaluation.
 
-{-# LANGUAGE NamedFieldPuns #-}
-
 module Main (main) where
 
 import Lib (checkArgs, litostr, giveFileName)
@@ -13,6 +11,9 @@ import Parser.ParserKleftisSExp (pProgram)
 import Parser.ParserSExpAST (parseFinalAST)
 import Text.Megaparsec
 import GenerateBytecode (generateInstructionsList)
+import System.Environment
+import System.IO
+import System.Exit (exitWith, exitSuccess, ExitCode(ExitFailure))
 
 -- | The `main` function is the entry point of the program.
 --
@@ -98,6 +99,5 @@ glados str  = do
   case result of
     Left err -> putStrLn (errorBundlePretty err) >> exitWith (ExitFailure 84)
     Right expr -> case parseFinalAST expr of
-      Left errror -> putStrLn errror
-      Right ast -> mapM_ print (generateInstructionsList ast)
-
+      Left errr -> putStrLn errr >> exitWith (ExitFailure 84)
+      Right ast -> mapM_ print (generateInstructionsList ast) >> exitSuccess
