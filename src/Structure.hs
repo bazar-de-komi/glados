@@ -94,70 +94,77 @@ data AST
       -- ^ Represents a list of AST nodes.
   deriving (Eq, Show)
 
--- Data
+-- | Represents the types of values that can be manipulated by the virtual machine.
 data Value
-  = VInt Int
-  | VFloat Float
-  | VBool Bool
-  | VString String
-  | VChar Char
+  = VInt Int        -- ^ Integer value.
+  | VFloat Float    -- ^ Floating-point value.
+  | VBool Bool      -- ^ Boolean value.
+  | VString String  -- ^ String value.
+  | VChar Char      -- ^ Character value.
   deriving (Eq)
 
 instance Show Value where
+-- | Displays the `Value` in a human-readable format.
   show (VInt int) = show int
   show (VBool bool) = show bool
   show (VFloat float) = show float
   show (VString string) = show string
   show (VChar char) = show char
 
+-- | Represents binary arithmetic operators supported by the virtual machine.
 data BinaryOperator
-  = ADD
-  | SUBTRACT
-  | MULTIPLY
-  | DIVIDE
-  | MODULO
+  = ADD       -- ^ Addition operator.
+  | SUBTRACT  -- ^ Subtraction operator.
+  | MULTIPLY  -- ^ Multiplication operator.
+  | DIVIDE    -- ^ Division operator.
+  | MODULO    -- ^ Modulus operator.
   deriving (Show, Eq)
 
+-- | Represents binary comparison operators supported by the virtual machine.
 data BinaryComparator
-  = COMPARE_GT
-  | COMPARE_LT
-  | COMPARE_EQ
-  | COMPARE_NE
-  | COMPARE_GE
-  | COMPARE_LE
+  = COMPARE_GT  -- ^ Greater than operator.
+  | COMPARE_LT  -- ^ Less than operator.
+  | COMPARE_EQ  -- ^ Equal to operator.
+  | COMPARE_NE  -- ^ Not equal to operator.
+  | COMPARE_GE  -- ^ Greater than or equal to operator.
+  | COMPARE_LE  -- ^ Less than or equal to operator.
   deriving (Show, Eq)
 
--- Instruction
+-- | Represents a single instruction in the virtual machine.
 data Instruction
-  = STORE_CONST Value
-  | STORE_VAR String
-  | LOAD_VAR String
-  | OPERATOR BinaryOperator
-  | COMPARATOR BinaryComparator
-  | JUMP String
-  | JUMP_IF_FALSE String
-  | LABEL String
-  | LABEL_FUNC String
-  | LABEL_FUNC_END String
-  | CALL String
-  | RETURN
-  | HALT
+  = STORE_CONST Value       -- ^ Pushes a constant value onto the stack.
+  | STORE_VAR String        -- ^ Stores the top value of the stack into a variable and remove it from the stack.
+  | LOAD_VAR String         -- ^ Loads a variable's value onto the stack.
+  | OPERATOR BinaryOperator -- ^ Applies a binary arithmetic operation on the top two stack values.
+  | COMPARATOR BinaryComparator -- ^ Applies a binary comparison operation on the top two stack values.
+  | JUMP String             -- ^ Jumps to a specified label unconditionally.
+  | JUMP_IF_FALSE String    -- ^ Jumps to a specified label if the top stack value is `False`.
+  | LABEL String            -- ^ Marks a label in the instruction sequence.
+  | LABEL_FUNC String       -- ^ Marks the beginning of a function with a label.
+  | LABEL_FUNC_END String   -- ^ Marks the end of a function with a label.
+  | CALL String             -- ^ Calls a function identified by a label.
+  | RETURN                  -- ^ Returns from the current function.
+  | HALT                    -- ^ Stops the execution of the virtual machine.
   deriving (Show, Eq)
 
--- Etat global pour générer des labels uniques
-data LabelState = LabelState { loopCounter :: Int, ifCounter :: Int }
+-- | Represents the state for generating unique labels in loops and conditions.
+data LabelState = LabelState 
+  { loopCounter :: Int  -- ^ Counter for generating unique loop labels.
+  , ifCounter :: Int    -- ^ Counter for generating unique condition labels.
+  }
 
+-- | Represents the state of the virtual machine.
 data VM = VM
-  {
-    stack :: [Value],
-    variables :: Map.Map String Value,
-    index :: Int,
-    indexBeforeFuncCall :: Maybe Int,
-    instructions :: [Instruction]
+  { stack :: [Value]                    -- ^ The stack of the virtual machine, holding `Value` elements.
+  , variables :: Map.Map String Value   -- ^ The map of variable names to their corresponding values.
+  , index :: Int                        -- ^ The index of the currently executing instruction.
+  , indexBeforeFuncCall :: Maybe Int   -- ^ The instruction index before the last function call, if any.
+  , instructions :: [Instruction]      -- ^ The list of instructions loaded in the virtual machine.
   }
 
 instance Show VM where
+  -- | Displays the first value of the stack if present, or a default message if the stack is empty.
   show vm =
     case stack vm of
-      (val:_) ->  show val
+      (val:_) -> show val
       []      -> "No return value"
