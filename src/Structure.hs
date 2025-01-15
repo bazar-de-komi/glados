@@ -154,4 +154,10 @@ data VM = VM
     index :: Int,
     indexBeforeFuncCall :: Maybe Int,
     instructions :: [Instruction]
-  } deriving (Show)
+  }
+
+instance Show VM where
+  show vm =
+    case stack vm of
+      (val:_) ->  show val
+      []      -> "No return value"
