@@ -1,3 +1,7 @@
+-- | This module provides the implementation of a virtual machine (VM) capable of executing a custom bytecode language.
+-- It includes functions for initializing the VM, handling execution of various instructions, managing control flow,
+-- variable storage, arithmetic and logical operations, function calls, and program termination.
+
 {-# LANGUAGE NamedFieldPuns #-}
 
 module RunVM (runVM) where
