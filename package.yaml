@@ -24,6 +24,7 @@ dependencies:
 - process
 - text
 - megaparsec >= 9.0
+- containers
 
 ghc-options:
 - -Wall
@@ -49,6 +50,7 @@ executables:
     - -with-rtsopts=-N
     dependencies:
     - glados
+    - containers
 
 tests:
   glados-test:
@@ -77,3 +79,4 @@ tests:
     - hspec
     - hspec-discover
     - silently
+    - containers

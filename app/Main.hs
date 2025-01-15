@@ -11,6 +11,7 @@ import Parser.ParserKleftisSExp (pProgram)
 import Parser.ParserSExpAST (parseFinalAST)
 import Text.Megaparsec
 import GenerateBytecode (generateInstructionsList)
+import RunVM (runVM)
 import System.Environment
 import System.IO
 import System.Exit (exitWith, exitSuccess, ExitCode(ExitFailure))
@@ -100,5 +101,5 @@ glados str  = do
     Left err -> putStrLn (errorBundlePretty err) >> exitWith (ExitFailure 84)
     Right expr -> case parseFinalAST expr of
       Left errr -> putStrLn errr >> exitWith (ExitFailure 84)
-      Right ast -> mapM_ print (generateInstructionsList ast) >> exitSuccess
+      Right ast -> print (runVM (generateInstructionsList ast)) >> exitSuccess
 
