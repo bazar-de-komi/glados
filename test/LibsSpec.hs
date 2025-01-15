@@ -1,24 +1,10 @@
 module LibsSpec (spec) where
 
 import Test.Hspec
-import Lib (litostr, needParenthese, checkFlag, tailOf, checkparenthese, checkNotEnd, checkAllString)
+import Lib (litostr, needParenthese, checkparenthese, checkNotEnd, checkAllString)
 
 spec:: Spec
 spec = do
-    describe "checkFlag" $ do
-        it "return True when -i is in the arguments" $ do
-            checkFlag ["-i", "file.scm"] `shouldBe` True
-
-        it "return False when -i is in not in the arguments" $ do
-            checkFlag ["file.scm"] `shouldBe` False
-
-    describe "tailOf" $ do
-        it "return the last element of a non-empty list" $ do
-            tailOf ["first", "seconde", "last"] `shouldBe` "last"
-
-        it "return an empty string for an empty list" $ do
-            tailOf [] `shouldBe` ""
-    
     describe "check parenthese" $ do
         it "add spaces before parentheses" $ do
             checkparenthese "(define x 42)" `shouldBe` " ( define x 42 ) "

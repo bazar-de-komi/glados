@@ -6,11 +6,14 @@
 
 module Main (main) where
 
-import Lib (checkArgs, litostr)
+import Lib (checkArgs, litostr, giveFileName)
 import Parser.ParserKleftisSExp (pProgram)
 import Parser.ParserSExpAST (parseFinalAST)
 import Text.Megaparsec
 import GenerateBytecode (generateInstructionsList)
+import System.Environment
+import System.IO
+import System.Exit (exitWith, exitSuccess, ExitCode(ExitFailure))
 
 -- | The `main` function is the entry point of the program.
 --
@@ -55,11 +58,47 @@ import GenerateBytecode (generateInstructionsList)
 -- - `parseFinalAST`: Converts the parsed S-expression into an AST.
 main :: IO ()
 main = do
-  input <- checkArgs
-  let result = parse pProgram "Input" (litostr input)
+  args <- getArgs
+  input <- checkArgs args
+  if "-c" `elem` args then justCompile (litostr input) (giveFileName args "-c") else
+    if "-v" `elem` args then justVM (litostr input) else
+      glados(litostr input)
+
+
+justCompile :: String -> String -> IO ()
+justCompile str "" = do
+  let result = parse pProgram "Input" (str)
   case result of
-    Left err -> putStrLn (errorBundlePretty err)
+    Left err -> putStrLn (errorBundlePretty err) >> exitWith (ExitFailure 84)
     Right expr -> case parseFinalAST expr of
-      Left errror -> putStrLn errror
-      Right ast -> mapM_ print (generateInstructionsList ast)
+      Left errr -> putStrLn errr >> exitWith (ExitFailure 84)
+      Right ast -> mapM_ print (generateInstructionsList ast) >> exitSuccess
+justCompile str fileName = do
+  handle <- openFile fileName WriteMode
+  let result = parse pProgram "Input" str
+  case result of
+    Left err -> hClose handle >> putStrLn (errorBundlePretty err) >> exitWith (ExitFailure 84)
+    Right expr -> case parseFinalAST expr of
+      Left errr -> hClose handle >> putStrLn errr >> exitWith (ExitFailure 84)
+      Right ast ->
+        mapM_ (hPutStrLn handle . show) (generateInstructionsList ast)
+          >> hClose handle >> exitSuccess
+
+justVM :: String -> IO()
+justVM str = do
+  let result = parse pProgram "Input" (str)
+  case result of
+    Left err -> putStrLn (errorBundlePretty err) >> exitWith (ExitFailure 84)
+    Right expr -> case parseFinalAST expr of
+      Left errr -> putStrLn errr >> exitWith (ExitFailure 84)
+      Right ast -> mapM_ print (generateInstructionsList ast) >> exitSuccess
+
+glados :: String -> IO()
+glados str  = do
+  let result = parse pProgram "Input" (str)
+  case result of
+    Left err -> putStrLn (errorBundlePretty err) >> exitWith (ExitFailure 84)
+    Right expr -> case parseFinalAST expr of
+      Left errr -> putStrLn errr >> exitWith (ExitFailure 84)
+      Right ast -> mapM_ print (generateInstructionsList ast) >> exitSuccess
 
