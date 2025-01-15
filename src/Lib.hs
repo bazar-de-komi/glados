@@ -4,37 +4,27 @@
 -- 2. Convert input into a single string.
 -- 3. Handle parentheses in Lisp-like expressions.
 
-module Lib (checkArgs, litostr, needParenthese, checkFlag, tailOf, whilegetline, checkparenthese, checkNotEnd, checkAllString, backToFile) where
+module Lib (checkArgs, giveFileName, litostr, needParenthese, whilegetline, checkparenthese, checkNotEnd, checkAllString, backToFile) where
 
 import System.IO
-import System.Environment
 
--- | Check if the '-i' flag is present in the arguments.
---
--- Returns 'True' if the flag is found, otherwise 'False'.
-checkFlag :: [String] -> Bool
-checkFlag args = "-i" `elem` args
-
--- | Get the last element of a list of strings.
---
--- Useful for extracting filenames from command-line arguments.
-tailOf :: [String] -> String
-tailOf [] = []
-tailOf (a:b)
-  | b == [] = a
-  | otherwise = tailOf b
+giveFileName :: [String] -> String -> String
+giveFileName [] _ = ""
+giveFileName ("-c" : ('-':_) : _) "-c" = ""
+giveFileName ("-c" : a : _) "-c" = a
+giveFileName ("-i" : ('-':_) : _) "-i" = ""
+giveFileName ("-i" : a : _) "-i" = a
+giveFileName (_:b) a = giveFileName b a
 
 -- | Check arguments and read input accordingly.
 --
 -- If the '-i' flag is present, read from a file specified in the arguments.
 -- Otherwise, read input line by line from standard input until EOF.
-checkArgs :: IO [String]
-checkArgs = do
-  args <- getArgs
-  if checkFlag args
+checkArgs :: [String] -> IO [String]
+checkArgs args = do
+  if "-i" `elem` args
     then do
-      let fileName = tailOf args
-      content <- readFile fileName
+      content <- readFile (giveFileName args "-i")
       return (lines content)
     else whilegetline
 
