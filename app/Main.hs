@@ -4,6 +4,8 @@
 -- the reading, parsing, and processing of Kleftis expressions, transforming
 -- them into an abstract syntax tree (AST) for further computation or evaluation.
 
+{-# LANGUAGE NamedFieldPuns #-}
+
 module Main (main) where
 
 import Lib (checkArgs, litostr)
@@ -11,6 +13,8 @@ import Parser.ParserKleftisSExp (pProgram)
 import Parser.ParserSExpAST (parseFinalAST)
 import Text.Megaparsec
 import GenerateBytecode (generateInstructionsList)
+import Structure (VM (..))
+import VM.Execute (runVM)
 
 -- | The `main` function is the entry point of the program.
 --
@@ -61,5 +65,14 @@ main = do
     Left err -> putStrLn (errorBundlePretty err)
     Right expr -> case parseFinalAST expr of
       Left errror -> putStrLn errror
-      Right ast -> mapM_ print (generateInstructionsList ast)
+      Right ast ->
+        mapM_ print (generateInstructionsList ast) >>
+        let vm = runVM (generateInstructionsList ast)
+        in print vm >> case stack vm of
+              (top:_) -> putStrLn $ "Last value on stack: " ++ show top
+              [] -> putStrLn "Stack is empty"
 
+-- main :: IO ()
+-- main =
+--   let vm = initializeVM exampleProgram
+--   in print (runVM vm)
