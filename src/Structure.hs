@@ -5,7 +5,9 @@
 -- 1. The `SExpr` type for representing Kleftis symbolic expressions (S-Expressions).
 -- 2. The `AST` type for representing parsed and processed Abstract Syntax Trees.
 
-module Structure (SExpr(..), AST(..), Instruction (..), BinaryOperator (..), BinaryComparator (..), Value(..), LabelState(..)) where
+module Structure (SExpr(..), AST(..), Instruction (..), BinaryOperator (..), BinaryComparator (..), Value(..), LabelState(..), VM (..)) where
+
+import qualified Data.Map as Map
 
 -- | Represents a Kleftis S-Expression (SExpr).
 --
@@ -144,3 +146,18 @@ data Instruction
 
 -- Etat global pour générer des labels uniques
 data LabelState = LabelState { loopCounter :: Int, ifCounter :: Int }
+
+data VM = VM
+  {
+    stack :: [Value],
+    variables :: Map.Map String Value,
+    index :: Int,
+    indexBeforeFuncCall :: Maybe Int,
+    instructions :: [Instruction]
+  }
+
+instance Show VM where
+  show vm =
+    case stack vm of
+      (val:_) ->  show val
+      []      -> "No return value"
