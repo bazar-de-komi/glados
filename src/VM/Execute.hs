@@ -1,6 +1,6 @@
 {-# LANGUAGE NamedFieldPuns #-}
 
-module VM.Execute (runVM, initializeVM) where
+module VM.Execute (runVM) where
 
 import qualified Data.Map as Map
 import Structure (Value (..), BinaryOperator (..), BinaryComparator (..), Instruction (..), VM (..))
