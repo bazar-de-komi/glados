@@ -21,7 +21,7 @@
 - A compiler for the language.
 - A virtual machine which acts as an executable
 
-The project aims to create, compile and run any language created with the Lisp language for a base.
+Our language is named Kleftis, and is inspired by Python, Haskell, and innovative ideas.
 
 ---
 
