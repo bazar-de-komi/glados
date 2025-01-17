@@ -4,7 +4,7 @@
 -- into an `AST` (Abstract Syntax Tree) structure. These functions handle
 -- conditional expressions, loops, definitions, and other language-specific constructs.
 
-module Parser.ParserSExpAST (parseFinalAST, findFuncOrDef, findIf, findLoop, findFor) where
+module Parser.ParserSExpAST (lastCheck, parseFinalAST, findFuncOrDef, findIf, findLoop, findFor) where
 
 import Structure (SExpr(..), AST(..))
 
@@ -194,3 +194,55 @@ parseFinalAST (SEList a) =
       Right astList -> Right (SListOf astList)
       Left err -> Left err
 parseFinalAST expr = Left $ "Unsupported SExpr: " ++ show expr
+
+checkFinalAST :: [AST] -> String
+checkFinalAST [] = ""
+checkFinalAST ((SFunc name _ _ _) : b) = chekInAST b name ++ checkFinalAST b
+checkFinalAST ((SDefine name _ _) : b) = chekInAST b name ++ checkFinalAST b
+checkFinalAST (_ : b) = checkFinalAST b
+
+-- | `lastCheck` - check the AST after converting.
+--
+-- ==== Parameters:
+-- - `SList AST`: The symbolic expression to check.
+--
+-- ==== Returns:
+-- - `Right AST`: An `AST` structure corresponding to the input.
+-- - `Left String`: An error if the input is unrecognized or invalid.
+--
+-- ==== Example:
+-- >>> chekInAST (SList [SFunc bob (...) (...), SFunc test (...) (...)]) test
+-- "ERROR Unexpected AST :(SEInt 42)"
+-- >>> chekInAST (SList [SFunc test (...) (...)])
+-- Right (SList [SFunc test (...) (...)])
+chekInAST :: [AST] -> String -> String
+chekInAST [] _ = ""
+chekInAST ((SFunc name _ _ _) : b) str
+  | name == str = "ERROR " ++ name ++ " is initialized 2 times"
+  | otherwise = chekInAST b str
+chekInAST ((SDefine name _ _) : b) str
+  | name == str = "ERROR " ++ name ++ " is initialized 2 times"
+  | otherwise = chekInAST b str
+chekInAST (_ : b) str = chekInAST b str
+
+-- | `lastCheck` - check the AST after converting.
+--
+-- ==== Parameters:
+-- - `SList AST`: The symbolic expression to check.
+--
+-- ==== Returns:
+-- - `Right AST`: An `AST` structure corresponding to the input.
+-- - `Left String`: An error if the input is unrecognized or invalid.
+--
+-- ==== Example:
+-- >>> lastCheck (Right (SEInt 42))
+-- Left "ERROR Unexpected AST :(SEInt 42)"
+-- >>> lastCheck (Right (SList [SFunc test (...) (...)]))
+-- Right (SList [SFunc test (...) (...)])
+lastCheck :: Either String AST -> Either String AST
+lastCheck (Right (SList a))
+  | checkFinalAST a == "" = (Right (SList a))
+  | otherwise = (Left (checkFinalAST a))
+lastCheck (Right a) = (Left ("ERROR Unexpected AST :" ++ show a))
+lastCheck (Left a) = (Left a)
+chekInAST ((SList a) : b) str = chekInAST b str
