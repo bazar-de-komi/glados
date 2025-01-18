@@ -1,11 +1,27 @@
+-- | This module provides the implementation of a virtual machine (VM) capable of executing a custom bytecode language.
+-- It includes functions for initializing the VM, handling execution of various instructions, managing control flow,
+-- variable storage, arithmetic and logical operations, function calls, and program termination.
+
 {-# LANGUAGE NamedFieldPuns #-}
 
-module RunVM (runVM) where
+module RunVM (initializeVM, findLabel, execute, executeInstructions, runVM) where
 
 import qualified Data.Map as Map
 import Structure (Value (..), BinaryOperator (..), BinaryComparator (..), Instruction (..), VM (..))
 import Data.List (find)
 
+-- | Initializes a virtual machine (VM) with a given list of instructions.
+--
+-- ==== Parameters
+-- * `[Instruction]`: A list of bytecode instructions that the VM will execute.
+--
+-- ==== Returns
+-- * `VM`: A virtual machine instance with an empty stack, an empty variable map,
+--   and the program counter (`index`) set to 0.
+--
+-- ==== Examples
+-- >>> initializeVM [STORE_CONST (VInt 42), HALT]
+-- VM {stack = [], variables = fromList [], index = 0, indexBeforeFuncCall = Nothing, instructions = [STORE_CONST (VInt 42), HALT]}
 initializeVM :: [Instruction] -> VM
 initializeVM instrs = VM
   { stack = []
@@ -15,6 +31,22 @@ initializeVM instrs = VM
   , instructions = instrs
   }
 
+-- | Finds the index of a label in a list of instructions.
+--
+-- ==== Parameters
+-- * `String`: The label to search for.
+-- * `[Instruction]`: The list of instructions to search within.
+--
+-- ==== Returns
+-- * `Maybe Int`: The index of the instruction containing the label, or `Nothing` if not found.
+--
+-- ==== Examples
+-- >>> findLabel "start" [LABEL "start", STORE_CONST (VInt 42)]
+-- Just 0
+-- >>> findLabel "end" [STORE_CONST (VInt 42), LABEL "end"]
+-- Just 1
+-- >>> findLabel "missing" [STORE_CONST (VInt 42)]
+-- Nothing
 findLabel :: String -> [Instruction] -> Maybe Int
 findLabel targetLabel program =
   let labels = zip [0..] program
@@ -23,6 +55,32 @@ findLabel targetLabel program =
                                       LABEL_FUNC_END label -> label == targetLabel
                                       _ -> False) labels)
 
+-- | Executes a single instruction on the virtual machine.
+--
+-- ==== Parameters
+-- * `Instruction`: The instruction to execute.
+-- * `VM`: The current state of the virtual machine.
+--
+-- ==== Returns
+-- * `VM`: The updated state of the virtual machine after executing the instruction.
+--
+-- ==== Logic
+-- Cette fonction est divisée en plusieurs cas, chacun correspondant à un type d'instruction :
+-- 1. **STORE_CONST** : Empile une valeur sur la pile.
+-- 2. **STORE_VAR** : Stocke une valeur de la pile dans une variable.
+-- 3. **LOAD_VAR** : Charge une variable dans la pile.
+-- 4. **OPERATOR** : Exécute des opérations binaires (addition, soustraction, etc.).
+-- 5. **COMPARATOR** : Effectue des comparaisons (>, <, ==, etc.).
+-- 6. **CALL** : Appelle une fonction en changeant l'index.
+-- 7. **LABEL_FUNC** / **LABEL_FUNC_END** : Gère les étiquettes de fonction.
+-- 8. **JUMP** / **JUMP_IF_FALSE** : Gère les sauts conditionnels ou inconditionnels.
+-- 9. **RETURN** : Revient à l'instruction après un appel de fonction.
+-- 10. **HALT** : Arrête la VM.
+--
+-- ==== Examples
+-- >>> let vm = initializeVM [STORE_CONST (VInt 42)]
+-- >>> execute (STORE_CONST (VInt 42)) vm
+-- VM {stack = [VInt 42], variables = fromList [], index = 1, indexBeforeFuncCall = Nothing, instructions = [...]}
 execute :: Instruction -> VM -> VM
 
 -- Execute STORE_CONST
@@ -163,6 +221,22 @@ execute RETURN vm =
 execute HALT vm =
   vm { index = -1 }
 
+-- | Executes all instructions in the VM until a termination condition is met.
+--
+-- ==== Parameters
+-- * `VM`: The initial state of the virtual machine.
+--
+-- ==== Returns
+-- * `VM`: The final state of the virtual machine after execution.
+--
+-- ==== Logic
+-- 1. La fonction s'arrête si l'index est hors des limites ou si l'instruction `HALT` est rencontrée.
+-- 2. Sinon, elle exécute récursivement chaque instruction via `execute`.
+--
+-- ==== Examples
+-- >>> let vm = initializeVM [STORE_CONST (VInt 42), HALT]
+-- >>> executeInstructions vm
+-- VM {stack = [VInt 42], variables = fromList [], index = -1, indexBeforeFuncCall = Nothing, instructions = [...]}
 executeInstructions :: VM -> VM
 executeInstructions vm@(VM { index, instructions })
   | index < 0 || index >= length instructions = vm
@@ -170,6 +244,17 @@ executeInstructions vm@(VM { index, instructions })
       let instr = instructions !! index
       in executeInstructions (execute instr vm)
 
+-- | Runs a virtual machine with the given list of instructions.
+--
+-- ==== Parameters
+-- * `[Instruction]`: The bytecode instructions to execute.
+--
+-- ==== Returns
+-- * `VM`: The final state of the virtual machine after executing the instructions.
+--
+-- ==== Examples
+-- >>> runVM [STORE_CONST (VInt 42), HALT]
+-- VM {stack = [VInt 42], variables = fromList [], index = -1, indexBeforeFuncCall = Nothing, instructions = [...]}
 runVM :: [Instruction] -> VM
 runVM instructions =
   let vm = initializeVM instructions

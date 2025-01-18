@@ -8,6 +8,7 @@ module Main (main) where
 
 import Lib (checkArgs, litostr, giveFileName)
 import Parser.ParserKleftisSExp (pProgram)
+import Parser.ParserCompilVM (pProgramInst)
 import Parser.ParserSExpAST (parseFinalAST)
 import Text.Megaparsec
 import GenerateBytecode (generateInstructionsList)
@@ -65,19 +66,16 @@ main = do
     if "-v" `elem` args then justVM (litostr input) else
       glados(litostr input)
 
-
 justCompile :: String -> String -> IO ()
-justCompile str "" = do
-  let result = parse pProgram "Input" (str)
-  case result of
+justCompile str "" =
+  case (parse pProgram "Input" (str)) of
     Left err -> putStrLn (errorBundlePretty err) >> exitWith (ExitFailure 84)
     Right expr -> case parseFinalAST expr of
       Left errr -> putStrLn errr >> exitWith (ExitFailure 84)
       Right ast -> mapM_ print (generateInstructionsList ast) >> exitSuccess
 justCompile str fileName = do
   handle <- openFile fileName WriteMode
-  let result = parse pProgram "Input" str
-  case result of
+  case (parse pProgram "Input" str) of
     Left err -> hClose handle >> putStrLn (errorBundlePretty err) >> exitWith (ExitFailure 84)
     Right expr -> case parseFinalAST expr of
       Left errr -> hClose handle >> putStrLn errr >> exitWith (ExitFailure 84)
@@ -86,18 +84,14 @@ justCompile str fileName = do
           >> hClose handle >> exitSuccess
 
 justVM :: String -> IO()
-justVM str = do
-  let result = parse pProgram "Input" (str)
-  case result of
+justVM str =
+  case (parse pProgramInst "Input" (str)) of
     Left err -> putStrLn (errorBundlePretty err) >> exitWith (ExitFailure 84)
-    Right expr -> case parseFinalAST expr of
-      Left errr -> putStrLn errr >> exitWith (ExitFailure 84)
-      Right ast -> mapM_ print (generateInstructionsList ast) >> exitSuccess
+    Right expr -> print (runVM expr) >> exitSuccess
 
 glados :: String -> IO()
-glados str  = do
-  let result = parse pProgram "Input" (str)
-  case result of
+glados str =
+  case (parse pProgram "Input" (str)) of
     Left err -> putStrLn (errorBundlePretty err) >> exitWith (ExitFailure 84)
     Right expr -> case parseFinalAST expr of
       Left errr -> putStrLn errr >> exitWith (ExitFailure 84)
