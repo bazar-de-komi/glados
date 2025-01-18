@@ -64,14 +64,59 @@ testInstruction = describe "Instruction" $ do
 testOperators :: Spec
 testOperators = describe "Operators" $ do
     it "handle addition" $ do
-        let ast = SList [SInt 3, SOperation "+", SInt 4]
-        generateInstructionsList ast `shouldBe` 
-            [STORE_CONST (VInt 3), STORE_CONST (VInt 4), OPERATOR ADD]
+      let ast = SList [SInt 3, SOperation "+", SInt 4]
+      generateInstructionsList ast `shouldBe` 
+        [STORE_CONST (VInt 3), STORE_CONST (VInt 4), OPERATOR ADD]
     
     it "handle subtraction" $ do
-        let ast = SList [SInt 10, SOperation "-", SInt 6]
-        generateInstructionsList ast `shouldBe` 
-            [STORE_CONST (VInt 10), STORE_CONST (VInt 6), OPERATOR SUBTRACT]
+      let ast = SList [SInt 10, SOperation "-", SInt 6]
+      generateInstructionsList ast `shouldBe` 
+        [STORE_CONST (VInt 10), STORE_CONST (VInt 6), OPERATOR SUBTRACT]
+    
+    it "handle multiplication" $ do
+      let ast = SList [SInt 4, SOperation "*", SInt 2]
+      generateInstructionsList ast `shouldBe`
+        [STORE_CONST (VInt 4), STORE_CONST (VInt 2), OPERATOR MULTIPLY]
+
+    it "handle division" $ do
+      let ast = SList [SInt 8, SOperation "/", SInt 4]
+      generateInstructionsList ast `shouldBe`
+        [STORE_CONST (VInt 8), STORE_CONST (VInt 4), OPERATOR DIVIDE]
+
+    it "handle modulo" $ do
+      let ast = SList [SInt 10, SOperation "%", SInt 3]
+      generateInstructionsList ast `shouldBe`
+        [STORE_CONST (VInt 10), STORE_CONST (VInt 3), OPERATOR MODULO]
+
+    it "handle greater than comparison" $ do
+      let ast = SList [SInt 5, SOperation ">", SInt 3]
+      generateInstructionsList ast `shouldBe`
+        [STORE_CONST (VInt 5), STORE_CONST (VInt 3), COMPARATOR COMPARE_GT]
+
+    it "handle less than comparison" $ do
+      let ast = SList [SInt 2, SOperation "<", SInt 5]
+      generateInstructionsList ast `shouldBe`
+        [STORE_CONST (VInt 2), STORE_CONST (VInt 5), COMPARATOR COMPARE_LT]
+
+    it "handle equality comparison" $ do
+      let ast = SList [SInt 3, SOperation "==", SInt 3]
+      generateInstructionsList ast `shouldBe`
+        [STORE_CONST (VInt 3), STORE_CONST (VInt 3), COMPARATOR COMPARE_EQ]
+
+    it "handle inequality comparison" $ do
+      let ast = SList [SInt 3, SOperation "!=", SInt 4]
+      generateInstructionsList ast `shouldBe`
+        [STORE_CONST (VInt 3), STORE_CONST (VInt 4), COMPARATOR COMPARE_NE]
+    
+    it "handle greater than or equal comparison" $ do
+      let ast = SList [SInt 5, SOperation ">=", SInt 5]
+      generateInstructionsList ast `shouldBe`
+        [STORE_CONST (VInt 5), STORE_CONST (VInt 5), COMPARATOR COMPARE_GE]
+
+    it "handle less than or equal comparison" $ do
+      let ast = SList [SInt 3, SOperation "<=", SInt 5]
+      generateInstructionsList ast `shouldBe`
+        [STORE_CONST (VInt 3), STORE_CONST (VInt 5), COMPARATOR COMPARE_LE]
 
 testCondition :: Spec
 testCondition = describe "Condition" $ do
@@ -106,3 +151,4 @@ testFunctionCall = describe "Function call" $ do
       let ast = buildFunctionCall "myFunction" [SInt 10, SInt 20]
       let expected = [STORE_CONST (VInt 20), STORE_CONST (VInt 10), CALL "myFunction"]
       generateInstructionsList ast `shouldBe` expected
+
