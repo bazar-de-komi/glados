@@ -1,7 +1,7 @@
 module IntegrationSpec (spec) where
 
 import Test.Hspec
-import GenerateBytecode (generateInstructionsList)
+import Compiler.GenerateBytecode (generateInstructionsList)
 import Structure (AST(..), Instruction(..), Value(..), BinaryOperator(..), BinaryComparator(..))
 
 spec :: Spec

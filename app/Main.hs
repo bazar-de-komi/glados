@@ -9,10 +9,10 @@ module Main (main) where
 import Lib (checkArgs, litostr, giveFileName)
 import Parser.ParserKleftisSExp (pProgram)
 import Parser.ParserCompilVM (pProgramInst)
-import Parser.ParserSExpAST (parseFinalAST)
+import Parser.ParserSExpAST (parseFinalAST, lastCheck)
 import Text.Megaparsec
-import GenerateBytecode (generateInstructionsList)
-import RunVM (runVM)
+import Compiler.GenerateBytecode (generateInstructionsList)
+import VM.RunVM (runVM)
 import System.Environment
 import System.IO
 import System.Exit (exitWith, exitSuccess, ExitCode(ExitFailure))
@@ -70,14 +70,14 @@ justCompile :: String -> String -> IO ()
 justCompile str "" =
   case (parse pProgram "Input" (str)) of
     Left err -> putStrLn (errorBundlePretty err) >> exitWith (ExitFailure 84)
-    Right expr -> case parseFinalAST expr of
+    Right expr -> case lastCheck (parseFinalAST expr) of
       Left errr -> putStrLn errr >> exitWith (ExitFailure 84)
       Right ast -> mapM_ print (generateInstructionsList ast) >> exitSuccess
 justCompile str fileName = do
   handle <- openFile fileName WriteMode
   case (parse pProgram "Input" str) of
     Left err -> hClose handle >> putStrLn (errorBundlePretty err) >> exitWith (ExitFailure 84)
-    Right expr -> case parseFinalAST expr of
+    Right expr -> case lastCheck (parseFinalAST expr) of
       Left errr -> hClose handle >> putStrLn errr >> exitWith (ExitFailure 84)
       Right ast ->
         mapM_ (hPutStrLn handle . show) (generateInstructionsList ast)
@@ -93,7 +93,7 @@ glados :: String -> IO()
 glados str =
   case (parse pProgram "Input" (str)) of
     Left err -> putStrLn (errorBundlePretty err) >> exitWith (ExitFailure 84)
-    Right expr -> case parseFinalAST expr of
+    Right expr -> case lastCheck (parseFinalAST expr) of
       Left errr -> putStrLn errr >> exitWith (ExitFailure 84)
       Right ast -> print (runVM (generateInstructionsList ast)) >> exitSuccess
 

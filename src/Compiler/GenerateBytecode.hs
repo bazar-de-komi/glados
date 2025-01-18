@@ -3,7 +3,7 @@
 
 {-# LANGUAGE LambdaCase #-}
 
-module GenerateBytecode
+module Compiler.GenerateBytecode
   ( generateInstructionsList,
   )
 where
