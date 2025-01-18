@@ -24,6 +24,7 @@ spec = do
         testConditionalExpressions
         testForLoop
         testFunction
+        testSDefine
 
 testAssigment :: Spec
 testAssigment = describe "Assigment" $ do
@@ -226,7 +227,7 @@ testConditionalExpressions = describe "Conditional Expressions with Calculation"
 testForLoop :: Spec
 testForLoop = describe "For Loop" $ do
       it "handles a simple for loop" $ do
-        -- AST pour : for (x = 0; x < 5; x = x + 1) { y = y + 2 }
+        -- AST  : for (x = 0; x < 5; x = x + 1) { y = y + 2 }
         let ast = SFor 
                     (SList [SVariable "x", SOperation "=", SInt 0]) -- Init
                     (SList [SVariable "x", SOperation "<", SInt 5])  -- Condition
@@ -256,7 +257,7 @@ testForLoop = describe "For Loop" $ do
 testFunction :: Spec
 testFunction = describe "Function" $ do
   it "handle a function with no parameters" $ do
-    -- AST pour : function myFunc() { return 42; }
+    -- AST  : function myFunc() { return 42; }
     let ast = SFunc "myFunc" (SType "Void") (SList []) 
                 (SList [SReturn (SInt 42)])
     let expected = 
@@ -268,7 +269,7 @@ testFunction = describe "Function" $ do
     generateInstructionsList ast `shouldBe` expected
 
   it "handle a function with simple parameters" $ do
-  -- AST pour : function myFunc(x, y) { return x + y; }
+  -- AST  : function myFunc(x, y) { return x + y; }
     let ast = SFunc "myFunc" (SType "Int") 
                 (SList [SType "Int", SList [SVariable "x", SVariable "y"]]) 
                 (SList [SReturn (SList [SVariable "x", SOperation "+", SVariable "y"])])
@@ -276,7 +277,7 @@ testFunction = describe "Function" $ do
             [ LABEL_FUNC "myFunc"
             , STORE_VAR "x"                 
             , STORE_VAR "y"                  
-            , LOAD_VAR "x"                 
+            , LOAD_VAR "x"                   -- body : x + y
             , LOAD_VAR "y"
             , OPERATOR ADD
             , RETURN
@@ -285,10 +286,69 @@ testFunction = describe "Function" $ do
     generateInstructionsList ast `shouldBe` expected
 
   it "handle a function with an empty body" $ do
-  -- AST pour : function myFunc() {}
+  -- AST: function myFunc() {}
     let ast = SFunc "myFunc" (SType "Void") (SList []) (SList [])
     let expected =
             [ LABEL_FUNC "myFunc"
             , LABEL_FUNC_END "myFunc"
+            ]
+    generateInstructionsList ast `shouldBe` expected
+
+testSDefine :: Spec
+testSDefine = describe "Variable Definition (SDefine)" $ do
+  it "handles defining a variable with an integer value" $ do
+    -- AST : int x = 42;
+    let ast = SDefine "x" (SType "Int") (SInt 42)
+    let expected =
+            [ STORE_CONST (VInt 42)  
+            , STORE_VAR "x"          
+            ]
+    generateInstructionsList ast `shouldBe` expected
+
+  it "handles defining a variable with an arithmetic expression" $ do
+    -- AST : int y = 10 + 32;
+    let ast = SDefine "y" (SType "Int") 
+                (SList [SInt 10, SOperation "+", SInt 32])
+    let expected =
+            [ STORE_CONST (VInt 10)  
+            , STORE_CONST (VInt 32)  
+            , OPERATOR ADD           
+            , STORE_VAR "y"          
+            ]
+    generateInstructionsList ast `shouldBe` expected
+
+  it "handles defining a variable with another variable as its value" $ do
+    -- AST : int z = y;
+    let ast = SDefine "z" (SType "Int") (SVariable "y")
+    let expected =
+            [ LOAD_VAR "y"          
+            , STORE_VAR "z"          
+            ]
+    generateInstructionsList ast `shouldBe` expected
+
+  it "handles defining a variable with a nested arithmetic expression" $ do
+    -- AST : int w = (x * 2) + 3;
+    let ast = SDefine "w" (SType "Int") 
+                (SList 
+                  [ SList [SVariable "x", SOperation "*", SInt 2]
+                  , SOperation "+"
+                  , SInt 3
+                  ])
+    let expected =
+            [ LOAD_VAR "x"          
+            , STORE_CONST (VInt 2)   
+            , OPERATOR MULTIPLY      
+            , STORE_CONST (VInt 3)   
+            , OPERATOR ADD          
+            , STORE_VAR "w"          
+            ]
+    generateInstructionsList ast `shouldBe` expected
+
+  it "handles defining a variable with a custom type" $ do
+    -- AST : customType obj = 5;
+    let ast = SDefine "obj" (SType "CustomType") (SInt 5)
+    let expected =
+            [ STORE_CONST (VInt 5)  
+            , STORE_VAR "obj"       
             ]
     generateInstructionsList ast `shouldBe` expected
