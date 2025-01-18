@@ -1,7 +1,7 @@
 module VMSpecs (spec) where
 
 import Test.Hspec
-import RunVM
+import RunVM (initializeVM, findLabel, execute, executeInstructions, runVM)
 import Structure
 import qualified Data.Map as Map
 import Control.Exception (evaluate)
