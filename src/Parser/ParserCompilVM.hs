@@ -68,52 +68,63 @@ parseStoreConst =
   string "STORE_CONST" <* noSpaceInst *>
   (STORE_CONST <$> parseVAlue)
 
+-- | Parses a `STORE_VAR` instruction with its associated variable name.
 parseStoreVar :: MyParser Instruction
 parseStoreVar =
   string("STORE_VAR") <* noSpaceInst *>
   (STORE_VAR <$> parseStringInst)
 
+-- | Parses a `LOAD_VAR` instruction with its associated variable name.
 parseLoadVar :: MyParser Instruction
 parseLoadVar =
   string("LOAD_VAR") <* noSpaceInst *>
   (LOAD_VAR <$> parseStringInst)
 
+-- | Parses a `JUMP` instruction with its target label.
 parseJump :: MyParser Instruction
 parseJump =
   string("JUMP") <* noSpaceInst *>
   (JUMP <$> parseStringInst)
 
+-- | Parses a `JUMP_IF_FALSE` instruction with its target label.
 parseJumpIfFalse :: MyParser Instruction
 parseJumpIfFalse =
   string("JUMP_IF_FALSE") <* noSpaceInst *>
   (JUMP_IF_FALSE <$> parseStringInst)
 
+-- | Parses a `LABEL` instruction with its label name.
 parseLabel :: MyParser Instruction
 parseLabel =
   string("LABEL") <* noSpaceInst *>
   (LABEL <$> parseStringInst)
 
+-- | Parses a `LABEL_FUNC` instruction with its label name.
 parseLabelFunc :: MyParser Instruction
 parseLabelFunc =
   string("LABEL_FUNC") <* noSpaceInst *>
   (LABEL_FUNC <$> parseStringInst)
 
+-- | Parses a `LABEL_FUNC_END` instruction.
 parseLabelFuncEnd :: MyParser Instruction
 parseLabelFuncEnd =
   string("LABEL_FUNC_END") <* noSpaceInst *>
   (LABEL_FUNC_END <$> parseStringInst)
 
+-- | Parses a `CALL` instruction with its target function label.
 parseCall :: MyParser Instruction
 parseCall =
   string("CALL") <* noSpaceInst *>
   (CALL <$> parseStringInst)
 
+-- | Parses a `RETURN` instruction.
 parseReturn :: MyParser Instruction
 parseReturn = RETURN <$ string("RETURN") <* noSpaceInst
 
+-- | Parses a `HALT` instruction.
 parseHalt :: MyParser Instruction
 parseHalt = HALT <$ string("HALT") <* noSpaceInst
 
+-- | Parses a binary operator.
 parseOperator :: MyParser BinaryOperator
 parseOperator = string("OPERATOR") <* noSpaceInst *> choice
   [ ADD <$ string("ADD")
@@ -123,6 +134,7 @@ parseOperator = string("OPERATOR") <* noSpaceInst *> choice
   , MODULO <$ string("MODULO")
   ] <* noSpaceInst
 
+-- | Parses a binary comparator.
 parseComparator :: MyParser BinaryComparator
 parseComparator = string("COMPARATOR") <* noSpaceInst *> choice
   [ COMPARE_GT <$ string("COMPARE_GT")
