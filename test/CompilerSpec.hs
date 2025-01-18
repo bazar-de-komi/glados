@@ -21,6 +21,7 @@ spec = do
         testOperators
         testCondition
         testFunctionCall
+        testConditionalExpressions
 
 testAssigment :: Spec
 testAssigment = describe "Assigment" $ do
@@ -152,3 +153,70 @@ testFunctionCall = describe "Function call" $ do
       let expected = [STORE_CONST (VInt 20), STORE_CONST (VInt 10), CALL "myFunction"]
       generateInstructionsList ast `shouldBe` expected
 
+testConditionalExpressions :: Spec
+testConditionalExpressions = describe "Conditional Expressions with Calculation" $ do
+    it "handle addition followed by comparison" $ do
+        let ast = SList [SInt 3, SOperation "+", SInt 4, SOperation ">", SInt 6]
+        let expected = 
+                [ STORE_CONST (VInt 3)
+                , STORE_CONST (VInt 4)
+                , OPERATOR ADD
+                , STORE_CONST (VInt 6)
+                , COMPARATOR COMPARE_GT
+                ]
+        generateInstructionsList ast `shouldBe` expected
+
+    it "handle multiplication followed by equality comparison" $ do
+        let ast = SList [SInt 2, SOperation "*", SInt 3, SOperation "==", SInt 6]
+        let expected = 
+                [ STORE_CONST (VInt 2)
+                , STORE_CONST (VInt 3)
+                , OPERATOR MULTIPLY
+                , STORE_CONST (VInt 6)
+                , COMPARATOR COMPARE_EQ
+                ]
+        generateInstructionsList ast `shouldBe` expected
+
+    it "handle comparison followed by subtraction" $ do
+        let ast = SList [SInt 10, SOperation ">", SInt 5, SOperation "-", SInt 3]
+        let expected = 
+                [ STORE_CONST (VInt 5)
+                , STORE_CONST (VInt 3)
+                , OPERATOR SUBTRACT
+                , STORE_CONST (VInt 10)
+                , COMPARATOR COMPARE_GT
+                ]
+        generateInstructionsList ast `shouldBe` expected
+
+    it "handle less than or equal comparison followed by multiplication" $ do
+      let ast = SList [SInt 4, SOperation "<=", SInt 6, SOperation "*", SInt 3]
+      let expected = 
+              [ STORE_CONST (VInt 6)
+              , STORE_CONST (VInt 3)
+              , OPERATOR MULTIPLY
+              , STORE_CONST (VInt 4)
+              , COMPARATOR COMPARE_LE
+              ]
+      generateInstructionsList ast `shouldBe` expected
+
+    it "handle modulo followed by less than comparison" $ do
+        let ast = SList [SInt 10, SOperation "%", SInt 3, SOperation "<", SInt 2]
+        let expected = 
+                [ STORE_CONST (VInt 10)
+                , STORE_CONST (VInt 3)
+                , OPERATOR MODULO
+                , STORE_CONST (VInt 2)
+                , COMPARATOR COMPARE_LT
+                ]
+        generateInstructionsList ast `shouldBe` expected
+
+    it "handle greater than or equal followed by division" $ do
+        let ast = SList [SInt 8, SOperation ">=", SInt 4, SOperation "/", SInt 2]
+        let expected = 
+                [ STORE_CONST (VInt 4)
+                , STORE_CONST (VInt 2)
+                , OPERATOR DIVIDE
+                , STORE_CONST (VInt 8)
+                , COMPARATOR COMPARE_GE
+                ]
+        generateInstructionsList ast `shouldBe` expected
