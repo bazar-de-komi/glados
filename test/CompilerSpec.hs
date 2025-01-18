@@ -22,6 +22,7 @@ spec = do
         testCondition
         testFunctionCall
         testConditionalExpressions
+        testForLoop
 
 testAssigment :: Spec
 testAssigment = describe "Assigment" $ do
@@ -218,5 +219,35 @@ testConditionalExpressions = describe "Conditional Expressions with Calculation"
                 , OPERATOR DIVIDE
                 , STORE_CONST (VInt 8)
                 , COMPARATOR COMPARE_GE
+                ]
+        generateInstructionsList ast `shouldBe` expected
+
+testForLoop :: Spec
+testForLoop = describe "Loop" $ do
+      it "handles a simple for loop" $ do
+        -- AST pour : for (x = 0; x < 5; x = x + 1) { y = y + 2 }
+        let ast = SFor 
+                    (SList [SVariable "x", SOperation "=", SInt 0]) -- Init
+                    (SList [SVariable "x", SOperation "<", SInt 5])  -- Condition
+                    (SList [SVariable "x", SOperation "=", SList [SVariable "x", SOperation "+", SInt 1]]) -- update
+                    (SList [SVariable "y", SOperation "=", SList [SVariable "y", SOperation "+", SInt 2]]) -- body
+        let expected = 
+                [ STORE_CONST (VInt 0)          -- Init : x = 0
+                , STORE_VAR "x"
+                , LABEL "loop_0"               -- label for start
+                , LOAD_VAR "x"                 -- Condition : x < 5
+                , STORE_CONST (VInt 5)
+                , COMPARATOR COMPARE_LT
+                , JUMP_IF_FALSE "loop_1"       -- jump if condition false
+                , LOAD_VAR "y"                 -- body : y = y + 2
+                , STORE_CONST (VInt 2)
+                , OPERATOR ADD
+                , STORE_VAR "y"
+                , LOAD_VAR "x"                 -- update : x = x + 1
+                , STORE_CONST (VInt 1)
+                , OPERATOR ADD
+                , STORE_VAR "x"
+                , JUMP "loop_0"                -- back start of the loop
+                , LABEL "loop_1"               -- label for end loop
                 ]
         generateInstructionsList ast `shouldBe` expected
