@@ -23,6 +23,7 @@ spec = do
         testFunctionCall
         testConditionalExpressions
         testForLoop
+        testFunction
 
 testAssigment :: Spec
 testAssigment = describe "Assigment" $ do
@@ -223,7 +224,7 @@ testConditionalExpressions = describe "Conditional Expressions with Calculation"
         generateInstructionsList ast `shouldBe` expected
 
 testForLoop :: Spec
-testForLoop = describe "Loop" $ do
+testForLoop = describe "For Loop" $ do
       it "handles a simple for loop" $ do
         -- AST pour : for (x = 0; x < 5; x = x + 1) { y = y + 2 }
         let ast = SFor 
@@ -251,3 +252,43 @@ testForLoop = describe "Loop" $ do
                 , LABEL "loop_1"               -- label for end loop
                 ]
         generateInstructionsList ast `shouldBe` expected
+
+testFunction :: Spec
+testFunction = describe "Function" $ do
+  it "handle a function with no parameters" $ do
+    -- AST pour : function myFunc() { return 42; }
+    let ast = SFunc "myFunc" (SType "Void") (SList []) 
+                (SList [SReturn (SInt 42)])
+    let expected = 
+            [ LABEL_FUNC "myFunc"
+            , STORE_CONST (VInt 42)          -- return 42
+            , RETURN
+            , LABEL_FUNC_END "myFunc"
+            ]
+    generateInstructionsList ast `shouldBe` expected
+
+  it "handle a function with simple parameters" $ do
+  -- AST pour : function myFunc(x, y) { return x + y; }
+    let ast = SFunc "myFunc" (SType "Int") 
+                (SList [SType "Int", SList [SVariable "x", SVariable "y"]]) 
+                (SList [SReturn (SList [SVariable "x", SOperation "+", SVariable "y"])])
+    let expected = 
+            [ LABEL_FUNC "myFunc"
+            , STORE_VAR "x"                 
+            , STORE_VAR "y"                  
+            , LOAD_VAR "x"                 
+            , LOAD_VAR "y"
+            , OPERATOR ADD
+            , RETURN
+            , LABEL_FUNC_END "myFunc"
+            ]
+    generateInstructionsList ast `shouldBe` expected
+
+  it "handle a function with an empty body" $ do
+  -- AST pour : function myFunc() {}
+    let ast = SFunc "myFunc" (SType "Void") (SList []) (SList [])
+    let expected =
+            [ LABEL_FUNC "myFunc"
+            , LABEL_FUNC_END "myFunc"
+            ]
+    generateInstructionsList ast `shouldBe` expected
