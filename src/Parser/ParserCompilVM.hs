@@ -4,33 +4,7 @@
 -- Kleftis syntax. It includes parsers for individual atoms, structured expressions,
 -- and complete programs, all built using Megaparsec.
 
-module Parser.ParserCompilVM(
-  pProgramInst,
-  pGroupedExprInst,
-  parseStringInst,
-  parsIntInst,
-  parsFloatInst,
-  parseCharInst,
-  parseBoolInst,
-  parseVAlue,
-  parseStoreConst,
-  parseStoreVar,
-  parseLoadVar,
-  parseJump,
-  parseJumpIfFalse,
-  parseLabel,
-  parseLabelFunc,
-  parseLabelFuncEnd,
-  parseCall,
-  parseReturn,
-  parseHalt,
-  parseOperator,
-  parseComparator,
-  parseInstruction,
-  noSpaceInst,
-  noUselessNInst,
-  nextLineInst
-) where
+module Parser.ParserCompilVM(pProgramInst, pGroupedExprInst, parseStringInst, parsIntInst, parsFloatInst, parseCharInst, parseBoolInst, parseVAlue, parseStoreConst, parseStoreVar, parseLoadVar, parseJump, parseJumpIfFalse, parseLabel, parseLabelFunc, parseLabelFuncEnd, parseCall, parseReturn, parseHalt, parseOperator, parseComparator, parseInstruction, noSpaceInst, noUselessNInst, nextLineInst) where
 
 import Structure (Instruction(..), BinaryOperator(..), BinaryComparator(..), Value(..))
 import Text.Megaparsec

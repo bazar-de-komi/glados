@@ -4,33 +4,7 @@ import Test.Hspec
 import Text.Megaparsec (parse, eof)
 import Data.Either (isLeft)
 import Structure (Instruction(..), Value(..), BinaryOperator(..), BinaryComparator(..))
-import Parser.ParserCompilVM (
-  noSpaceInst,
-  noUselessNInst,
-  nextLineInst,
-  parsIntInst,
-  parsFloatInst,
-  parseStringInst,
-  parseCharInst,
-  parseBoolInst,
-  parseVAlue,
-  parseStoreConst,
-  parseStoreVar,
-  parseLoadVar,
-  parseJump,
-  parseJumpIfFalse,
-  parseLabel,
-  parseLabelFunc,
-  parseLabelFuncEnd,
-  parseCall,
-  parseReturn,
-  parseHalt,
-  parseOperator,
-  parseComparator,
-  parseInstruction,
-  pGroupedExprInst,
-  pProgramInst
-  )
+import Parser.ParserCompilVM (noSpaceInst, noUselessNInst, nextLineInst, parsIntInst, parsFloatInst, parseStringInst, parseCharInst, parseBoolInst, parseVAlue, parseStoreConst, parseStoreVar, parseLoadVar, parseJump, parseJumpIfFalse, parseLabel, parseLabelFunc, parseLabelFuncEnd, parseCall, parseReturn, parseHalt, parseOperator, parseComparator, parseInstruction, pGroupedExprInst, pProgramInst)
 
 spec :: Spec
 spec = do
