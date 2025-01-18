@@ -216,6 +216,8 @@ checkFinalAST :: [AST] -> String
 checkFinalAST [] = ""
 checkFinalAST ((SFunc name _ _ _) : b) = chekInAST b name ++ checkFinalAST b
 checkFinalAST ((SDefine name _ _) : b) = chekInAST b name ++ checkFinalAST b
+checkFinalAST ((SList a) : b) = checkFinalAST a ++ checkFinalAST b
+checkFinalAST ((SVariable a) : (SVariable b) : _) = "ERROR : " ++ a ++ " " ++ b ++ " with no operation"
 checkFinalAST (_ : b) = checkFinalAST b
 
 -- | `chekInAST` - Validates that a specific name is not duplicated in the AST.

@@ -11,8 +11,8 @@ import Parser.ParserKleftisSExp (pProgram)
 import Parser.ParserCompilVM (pProgramInst)
 import Parser.ParserSExpAST (parseFinalAST, lastCheck)
 import Text.Megaparsec
-import GenerateBytecode (generateInstructionsList)
-import RunVM (runVM)
+import Compiler.GenerateBytecode (generateInstructionsList)
+import VM.RunVM (runVM)
 import System.Environment
 import System.IO
 import System.Exit (exitWith, exitSuccess, ExitCode(ExitFailure))
