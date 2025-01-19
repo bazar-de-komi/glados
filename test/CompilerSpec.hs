@@ -26,6 +26,7 @@ spec = do
         testFunction
         testSDefine
         testStoreConstants
+        testWhileLoop
 
 testAssigment :: Spec
 testAssigment = describe "Assigment" $ do
@@ -227,7 +228,7 @@ testConditionalExpressions = describe "Conditional Expressions with Calculation"
 
 testForLoop :: Spec
 testForLoop = describe "For Loop" $ do
-      it "handles a simple for loop" $ do
+      it "handle a simple for loop" $ do
         -- AST : for (x = 0; x < 5; x = x + 1) { y = y + 2 }
         let ast = SFor 
                     (SList [SVariable "x", SOperation "=", SInt 0]) -- Init
@@ -254,6 +255,30 @@ testForLoop = describe "For Loop" $ do
                 , LABEL "loop_1"               -- label end loop
                 ]
         generateInstructionsList ast `shouldBe` expected
+
+testWhileLoop :: Spec
+testWhileLoop = describe "While Loop" $ do
+  it "handle a while loop with a simplified condition" $ do
+    -- AST : while (x > 0) {
+    --         y = y + x
+    --       }
+    let ast = SLoop 
+                (SList [SVariable "x", SOperation ">", SInt 0]) 
+                (SList [SVariable "y", SOperation "=", SList [SVariable "y", SOperation "+", SVariable "x"]]) 
+    let expected = 
+            [ LABEL "loop_0"               
+            , LOAD_VAR "x"                 
+            , STORE_CONST (VInt 0)
+            , COMPARATOR COMPARE_GT
+            , JUMP_IF_FALSE "loop_1"      
+            , LOAD_VAR "y"                 
+            , LOAD_VAR "x"
+            , OPERATOR ADD
+            , STORE_VAR "y"
+            , JUMP "loop_0"                
+            , LABEL "loop_1"               
+            ]
+    generateInstructionsList ast `shouldBe` expected
 
 testFunction :: Spec
 testFunction = describe "Function" $ do
