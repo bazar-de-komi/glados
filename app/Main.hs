@@ -9,10 +9,10 @@ module Main (main) where
 import Lib (checkArgs, litostr, giveFileName)
 import Parser.ParserKleftisSExp (pProgram)
 import Parser.ParserCompilVM (pProgramInst)
-import Parser.ParserSExpAST (parseFinalAST)
+import Parser.ParserSExpAST (parseFinalAST, lastCheck)
 import Text.Megaparsec
-import GenerateBytecode (generateInstructionsList)
-import RunVM (runVM)
+import Compiler.GenerateBytecode (generateInstructionsList)
+import VM.RunVM (runVM)
 import System.Environment
 import System.IO
 import System.Exit (exitWith, exitSuccess, ExitCode(ExitFailure))
@@ -66,34 +66,108 @@ main = do
     if "-v" `elem` args then justVM (litostr input) else
       glados(litostr input)
 
+-- | Compiles a Kleftis program into a list of bytecode instructions.
+--
+-- This function takes the program source code as a string and an optional output
+-- filename. It parses the input into an abstract syntax tree (AST), generates
+-- the corresponding bytecode instructions, and writes them to the specified file.
+--
+-- If no filename is provided, the instructions are printed to the standard output.
+--
+-- ==== Error Handling:
+-- - If parsing fails, an error message is printed, and the program exits with code 84.
+-- - If semantic analysis of the AST fails, an appropriate error message is printed,
+--   and the program exits with code 84.
+--
+-- ==== Parameters:
+-- - `String`: The program source code as a string.
+-- - `String`: The name of the output file for the compiled bytecode.
+--
+-- ==== Example:
+-- Compiling the input:
+--
+-- > (define x 42)
+--
+-- Results in bytecode similar to:
+--
+-- > STORE_CONST 42
+-- > STORE_VAR x
 justCompile :: String -> String -> IO ()
 justCompile str "" =
   case (parse pProgram "Input" (str)) of
     Left err -> putStrLn (errorBundlePretty err) >> exitWith (ExitFailure 84)
-    Right expr -> case parseFinalAST expr of
+    Right expr -> case lastCheck (parseFinalAST expr) of
       Left errr -> putStrLn errr >> exitWith (ExitFailure 84)
       Right ast -> mapM_ print (generateInstructionsList ast) >> exitSuccess
 justCompile str fileName = do
   handle <- openFile fileName WriteMode
   case (parse pProgram "Input" str) of
     Left err -> hClose handle >> putStrLn (errorBundlePretty err) >> exitWith (ExitFailure 84)
-    Right expr -> case parseFinalAST expr of
+    Right expr -> case lastCheck (parseFinalAST expr) of
       Left errr -> hClose handle >> putStrLn errr >> exitWith (ExitFailure 84)
       Right ast ->
         mapM_ (hPutStrLn handle . show) (generateInstructionsList ast)
           >> hClose handle >> exitSuccess
 
+-- | Executes a list of bytecode instructions using the virtual machine (VM).
+--
+-- This function takes a string representing bytecode instructions, parses them
+-- into a list of `Instruction`s, and executes them using the virtual machine.
+-- The result of the execution is printed to the standard output.
+--
+-- ==== Error Handling:
+-- - If parsing the bytecode fails, an error message is printed, and the program exits with code 84.
+--
+-- ==== Parameters:
+-- - `String`: The bytecode instructions as a string.
+--
+-- ==== Example:
+-- Executing the input:
+--
+-- > STORE_CONST 42
+-- > STORE_VAR x
+-- > LOAD_VAR x
+--
+-- Prints the result of the virtual machine execution.
 justVM :: String -> IO()
 justVM str =
   case (parse pProgramInst "Input" (str)) of
     Left err -> putStrLn (errorBundlePretty err) >> exitWith (ExitFailure 84)
     Right expr -> print (runVM expr) >> exitSuccess
 
+-- | Orchestrates the entire workflow of parsing, semantic analysis, compilation, and execution.
+--
+-- This function processes a Kleftis program in its entirety:
+-- 1. Parses the program into an abstract syntax tree (AST).
+-- 2. Performs semantic analysis on the AST.
+-- 3. Generates bytecode instructions from the AST.
+-- 4. Executes the bytecode using the virtual machine (VM).
+--
+-- The function is designed to handle errors at each step and print appropriate
+-- messages if issues arise.
+--
+-- ==== Error Handling:
+-- - If parsing the program fails, an error message is printed, and the program exits with code 84.
+-- - If semantic analysis fails, a semantic error message is printed, and the program exits with code 84.
+--
+-- ==== Parameters:
+-- - `String`: The program source code as a string.
+--
+-- ==== Example:
+-- Given the input:
+--
+-- > (define x 42)
+--
+-- This function:
+-- 1. Parses it into an S-expression: `List [Atom "define", Atom "x", SEInt 42]`.
+-- 2. Converts it into an AST: `SDefine "x" (SType "int") (SInt 42)`.
+-- 3. Generates bytecode: `STORE_CONST 42`, `STORE_VAR x`.
+-- 4. Executes the bytecode and prints the result.
 glados :: String -> IO()
 glados str =
   case (parse pProgram "Input" (str)) of
     Left err -> putStrLn (errorBundlePretty err) >> exitWith (ExitFailure 84)
-    Right expr -> case parseFinalAST expr of
+    Right expr -> case lastCheck (parseFinalAST expr) of
       Left errr -> putStrLn errr >> exitWith (ExitFailure 84)
       Right ast -> print (runVM (generateInstructionsList ast)) >> exitSuccess
 

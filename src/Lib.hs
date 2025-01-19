@@ -8,6 +8,20 @@ module Lib (checkArgs, giveFileName, litostr, needParenthese, whilegetline, chec
 
 import System.IO
 
+-- | Retrieves the filename associated with a specific flag from a list of command-line arguments.
+--
+-- This function searches through the provided list of strings (representing command-line arguments) 
+-- to find the filename associated with a given flag (e.g., "-c" or "-i"). If the flag is found, 
+-- it returns the associated filename unless it is immediately followed by another flag 
+-- (indicated by a leading '-'). If the flag is not found, or if no filename is associated with it, 
+-- the function returns an empty string.
+--
+-- Arguments:
+--   - A list of command-line arguments (e.g., ["-c", "file.txt", "-i", "input.txt"]).
+--   - A specific flag to search for (e.g., "-c" or "-i").
+--
+-- Returns:
+--   The filename associated with the flag, or an empty string if no valid filename is found.
 giveFileName :: [String] -> String -> String
 giveFileName [] _ = ""
 giveFileName ("-c" : ('-':_) : _) "-c" = ""
