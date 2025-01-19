@@ -9,7 +9,6 @@ import qualified Data.Map as Map
 spec :: Spec
 spec = do
   describe "VM execution" $ do
-    -- Test de base pour la pile
     it "should push and pop values on the stack correctly" $ do
       let vm = (initializeVM [STORE_CONST (VInt 10), STORE_CONST (VInt 20)]) { stack = [] }
       let vm1 = execute (STORE_CONST (VInt 10)) vm
@@ -17,7 +16,6 @@ spec = do
       let vm2 = execute (STORE_CONST (VInt 20)) vm1
       stack vm2 `shouldBe` [VInt 20, VInt 10]
 
-    -- Test des variables
     it "should store and retrieve variables correctly" $ do
       let vm = (initializeVM [STORE_VAR "a", LOAD_VAR "a"]) { stack = [VInt 100] }
       let vm1 = execute (STORE_VAR "a") vm
@@ -25,7 +23,6 @@ spec = do
       let vm2 = execute (LOAD_VAR "a") vm1
       stack vm2 `shouldBe` [VInt 100]
 
-    -- Test des opérations binaires
     it "should perform addition correctly" $ do
       let vm = (initializeVM [OPERATOR ADD]) { stack = [VInt 4, VInt 6] }
       let vm1 = execute (OPERATOR ADD) vm
@@ -50,7 +47,6 @@ spec = do
       let vm = initializeVM [STORE_CONST (VInt 1), STORE_CONST (VInt 0)]
       evaluate (execute (OPERATOR DIVIDE) vm) `shouldThrow` anyErrorCall
 
-    -- Test des comparateurs
     it "should compare integers correctly" $ do
       let vm = (initializeVM [COMPARATOR COMPARE_GT]) { stack = [VInt 2, VInt 5] }
       let vm1 = execute (COMPARATOR COMPARE_GT) vm
@@ -61,7 +57,6 @@ spec = do
       let vm1 = execute (COMPARATOR COMPARE_EQ) vm
       stack vm1 `shouldBe` [VBool True]
 
-    -- Test des labels et des sauts
     it "should jump to a label correctly" $ do
       let vm = initializeVM
             [ LABEL "start"
@@ -83,7 +78,6 @@ spec = do
       let vm1 = executeInstructions vm
       stack vm1 `shouldBe` []
 
-    -- Test des fonctions
     it "should call and return from functions correctly" $ do
       let instructions =
             [ CALL "main"
@@ -103,27 +97,25 @@ spec = do
 
     it "should handle a complex sequence of instructions" $ do
       let instructions =
-              [ STORE_CONST (VInt 5)         -- Empile 5
-              , STORE_CONST (VInt 3)         -- Empile 3
-              , OPERATOR MULTIPLY            -- Multiplie 5 * 3 (résultat : 15)
-              , STORE_VAR "result"           -- Stocke 15 dans la variable "result"
-              , LOAD_VAR "result"            -- Charge "result" sur la pile
-              , STORE_CONST (VInt 5)         -- Empile 5
-              , OPERATOR ADD                 -- Ajoute 15 + 5 (résultat : 20)
-              , HALT                         -- Stoppe l'exécution
+              [ STORE_CONST (VInt 5)
+              , STORE_CONST (VInt 3)
+              , OPERATOR MULTIPLY
+              , STORE_VAR "result"
+              , LOAD_VAR "result"
+              , STORE_CONST (VInt 5)
+              , OPERATOR ADD
+              , HALT
               ]
       let vm = initializeVM instructions
       let vm1 = executeInstructions vm
       stack vm1 `shouldBe` [VInt 20]
       variables vm1 `shouldBe` Map.singleton "result" (VInt 15)
 
-    -- Test HALT
     it "should halt execution when HALT is reached" $ do
       let vm = initializeVM [STORE_CONST (VInt 42), HALT, STORE_CONST (VInt 99)]
       let vm1 = executeInstructions vm
       stack vm1 `shouldBe` [VInt 42]
 
-    -- Test des erreurs
     it "throws an error for invalid LOAD_VAR" $ do
       let vm = initializeVM [LOAD_VAR "missing"]
       evaluate (execute (LOAD_VAR "missing") vm) `shouldThrow` anyErrorCall

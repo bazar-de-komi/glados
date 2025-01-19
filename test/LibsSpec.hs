@@ -1,5 +1,5 @@
 module LibsSpec (spec) where
-    
+
 import Test.Hspec
 import Lib (litostr, needParenthese, checkparenthese, checkNotEnd, checkAllString)
 import Structure (Value(..), LabelState(..))
@@ -45,7 +45,7 @@ spec = do
             needParenthese "(lambda (a b) (+ a b))" `shouldBe` "(lambda (a b) (+ a b))"
 
         it "displays an integer value" $ do
-          let value = VInt 42                                                           
+          let value = VInt 42
           show value `shouldBe` "42"
 
         it "displays a float value" $ do
@@ -62,7 +62,7 @@ spec = do
 
         it "displays a string value" $ do
           let value = VString "hello"
-          show value `shouldBe` "\"hello\"" 
+          show value `shouldBe` "\"hello\""
 
         it "displays a character value" $ do
           let value = VChar 'a'
