@@ -4,7 +4,7 @@
 -- Kleftis syntax. It includes parsers for individual atoms, structured expressions,
 -- and complete programs, all built using Megaparsec.
 
-module Parser.ParserKleftisSExp (pProgram, pGroupedExpr, pNonEmptyGroup, pExpr, parseAtom, parseString, parsInt, noSpace, noSpaceForNew) where
+module Parser.ParserKleftisSExp (pProgram, pGroupedExpr, pNonEmptyGroup, pExpr, parseAtom, parseFor, parseIf, parseString, parsInt, parsFloat, noSpace, noSpaceForNew, parseLoop, parseList, parseBool) where
 
 import Structure (SExpr(..))
 import Text.Megaparsec

@@ -158,9 +158,9 @@ data VM = VM
   { stack :: [Value]                    -- ^ The stack of the virtual machine, holding `Value` elements.
   , variables :: Map.Map String Value   -- ^ The map of variable names to their corresponding values.
   , index :: Int                        -- ^ The index of the currently executing instruction.
-  , indexBeforeFuncCall :: Maybe Int   -- ^ The instruction index before the last function call, if any.
+  , callStack :: [Int]   -- ^ The instruction index before the last function call, if any.
   , instructions :: [Instruction]      -- ^ The list of instructions loaded in the virtual machine.
-  }
+  } deriving (Eq)
 
 instance Show VM where
   -- | Displays the first value of the stack if present, or a default message if the stack is empty.

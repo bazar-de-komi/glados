@@ -4,7 +4,7 @@
 -- into an `AST` (Abstract Syntax Tree) structure. These functions handle
 -- conditional expressions, loops, definitions, and other language-specific constructs.
 
-module Parser.ParserSExpAST (lastCheck, parseFinalAST, findFuncOrDef, findIf, findLoop, findFor) where
+module Parser.ParserSExpAST (lastCheck, parseFinalAST, findFuncOrDef, findIf, findLoop, findFor, findCall, checkFinalAST, chekInAST) where
 
 import Structure (SExpr(..), AST(..))
 
