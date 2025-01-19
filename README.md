@@ -74,13 +74,13 @@ cd glados
 make
 ```
 
-4. `./glados <flag> <arguments>`:
+3. `./glados <flag> <arguments>`:
 
+- `-i filename` or `< filename`: glados treat a file
 - no flag : glados does everything
 - `-c no argument` : glados only compiles a file with klefti syntaxe
 - `-c filename` : glados put the result of `-c` in `filename` (the file `filename` must be empty or non existant)
 - `-v` : glados use the vm on a file created by `./glados -c`
-- `-i filename` : glados treat a file, `< filename`, to use getlines
 
 ### Automated testing
 
