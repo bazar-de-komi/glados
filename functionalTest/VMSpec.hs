@@ -1,7 +1,7 @@
 module VMSpec (spec) where
 
 import Test.Hspec
-import VM.RunVM (initializeVM, execute, executeInstructions, runVM)
+import VM.RunVM (initializeVM, execute, executeInstructions)
 import Control.Exception (evaluate)
 import Structure (Value(..), BinaryOperator(..), BinaryComparator(..), Instruction(..), VM(..))
 import qualified Data.Map as Map
@@ -79,7 +79,7 @@ spec = do
       stack vm1 `shouldBe` []
 
     it "should call and return from functions correctly" $ do
-      let instructions =
+      let inst =
             [ CALL "main"
             , LABEL_FUNC "main"
             , STORE_CONST (VInt 10)
@@ -91,12 +91,12 @@ spec = do
             , OPERATOR ADD
             , RETURN
             , LABEL_FUNC_END "addOne"]
-      let vm = initializeVM instructions
+      let vm = initializeVM inst
       let vm1 = executeInstructions vm
       stack vm1 `shouldBe` [VInt 11]
 
     it "should handle a complex sequence of instructions" $ do
-      let instructions =
+      let inst =
               [ STORE_CONST (VInt 5)
               , STORE_CONST (VInt 3)
               , OPERATOR MULTIPLY
@@ -106,7 +106,7 @@ spec = do
               , OPERATOR ADD
               , HALT
               ]
-      let vm = initializeVM instructions
+      let vm = initializeVM inst
       let vm1 = executeInstructions vm
       stack vm1 `shouldBe` [VInt 20]
       variables vm1 `shouldBe` Map.singleton "result" (VInt 15)
