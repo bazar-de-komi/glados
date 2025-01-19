@@ -18,10 +18,11 @@
 
 **Glados** (repository name: `glados`) is a program designed to compile a customed language. The project includes:
 
-- A compiler for the language.
-- A virtual machine which acts as an executable
+- A [parser](src/Parser/Parser.md) that parses every instruction of our language
+- A compiler that convert it into [bytecode](src/Compiler/Bytecode.md).
+- A [virtual machine](src/VM/VM.md) which acts as an executable
 
-The project aims to create, compile and run any language created with the Lisp language for a base.
+Our language is named Kleftis, and is inspired by Python, Haskell, and innovative ideas.
 
 ---
 
