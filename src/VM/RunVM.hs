@@ -27,33 +27,51 @@ initializeVM instrs = VM
   { stack = []
   , variables = Map.empty
   , index = 0
-  , indexBeforeFuncCall = Nothing
+  , callStack = []
   , instructions = instrs
   }
 
 -- | Finds the index of a label in a list of instructions.
 --
 -- ==== Parameters
--- * `String`: The label to search for.
+-- * `Instruction`: The origin instruction.
 -- * `[Instruction]`: The list of instructions to search within.
 --
 -- ==== Returns
 -- * `Maybe Int`: The index of the instruction containing the label, or `Nothing` if not found.
 --
 -- ==== Examples
--- >>> findLabel "start" [LABEL "start", STORE_CONST (VInt 42)]
--- Just 0
--- >>> findLabel "end" [STORE_CONST (VInt 42), LABEL "end"]
+-- >>> findLabel (LABEL_FUNC "func") [LABEL_FUNC "func", LABEL_FUNC_END "func", STORE_CONST (VInt 42)]
 -- Just 1
--- >>> findLabel "missing" [STORE_CONST (VInt 42)]
+-- >>> findLabel (CALL "func") [CALL "func", LABEL_FUNC "func", LABEL_FUNC_END "func", STORE_CONST (VInt 42)]
+-- Just 1
+-- >>> findLabel (JUMP "label") [JUMP "label", LABEL "label", STORE_CONST (VInt 42)]
+-- Just 1
+-- >>> findLabel (JUMP_IF_FALSE "label") [JUMP_IF_FALSE "label", LABEL "label", STORE_CONST (VInt 42)]
+-- Just 1
+-- >>> findLabel (CALL "nonexistent") [STORE_CONST (VInt 42), HALT]
 -- Nothing
-findLabel :: String -> [Instruction] -> Maybe Int
-findLabel targetLabel program =
+-- >>> findLabel (JUMP_IF_FALSE "nonexistent") [STORE_CONST (VInt 42), HALT]
+-- Nothing
+-- >>> findLabel (JUMP "nonexistent") [STORE_CONST (VInt 42), HALT]
+-- Nothing
+findLabel :: Instruction -> [Instruction] -> Maybe Int
+findLabel instr program =
   let labels = zip [0..] program
-  in fmap fst (find (\(_, instr) -> case instr of
-                                      LABEL label -> label == targetLabel
-                                      LABEL_FUNC_END label -> label == targetLabel
-                                      _ -> False) labels)
+  in case instr of
+      LABEL_FUNC label -> fmap fst (find (\(_, currentInstr) -> case currentInstr of
+                                                    LABEL_FUNC_END endLabel -> endLabel == label
+                                                    _ -> False) labels)
+      CALL label -> fmap fst (find (\(_, currentInstr) -> case currentInstr of
+                                                    LABEL_FUNC funcLabel -> funcLabel == label
+                                                    _ -> False) labels)
+      JUMP label -> fmap fst (find (\(_, currentInstr) -> case currentInstr of
+                                                    LABEL label' -> label' == label
+                                                    _ -> False) labels)
+      JUMP_IF_FALSE label -> fmap fst (find (\(_, currentInstr) -> case currentInstr of
+                                                    LABEL label' -> label' == label
+                                                    _ -> False) labels)
+      _ -> Nothing
 
 -- | Executes a single instruction on the virtual machine.
 --
@@ -177,47 +195,52 @@ execute (COMPARATOR cmp) vm =
 
 -- Execute CALL
 execute (CALL funcLabel) vm =
-  case findLabel funcLabel (instructions vm) of
+  case findLabel (CALL funcLabel) (instructions vm) of
     Just funcIndex ->
-      vm { indexBeforeFuncCall = Just (index vm + 1), index = funcIndex + 1  }
+      vm { callStack = index vm + 1 : callStack vm, index = funcIndex }
     Nothing -> error $ "Function label not found: " ++ funcLabel
 
 -- Execute LABEL_FUNC
 execute (LABEL_FUNC funcName) vm =
-  case indexBeforeFuncCall vm of
-    Just _ -> vm { index = index vm + 1 }
-    Nothing ->
-      case findLabel funcName (instructions vm) of
+  case callStack vm of
+    (_ : _) -> vm { index = index vm + 1 }
+    [] ->
+      case findLabel (LABEL_FUNC funcName) (instructions vm) of
         Just endIndex -> vm { index = endIndex + 1 }
         Nothing -> error $ "LABEL_FUNC_END not found for " ++ funcName
 
 -- Execute LABEL_FUNC_END
 execute (LABEL_FUNC_END _) vm =
-  case indexBeforeFuncCall vm of
-    Just prevIndex -> vm { index = prevIndex, indexBeforeFuncCall = Nothing }
-    Nothing -> vm { index = index vm + 1 }
+  case callStack vm of
+    (prevIndex : restCallStack) -> vm { index = prevIndex, callStack = restCallStack }
+    [] -> vm { index = index vm + 1 }
 
+-- Execute JUMP
 execute (JUMP label) vm =
-  case findLabel label (instructions vm) of
+  case findLabel (JUMP label) (instructions vm) of
     Just newIndex -> vm { index = newIndex }
     Nothing -> error $ "Label not found: " ++ label
 
+-- Execute JUMP_IF_FALSE
 execute (JUMP_IF_FALSE label) vm =
   case stack vm of
-    (VBool False : rest) -> case findLabel label (instructions vm) of
+    (VBool False : rest) -> case findLabel (JUMP_IF_FALSE label) (instructions vm) of
       Just newIndex -> vm { stack = rest, index = newIndex }
       Nothing -> error $ "Label not found: " ++ label
     (VBool True : rest) -> vm { stack = rest, index = index vm + 1 }
     _ -> error "Stack underflow or invalid type in JUMP_IF_FALSE"
 
+-- Execute LABEL
 execute (LABEL _) vm =
   vm { index = index vm + 1 }
 
+-- Execute RETURN
 execute RETURN vm =
-  case indexBeforeFuncCall vm of
-    Just prevIndex -> vm { index = prevIndex, indexBeforeFuncCall = Nothing }
-    Nothing -> error "RETURN called outside of a function"
+  case callStack vm of
+    (prevIndex:restCallStack) -> vm { index = prevIndex, callStack = restCallStack }
+    [] -> error "RETURN called outside of a function"
 
+-- Execute HALT
 execute HALT vm =
   vm { index = -1 }
 
