@@ -1,7 +1,7 @@
 module LibsSpec (spec) where
-    
+
 import Test.Hspec
-import Lib (litostr, needParenthese, checkparenthese, checkNotEnd, checkAllString)
+import Lib (litostr, needParenthese, checkparenthese, checkNotEnd, checkAllString, backToFile)
 import Structure (Value(..), LabelState(..))
 
 spec:: Spec
@@ -92,3 +92,21 @@ spec = do
           let state = LabelState (-1) (-2)
           loopCounter state `shouldBe` (-1)
           ifCounter state `shouldBe` (-2)
+
+        it "returns an empty string for an empty list" $ do
+            backToFile [] `shouldBe` ""
+
+        it "returns the single element for a one-element list" $ do
+            backToFile ["Hello"] `shouldBe` "Hello\n"
+
+        it "concatenates multiple elements with \\n" $ do
+            backToFile ["Hello", "World", "Test"] `shouldBe` "Hello\nWorld\nTest\n"
+
+        it "handles a list with empty strings correctly" $ do
+            backToFile ["Hello", "", "World"] `shouldBe` "Hello\n\nWorld\n"
+
+        it "handles a list of empty strings" $ do
+            backToFile ["", "", ""] `shouldBe` "\n\n\n"
+
+        it "handles a list with mixed empty and non-empty strings" $ do
+            backToFile ["First", "", "Last"] `shouldBe` "First\n\nLast\n"
