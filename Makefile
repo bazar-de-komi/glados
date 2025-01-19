@@ -23,8 +23,20 @@ $(NAME):
 	$(STACK) build
 	@cp $(PATHBIN)/bin/glados-exe ./$(NAME)
 
-test:	clean
-	stack test
+test:	fclean	unit-tests	functional-tests
+
+unit-tests:
+	$(STACK)	test :glados-test
+
+functional-tests: all
+	$(STACK)	test :glados-functional-test
+	$(MAKE) clean
+
+test-functional:
+	$(MAKE) functional-tests
+
+test-unit:
+	$(MAKE) unit-tests
 
 test-coverage:	clean
 	$(STACK) test --coverage
@@ -49,4 +61,4 @@ re:	fclean	all
 docs:
 	$(STACK) haddock
 
-.PHONY:	re	all	clean	fclean	docs	test	retest	test-coverage
+.PHONY:	re	all	clean	fclean	docs	test	retest	test-coverage	unit-tests	functional-tests	test-functional	test-unit	

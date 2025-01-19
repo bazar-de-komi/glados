@@ -1,34 +1,21 @@
 module LibsSpec (spec) where
 
 import Test.Hspec
-import Lib (litostr, needParenthese, checkFlag, tailOf, checkparenthese, checkNotEnd, checkAllString)
+import Lib (litostr, needParenthese, checkparenthese, checkNotEnd, checkAllString)
+import Structure (Value(..), LabelState(..))
 
 spec:: Spec
 spec = do
-    describe "checkFlag" $ do
-        it "return True when -i is in the arguments" $ do
-            checkFlag ["-i", "file.scm"] `shouldBe` True
-
-        it "return False when -i is in not in the arguments" $ do
-            checkFlag ["file.scm"] `shouldBe` False
-
-    describe "tailOf" $ do
-        it "return the last element of a non-empty list" $ do
-            tailOf ["first", "seconde", "last"] `shouldBe` "last"
-
-        it "return an empty string for an empty list" $ do
-            tailOf [] `shouldBe` ""
-    
     describe "check parenthese" $ do
         it "add spaces before parentheses" $ do
-            checkparenthese "(define x 42)" `shouldBe` " (define x 42)"
-        
+            checkparenthese "(define x 42)" `shouldBe` " ( define x 42 ) "
+
         it "does nothing if there are no parentheses" $ do
             checkparenthese "define x 42" `shouldBe` "define x 42"
 
     describe "convert list to str" $ do
         it "converts a list of strings into a single string with spaces" $ do
-            litostr ["define", "x", "(42)"] `shouldBe` "define x  (42) "
+            litostr ["define", "x", "(42)"] `shouldBe` "define\nx\n(42)"
 
         it "returns an empty string for an empty list" $ do
             litostr [] `shouldBe` ""
@@ -56,3 +43,52 @@ spec = do
 
         it "does not modify, already balanced strings" $ do
             needParenthese "(lambda (a b) (+ a b))" `shouldBe` "(lambda (a b) (+ a b))"
+
+        it "displays an integer value" $ do
+          let value = VInt 42
+          show value `shouldBe` "42"
+
+        it "displays a float value" $ do
+          let value = VFloat 3.14
+          show value `shouldBe` "3.14"
+
+        it "displays a boolean value (True)" $ do
+          let value = VBool True
+          show value `shouldBe` "True"
+
+        it "displays a boolean value (False)" $ do
+          let value = VBool False
+          show value `shouldBe` "False"
+
+        it "displays a string value" $ do
+          let value = VString "hello"
+          show value `shouldBe` "\"hello\""
+
+        it "displays a character value" $ do
+          let value = VChar 'a'
+          show value `shouldBe` "'a'"
+
+        it "correctly creates a LabelState with initialized counters" $ do
+          let state = LabelState 0 0
+          loopCounter state `shouldBe` 0
+          ifCounter state `shouldBe` 0
+
+        it "to modify the loopCounter" $ do
+          let state = LabelState 1 0
+          loopCounter state `shouldBe` 1
+          ifCounter state `shouldBe` 0
+
+        it "is used to modify the ifCounter" $ do
+          let state = LabelState 0 2
+          loopCounter state `shouldBe` 0
+          ifCounter state `shouldBe` 2
+
+        it "to modify both counters" $ do
+          let state = LabelState 3 4
+          loopCounter state `shouldBe` 3
+          ifCounter state `shouldBe` 4
+
+        it "creates a LabelState with negative values" $ do
+          let state = LabelState (-1) (-2)
+          loopCounter state `shouldBe` (-1)
+          ifCounter state `shouldBe` (-2)

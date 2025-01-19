@@ -21,6 +21,10 @@ description:         Please see the README on GitHub at <https://github.com/gith
 
 dependencies:
 - base >= 4.7 && < 5
+- process
+- text
+- megaparsec >= 9.0
+- containers
 
 ghc-options:
 - -Wall
@@ -46,6 +50,7 @@ executables:
     - -with-rtsopts=-N
     dependencies:
     - glados
+    - containers
 
 tests:
   glados-test:
@@ -61,3 +66,17 @@ tests:
     - hspec
     - hspec-discover
     - silently
+  
+  glados-functional-test:
+    main:                FunctionalSpec.hs
+    source-dirs:         functionalTest
+    ghc-options:
+    - -threaded
+    - -rtsopts
+    - -with-rtsopts=-N
+    dependencies:
+    - glados
+    - hspec
+    - hspec-discover
+    - silently
+    - containers
