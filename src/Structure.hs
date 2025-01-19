@@ -160,7 +160,7 @@ data VM = VM
   , index :: Int                        -- ^ The index of the currently executing instruction.
   , indexBeforeFuncCall :: Maybe Int   -- ^ The instruction index before the last function call, if any.
   , instructions :: [Instruction]      -- ^ The list of instructions loaded in the virtual machine.
-  }
+  } deriving (Eq)
 
 instance Show VM where
   -- | Displays the first value of the stack if present, or a default message if the stack is empty.
