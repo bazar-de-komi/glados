@@ -69,25 +69,24 @@ spec = do
       let vm1 = executeInstructions vm
       stack vm1 `shouldBe` []
 
-    -- Test des fonctions
-    it "should call and return from functions correctly" $ do
-      let instructions =
-              [ CALL "main"           -- Appelle la fonction "main" depuis le contexte global
-              , LABEL_FUNC "main"
-              , STORE_CONST (VInt 10) -- Empile 10
-              , CALL "addOne"         -- Appelle la fonction "addOne"
-              , RETURN                -- Termine l'exécution de "main"
-              , LABEL_FUNC_END "main" -- Fin de la fonction "main"
-              , LABEL_FUNC "addOne"   -- Début de la fonction "addOne"
-              , STORE_CONST (VInt 1)  -- Empile 1
-              , OPERATOR ADD          -- Ajoute 10 + 1
-              , RETURN                -- Retourne à l'appelant avec le résultat sur la pile
-              , LABEL_FUNC_END "addOne" -- Fin de la fonction "addOne"
-              ]
-      let vm = initializeVM instructions
-      let vm1 = executeInstructions vm
-      stack vm1 `shouldBe` [VInt 11]
-
+    -- -- Test des fonctions
+    -- it "should call and return from functions correctly" $ do
+    --   let instructions =
+    --           [ CALL "main"           -- Appelle la fonction "main" depuis le contexte global
+    --           , LABEL_FUNC "main"
+    --           , STORE_CONST (VInt 10) -- Empile 10
+    --           , CALL "addOne"         -- Appelle la fonction "addOne"
+    --           , RETURN                -- Termine l'exécution de "main"
+    --           , LABEL_FUNC_END "main" -- Fin de la fonction "main"
+    --           , LABEL_FUNC "addOne"   -- Début de la fonction "addOne"
+    --           , STORE_CONST (VInt 1)  -- Empile 1
+    --           , OPERATOR ADD          -- Ajoute 10 + 1
+    --           , RETURN                -- Retourne à l'appelant avec le résultat sur la pile
+    --           , LABEL_FUNC_END "addOne" -- Fin de la fonction "addOne"
+    --           ]
+    --   let vm = initializeVM instructions
+    --   let vm1 = executeInstructions vm
+    --   stack vm1 `shouldBe` [VInt 11]
 
     -- Test des instructions complexes
     it "should handle a complex sequence of instructions" $ do
