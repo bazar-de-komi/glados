@@ -6,9 +6,7 @@
 - [Data Types](#data-types)
 - [Comments](#comments)
 - [Syntax Transformations](#syntax-transformations)
-- [Structures](#structures)
 - [Functions](#functions)
-- [Some Examples](#some-examples)
 
 ---
 
@@ -57,7 +55,6 @@ Kleftis modifies certain standard keywords and symbols:
 
 ```kleftis
 test.nomentier (12)
-test.list.ajout{#@ prout encore#}
 
 addition : ent [ent (a b)]
     résult a + b
@@ -90,17 +87,31 @@ pour (i : int(2)) [i < 5] (i = i + 1) (a = a + i)
 ### Declaring a Function with Parameters of the Same Type
 
 ```kleftis
-nomFonction : typeDeRetour [typeVariable (var1 var2)] 
+nomFonction : typeDeRetour [typeVariable (var1 var2)] (
+    ...
+)
 ```
 
 ### Declaring a Function with Diffrent Parameter Types
 
 ```kleftis
-nomFonction : typeDeRetour [ent (var1) reel (var2)]
+nomFonction : typeDeRetour [ent (var1) reel (var2)] (
+    ... 
+)
 ```
 
 ### Calling a Function
 
 ```kleftis
-résultat : typeDeRetour (nomFonction param1 param2)
+nomFonction : ent [ent(i)] (
+    (a:ent(0))
+    tantque[i>0] (
+        (i=i- 1)
+        (a = a+1)
+    )
+    pour (i:ent(0)) [i<3] (i = i + 1) (
+        (a = a * a)
+    )
+    result a
+)
 ```
