@@ -48,11 +48,11 @@ parseString = string "#@" *> manyTill anySingle (lookAhead (char '#')) <* char '
 -- | Parses a type annotation (e.g., `int`, `float`, `bool`).
 parseType :: MyParser String
 parseType = try $ choice
-  [ string "int" <* lookAhead (char ' ')
-  , string "str" <* lookAhead (char ' ')
-  , string "float" <* lookAhead (char ' ')
-  , string "bool" <* lookAhead (char ' ')
-  , string "char" <* lookAhead (char ' ')
+  [ "int" <$ string "ent" <* lookAhead (char ' ')
+  , "str" <$ string "chaine" <* lookAhead (char ' ')
+  , "float" <$ string "reel" <* lookAhead (char ' ')
+  , "bool" <$ string "bool" <* lookAhead (char ' ')
+  , "char" <$ string "car" <* lookAhead (char ' ')
   ]
 
 -- | Parses a boolean value (`True` or `False`).
@@ -101,7 +101,7 @@ parseIf = SEIf <$> (try (string "si" <* lookAhead (char ' ') <* noSpace) *> pars
 
 -- | Parses a `while` loop expression starting with `tankeu`.
 parseLoop :: MyParser SExpr
-parseLoop = SELoop <$> (try (string "tankeu" <* lookAhead (char ' ') <* noSpace) *> parseParam)
+parseLoop = SELoop <$> (try (string "tantque" <* lookAhead (char ' ') <* noSpace) *> parseParam)
                    <*> parseList
 
 -- | Parses a `for` loop expression starting with `pour`.
