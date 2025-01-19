@@ -63,12 +63,12 @@ spec = do
                                                                      (List []))
 
     it "parses while loop expressions correctly" $ do
-      let input = "tankeu [x < 10] (result x)"
+      let input = "tantque [x < 10] (result x)"
       parse parseLoop "" input `shouldBe` Right (SELoop (Param [Atom "x", BasicFunc "<", SEInt 10]) 
                                                         (List [Return (List [Atom "x"])]))
 
     it "parses while loop expressions not correctly" $ do
-      parse parseLoop "" "tankeu [x < 10]" `shouldSatisfy` either (const True) (const False)
+      parse parseLoop "" "tantque [x < 10]" `shouldSatisfy` either (const True) (const False)
 
     it "parses for loop expressions correctly" $ do
       let input = "pour (= i 0) [i < 10] (i += 1) (result i)"
