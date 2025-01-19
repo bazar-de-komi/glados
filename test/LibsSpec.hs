@@ -44,9 +44,6 @@ spec = do
         it "does not modify, already balanced strings" $ do
             needParenthese "(lambda (a b) (+ a b))" `shouldBe` "(lambda (a b) (+ a b))"
 
--- testShowValue :: Spec
--- testShowValue = describe "Show Value" $ do
-
         it "displays an integer value" $ do
           let value = VInt 42                                                           
           show value `shouldBe` "42"
@@ -65,9 +62,9 @@ spec = do
 
         it "displays a string value" $ do
           let value = VString "hello"
-          show value `shouldBe` "\"hello\"" -- Les chaînes sont affichées avec des guillemets
+          show value `shouldBe` "\"hello\"" 
 
         it "displays a character value" $ do
           let value = VChar 'a'
-          show value `shouldBe` "'a'" -- Les caractères sont affichés avec des apostrophes
+          show value `shouldBe` "'a'"
 
