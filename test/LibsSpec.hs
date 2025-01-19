@@ -12,6 +12,21 @@ spec = do
 
         it "does nothing if there are no parentheses" $ do
             checkparenthese "define x 42" `shouldBe` "define x 42"
+        
+        it "adds spaces around parentheses" $ do
+            checkparenthese "(a)" `shouldBe` " ( a ) "
+
+        it "adds spaces around brackets" $ do
+          checkparenthese "[a]" `shouldBe` " [ a ] "
+
+        it "adds spaces around braces" $ do
+          checkparenthese "{a}" `shouldBe` " { a } "
+
+        it "returns an empty string when given an empty string" $ do
+          checkparenthese "" `shouldBe` ""
+
+        it "does not add spaces around other characters" $ do
+          checkparenthese "abc123" `shouldBe` "abc123"
 
     describe "convert list to str" $ do
         it "converts a list of strings into a single string with spaces" $ do
