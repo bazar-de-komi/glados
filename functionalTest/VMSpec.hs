@@ -1,7 +1,7 @@
 module VMSpec (spec) where
 
 import Test.Hspec
-import RunVM (initializeVM, execute, executeInstructions, runVM)
+import VM.RunVM (initializeVM, execute, executeInstructions, runVM)
 import Control.Exception (evaluate)
 import Structure (Value(..), BinaryOperator(..), BinaryComparator(..), Instruction(..), VM(..))
 import qualified Data.Map as Map
@@ -9,7 +9,6 @@ import qualified Data.Map as Map
 spec :: Spec
 spec = do
   describe "VM execution" $ do
-
     -- Test de base pour la pile
     it "should push and pop values on the stack correctly" $ do
       let vm = (initializeVM [STORE_CONST (VInt 10), STORE_CONST (VInt 20)]) { stack = [] }
