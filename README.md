@@ -55,7 +55,7 @@ The source code and version control for the project can be found at the followin
 To set up the project locally, ensure you have the following tools installed:
 
 - **Git** (or at least a local version of the repository): This will be used as the source for the tutorial
-- **ghci**: This will be used to create glados' executable
+- **stack**: This will be used to create glados' executable
 
 ### Usage
 
@@ -63,27 +63,24 @@ If you already have an instance of the repository on your computer you can skip 
 
 1. Clone the repository to your local machine:
 
-    ```bash
-    git clone https://github.com/bazar-de-komi/glados.git
-    cd glados
-    ```
+```bash
+git clone https://github.com/bazar-de-komi/glados.git
+cd glados
+```
 
-2. <Presenting our language... so we need to make it obviously>
+2. Create Glados executable:
 
-3. Create Glados executable:
+```bash
+make
+```
 
-    ```bash
-    make
-    ```
+3. `./glados <flag> <arguments>`:
 
-4. Compile file:
-
-    ```bash
-    ./glados <file.scm> || nothing
-    input scm code
-    ```
-
-5. Run program (part 2 of the project):
+- `-i filename` or `< filename`: glados treat a file
+- no flag : glados does everything
+- `-c no argument` : glados only compiles a file with klefti syntaxe
+- `-c filename` : glados put the result of `-c` in `filename` (the file `filename` must be empty or non existant)
+- `-v` : glados use the vm on a file created by `./glados -c`
 
 ### Automated testing
 
