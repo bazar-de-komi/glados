@@ -31,6 +31,16 @@ spec = do
       let vm1 = execute (OPERATOR ADD) vm
       stack vm1 `shouldBe` [VInt 10]
 
+    it "should perform subtraction correctly" $ do
+      let vm = (initializeVM [OPERATOR SUBTRACT]) { stack = [VInt 3, VInt 7] }
+      let vm1 = execute (OPERATOR SUBTRACT) vm
+      stack vm1 `shouldBe` [VInt 4]
+
+    it "should perform multiplication correctly" $ do
+      let vm = (initializeVM [OPERATOR MULTIPLY]) { stack = [VInt 3, VInt 5] }
+      let vm1 = execute (OPERATOR MULTIPLY) vm
+      stack vm1 `shouldBe` [VInt 15]
+
     it "should perform division correctly" $ do
       let vm = (initializeVM [OPERATOR DIVIDE]) { stack = [VInt 3, VInt 12] }
       let vm1 = execute (OPERATOR DIVIDE) vm
@@ -44,6 +54,11 @@ spec = do
     it "should compare integers correctly" $ do
       let vm = (initializeVM [COMPARATOR COMPARE_GT]) { stack = [VInt 2, VInt 5] }
       let vm1 = execute (COMPARATOR COMPARE_GT) vm
+      stack vm1 `shouldBe` [VBool True]
+
+    it "should compare strings correctly" $ do
+      let vm = (initializeVM [COMPARATOR COMPARE_EQ]) { stack = [VString "hello", VString "hello"] }
+      let vm1 = execute (COMPARATOR COMPARE_EQ) vm
       stack vm1 `shouldBe` [VBool True]
 
     -- Test des labels et des sauts
@@ -68,26 +83,24 @@ spec = do
       let vm1 = executeInstructions vm
       stack vm1 `shouldBe` []
 
-    -- -- Test des fonctions
-    -- it "should call and return from functions correctly" $ do
-    --   let instructions =
-    --           [ CALL "main"           -- Appelle la fonction "main" depuis le contexte global
-    --           , LABEL_FUNC "main"
-    --           , STORE_CONST (VInt 10) -- Empile 10
-    --           , CALL "addOne"         -- Appelle la fonction "addOne"
-    --           , RETURN                -- Termine l'exécution de "main"
-    --           , LABEL_FUNC_END "main" -- Fin de la fonction "main"
-    --           , LABEL_FUNC "addOne"   -- Début de la fonction "addOne"
-    --           , STORE_CONST (VInt 1)  -- Empile 1
-    --           , OPERATOR ADD          -- Ajoute 10 + 1
-    --           , RETURN                -- Retourne à l'appelant avec le résultat sur la pile
-    --           , LABEL_FUNC_END "addOne" -- Fin de la fonction "addOne"
-    --           ]
-    --   let vm = initializeVM instructions
-    --   let vm1 = executeInstructions vm
-    --   stack vm1 `shouldBe` [VInt 11]
+    -- Test des fonctions
+    it "should call and return from functions correctly" $ do
+      let instructions =
+            [ CALL "main"
+            , LABEL_FUNC "main"
+            , STORE_CONST (VInt 10)
+            , CALL "addOne"
+            , RETURN
+            , LABEL_FUNC_END "main"
+            , LABEL_FUNC "addOne"
+            , STORE_CONST (VInt 1)
+            , OPERATOR ADD
+            , RETURN
+            , LABEL_FUNC_END "addOne"]
+      let vm = initializeVM instructions
+      let vm1 = executeInstructions vm
+      stack vm1 `shouldBe` [VInt 11]
 
-    -- Test des instructions complexes
     it "should handle a complex sequence of instructions" $ do
       let instructions =
               [ STORE_CONST (VInt 5)         -- Empile 5
@@ -103,3 +116,18 @@ spec = do
       let vm1 = executeInstructions vm
       stack vm1 `shouldBe` [VInt 20]
       variables vm1 `shouldBe` Map.singleton "result" (VInt 15)
+
+    -- Test HALT
+    it "should halt execution when HALT is reached" $ do
+      let vm = initializeVM [STORE_CONST (VInt 42), HALT, STORE_CONST (VInt 99)]
+      let vm1 = executeInstructions vm
+      stack vm1 `shouldBe` [VInt 42]
+
+    -- Test des erreurs
+    it "throws an error for invalid LOAD_VAR" $ do
+      let vm = initializeVM [LOAD_VAR "missing"]
+      evaluate (execute (LOAD_VAR "missing") vm) `shouldThrow` anyErrorCall
+
+    it "throws an error for RETURN outside of function" $ do
+      let vm = initializeVM [RETURN]
+      evaluate (execute RETURN vm) `shouldThrow` anyErrorCall
