@@ -13,6 +13,11 @@ spec = do
     testConditionalCalculation
     testNestedOperations
     testOperatorPrecedence
+    testArithmeticOperators
+    testModuloOperator
+    testForLoopSimple
+    testForLoopNested
+    testForLoopConditionComplex
 
 testSimpleProgram :: Spec
 testSimpleProgram = it "handle a simple program with assignment and condition" $ do
@@ -185,5 +190,131 @@ testOperatorPrecedence = it "respects operator precedence" $ do
         , OPERATOR ADD
         , LOAD_VAR "z"
         , OPERATOR MULTIPLY
+        ]
+  generateInstructionsList program `shouldBe` expected
+
+testArithmeticOperators :: Spec
+testArithmeticOperators = it "handles arithmetic operators - and /" $ do
+  let program = SList 
+        [ SVariable "x"
+        , SOperation "-"
+        , SInt 5
+        , SOperation "/"
+        , SVariable "y"
+        ]
+  let expected =
+        [ LOAD_VAR "x"
+        , STORE_CONST (VInt 5)
+        , OPERATOR SUBTRACT
+        , LOAD_VAR "y"
+        , OPERATOR DIVIDE
+        ]
+  generateInstructionsList program `shouldBe` expected
+
+testModuloOperator :: Spec
+testModuloOperator = it "handles modulo operator %" $ do
+  let program = SList 
+        [ SVariable "a"
+        , SOperation "%"
+        , SVariable "b"
+        ]
+  let expected =
+        [ LOAD_VAR "a"
+        , LOAD_VAR "b"
+        , OPERATOR MODULO
+        ]
+  generateInstructionsList program `shouldBe` expected
+
+testForLoopSimple :: Spec
+testForLoopSimple = it "handles a simple for loop" $ do
+  let program = SFor
+        (SDefine "i" (SType "int") (SInt 0)) 
+        (SList [SVariable "i", SOperation "<", SInt 1])
+        (SList [SVariable "i", SOperation "=", SList [SVariable "i", SOperation "+", SInt 1]]) -- Mise à jour
+        (SList [SVariable "i"]) 
+  let expected =
+        [ STORE_CONST (VInt 0)         
+        , STORE_VAR "i"
+        , LABEL "loop_0"              
+        , LOAD_VAR "i"               
+        , STORE_CONST (VInt 1)
+        , COMPARATOR COMPARE_LT
+        , JUMP_IF_FALSE "loop_1"      
+        , LOAD_VAR "i"                
+        , LOAD_VAR "i"               
+        , STORE_CONST (VInt 1)
+        , OPERATOR ADD
+        , STORE_VAR "i"
+        , JUMP "loop_0"              
+        , LABEL "loop_1"            
+        ]
+  generateInstructionsList program `shouldBe` expected
+
+testForLoopNested :: Spec
+testForLoopNested = it "handles nested for loops" $ do
+  let program = SFor
+        (SDefine "i" (SType "int") (SInt 0)) 
+        (SList [SVariable "i", SOperation "<", SInt 3])
+        (SList [SVariable "i", SOperation "=", SList [SVariable "i", SOperation "+", SInt 1]])
+        (SFor
+          (SDefine "j" (SType "int") (SInt 0)) 
+          (SList [SVariable "j", SOperation "<", SInt 2])
+          (SList [SVariable "j", SOperation "=", SList [SVariable "j", SOperation "+", SInt 1]])
+          (SList [SVariable "i", SVariable "j"])
+        )
+  let expected =
+        [ STORE_CONST (VInt 0)          
+        , STORE_VAR "i"
+        , LABEL "loop_0"               
+        , LOAD_VAR "i"               
+        , STORE_CONST (VInt 3)
+        , COMPARATOR COMPARE_LT
+        , JUMP_IF_FALSE "loop_1"      
+        , STORE_CONST (VInt 0)         
+        , STORE_VAR "j"
+        , LABEL "loop_2"             
+        , LOAD_VAR "j"               
+        , STORE_CONST (VInt 2)
+        , COMPARATOR COMPARE_LT
+        , JUMP_IF_FALSE "loop_3"     
+        , LOAD_VAR "i"               
+        , LOAD_VAR "j"
+        , LOAD_VAR "j"                
+        , STORE_CONST (VInt 1)
+        , OPERATOR ADD
+        , STORE_VAR "j"
+        , JUMP "loop_2"             
+        , LABEL "loop_3"            
+        , LOAD_VAR "i"               
+        , STORE_CONST (VInt 1)
+        , OPERATOR ADD
+        , STORE_VAR "i"
+        , JUMP "loop_0"               
+        , LABEL "loop_1"            
+        ]
+  generateInstructionsList program `shouldBe` expected
+
+testForLoopConditionComplex :: Spec
+testForLoopConditionComplex = it "handles a for loop with a complex condition" $ do
+  let program = SFor
+        (SDefine "x" (SType "int") (SInt 10)) 
+        (SList [SVariable "x", SOperation ">", SInt 0]) 
+        (SList [SVariable "x", SOperation "=", SList [SVariable "x", SOperation "-", SInt 1]]) -- Mise à jour
+        (SList [SVariable "x"]) 
+  let expected =
+        [ STORE_CONST (VInt 10)        
+        , STORE_VAR "x"
+        , LABEL "loop_0"             
+        , LOAD_VAR "x"               
+        , STORE_CONST (VInt 0)
+        , COMPARATOR COMPARE_GT
+        , JUMP_IF_FALSE "loop_1"      
+        , LOAD_VAR "x"              
+        , LOAD_VAR "x"                
+        , STORE_CONST (VInt 1)
+        , OPERATOR SUBTRACT
+        , STORE_VAR "x"
+        , JUMP "loop_0"               
+        , LABEL "loop_1"            
         ]
   generateInstructionsList program `shouldBe` expected
