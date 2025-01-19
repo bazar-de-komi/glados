@@ -25,6 +25,7 @@ spec = do
         testForLoop
         testFunction
         testSDefine
+        testStoreConstants
 
 testAssigment :: Spec
 testAssigment = describe "Assigment" $ do
@@ -227,7 +228,7 @@ testConditionalExpressions = describe "Conditional Expressions with Calculation"
 testForLoop :: Spec
 testForLoop = describe "For Loop" $ do
       it "handles a simple for loop" $ do
-        -- AST  : for (x = 0; x < 5; x = x + 1) { y = y + 2 }
+        -- AST : for (x = 0; x < 5; x = x + 1) { y = y + 2 }
         let ast = SFor 
                     (SList [SVariable "x", SOperation "=", SInt 0]) -- Init
                     (SList [SVariable "x", SOperation "<", SInt 5])  -- Condition
@@ -250,14 +251,14 @@ testForLoop = describe "For Loop" $ do
                 , OPERATOR ADD
                 , STORE_VAR "x"
                 , JUMP "loop_0"                -- back start of the loop
-                , LABEL "loop_1"               -- label for end loop
+                , LABEL "loop_1"               -- label end loop
                 ]
         generateInstructionsList ast `shouldBe` expected
 
 testFunction :: Spec
 testFunction = describe "Function" $ do
   it "handle a function with no parameters" $ do
-    -- AST  : function myFunc() { return 42; }
+    -- AST : function myFunc() { return 42; }
     let ast = SFunc "myFunc" (SType "Void") (SList []) 
                 (SList [SReturn (SInt 42)])
     let expected = 
@@ -269,7 +270,7 @@ testFunction = describe "Function" $ do
     generateInstructionsList ast `shouldBe` expected
 
   it "handle a function with simple parameters" $ do
-  -- AST  : function myFunc(x, y) { return x + y; }
+  -- AST : function myFunc(x, y) { return x + y; }
     let ast = SFunc "myFunc" (SType "Int") 
                 (SList [SType "Int", SList [SVariable "x", SVariable "y"]]) 
                 (SList [SReturn (SList [SVariable "x", SOperation "+", SVariable "y"])])
@@ -286,7 +287,7 @@ testFunction = describe "Function" $ do
     generateInstructionsList ast `shouldBe` expected
 
   it "handle a function with an empty body" $ do
-  -- AST: function myFunc() {}
+  -- AST : function myFunc() {}
     let ast = SFunc "myFunc" (SType "Void") (SList []) (SList [])
     let expected =
             [ LABEL_FUNC "myFunc"
@@ -351,4 +352,49 @@ testSDefine = describe "Variable Definition (SDefine)" $ do
             [ STORE_CONST (VInt 5)  
             , STORE_VAR "obj"       
             ]
+    generateInstructionsList ast `shouldBe` expected
+
+testStoreConstants :: Spec
+testStoreConstants = describe "Store Constants" $ do
+
+  it "handles storing an integer constant" $ do
+    -- AST : 42
+    let ast = SInt 42
+    let expected =
+            [ STORE_CONST (VInt 42) ]
+    generateInstructionsList ast `shouldBe` expected
+
+  it "handles storing a float constant" $ do
+    -- AST : 3.14
+    let ast = SFloat 3.14
+    let expected =
+            [ STORE_CONST (VFloat 3.14) ]  
+    generateInstructionsList ast `shouldBe` expected
+
+  it "handles storing a boolean constant (true)" $ do
+    -- AST : true
+    let ast = SBool True
+    let expected =
+            [ STORE_CONST (VBool True) ]  
+    generateInstructionsList ast `shouldBe` expected
+
+  it "handles storing a boolean constant (false)" $ do
+    -- AST : false
+    let ast = SBool False
+    let expected =
+            [ STORE_CONST (VBool False) ]  
+    generateInstructionsList ast `shouldBe` expected
+
+  it "handles storing a string constant" $ do
+    -- AST : "hello"
+    let ast = SString "hello"
+    let expected =
+            [ STORE_CONST (VString "hello") ]  
+    generateInstructionsList ast `shouldBe` expected
+
+  it "handles storing a character constant" $ do
+    -- AST : 'a'
+    let ast = SChar 'a'
+    let expected =
+            [ STORE_CONST (VChar 'a') ]  
     generateInstructionsList ast `shouldBe` expected
