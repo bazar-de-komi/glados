@@ -1,4 +1,4 @@
-module IntegrationSpec (spec) where
+module CompilerSpec (spec) where
 
 import Test.Hspec
 import Compiler.GenerateBytecode (generateInstructionsList)
@@ -10,9 +10,12 @@ spec = do
     testSimpleProgram
     testFullProgram
     testOperators
+    testConditionalCalculation
+    testNestedOperations
+    testOperatorPrecedence
 
 testSimpleProgram :: Spec
-testSimpleProgram = it "handles a simple program with assignment and condition" $ do
+testSimpleProgram = it "handle a simple program with assignment and condition" $ do
   let program = SList
         [ SDefine "x" (SType "int") (SInt 10)
         , SIf
@@ -38,7 +41,7 @@ testSimpleProgram = it "handles a simple program with assignment and condition" 
   generateInstructionsList program `shouldBe` expected
 
 testFullProgram :: Spec
-testFullProgram = it "handles a full program with function definition and call" $ do
+testFullProgram = it "handle a full program with function definition and call" $ do
   let program = SList
         [ SFunc
             "add"
@@ -129,3 +132,58 @@ testOperators = it "handle various binary operators and comparators" $ do
         ]
   generateInstructionsList program `shouldBe` expected
 
+testConditionalCalculation :: Spec
+testConditionalCalculation = it "handle conditional calculations" $ do
+  let program = SList 
+        [ SVariable "x"
+        , SOperation "+"
+        , SInt 10
+        , SOperation "<"
+        , SInt 20
+        ]
+  let expected =
+        [ LOAD_VAR "x"
+        , STORE_CONST (VInt 10)
+        , OPERATOR ADD
+        , STORE_CONST (VInt 20)
+        , COMPARATOR COMPARE_LT
+        ]
+  generateInstructionsList program `shouldBe` expected
+
+testNestedOperations :: Spec
+testNestedOperations = it "handle nested operations" $ do
+  let program = SList 
+        [ SVariable "a"
+        , SOperation "*"
+        , SVariable "b"
+        , SOperation ">"
+        , SList [SInt 10, SOperation "+", SInt 5]
+        ]
+  let expected =
+        [ LOAD_VAR "a"
+        , LOAD_VAR "b"
+        , OPERATOR MULTIPLY
+        , STORE_CONST (VInt 10)
+        , STORE_CONST (VInt 5)
+        , OPERATOR ADD
+        , COMPARATOR COMPARE_GT
+        ]
+  generateInstructionsList program `shouldBe` expected
+
+testOperatorPrecedence :: Spec
+testOperatorPrecedence = it "respects operator precedence" $ do
+  let program = SList 
+        [ SVariable "x"
+        , SOperation "+"
+        , SVariable "y"
+        , SOperation "*"
+        , SVariable "z"
+        ]
+  let expected =
+        [ LOAD_VAR "x"
+        , LOAD_VAR "y"
+        , OPERATOR ADD
+        , LOAD_VAR "z"
+        , OPERATOR MULTIPLY
+        ]
+  generateInstructionsList program `shouldBe` expected
