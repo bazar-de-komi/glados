@@ -23,10 +23,10 @@
 Kleftis supports the following data types:
 
 - `ent` – Integer (`int`)
-- `réel` – Floating point number (`float`)
+- `reel` – Floating point number (`float`)
 - `chaine` – String (`str`)
 - `car` – Character (`char`)
-- `bool` – Boolean (`true/false`)
+- `bool` – Boolean (`True/False`)
 
 ---
 
@@ -45,40 +45,19 @@ Kleftis modifies certain standard keywords and symbols:
 
 | Standard | Kleftis Equivalent |
 |----------|--------------------|
-| `,` | `|` |
+| `,` | `\|` |
 | `"text"` | `#@text#` |
-| `return` | `résult` or `result` (Could be replaced with `renvoyer` if needed) |
-| `if` | `Si` |
-| `else` | `Sinon` |
-| `while` | `PendantQue` or `Pendant que` |
+| `return` | `résult` or `result` |
+| `if` | `si` |
+| `else` | `sinon` |
+| `while` | `tantque` |
+| `for` | `pour` |
 
-### Example for `PendantQue`:
+### Example for `tantque`:
 
 ```kleftis
-PendantQue x < 10
+tantque x < 10
     x = x + 1
-```
-
----
-
-## Structures
-
-### Declaring a Structure
-
-```kleftis
-structure nomStructure (
-    nomVariableEnt: ent
-   nomVariableCar: car
-   nomList: chaine{}
-)
-```
-
-### Initializing a Structure
-
-```kleftis
-nomStructure.nomVariableEnt (12)
-nomStructure.nomVariableCar (#p)
-nomStructure.nomList.ajout {#@hello world#}
 ```
 
 ---
@@ -94,7 +73,7 @@ nomFonction : typeDeRetour [typeVariable (var1 var2)]
 ### Declaring a Function with Diffrent Parameter Types
 
 ```kleftis
-nomFonction : typeDeRetour [ent (var1) réel (var2)]
+nomFonction : typeDeRetour [ent (var1) reel (var2)]
 ```
 
 ### Calling a Function
@@ -110,37 +89,33 @@ résultat : typeDeRetour (nomFonction param1 param2)
 ```kleftis
 carré : ent [ent (a)] résult a * a
 
-structure test (
-    nomentier: ent
-    nomcar: car(#p)
-    list:chaine{#@coucou# | #@ prout#}
-)
-
 test.nomentier (12)
 test.list.ajout{#@ prout encore#}
 
 addition : ent [ent (a b)]
     résult a + b
 
-addition : réel [réel (a b)]
+addition : reel [reel (a b)]
     résult a + b
 
 carré : ent [ent (z)]
     résult z * z
 
 max : ent [ent (a) ent (b)]
-    si a > b
-        résult a
-    sinon
-        résult b
+    si [a > b] (résult a)
+    sinon (résult b)
 
 recherche : bool [chaine (bob) car (c)]
-    si bob == #@#
-        résult Faux
-    si bob{0} == c
-        résult Vrai
-    sinon
-        résult recherche chaine(bob + 1) c
+    si [bob == #@#] (résult Faux)
+    si [bob{0} == c] (résult Vrai)
+    sinon (résult recherche chaine(bob + 1) c)
+
+tantque [x > i] (
+a = a * a 
+x -= 1
+)
+
+pour (i : int(2)) [i < 5] (i = i + 1) (a = a + i)
 
 résultat : ent (addition 3 5) + test.nomentier
 ```
