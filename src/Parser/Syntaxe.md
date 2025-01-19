@@ -53,11 +53,34 @@ Kleftis modifies certain standard keywords and symbols:
 | `while` | `tantque` |
 | `for` | `pour` |
 
-### Example for `tantque`:
+### Example for basic functions
 
 ```kleftis
-tantque x < 10
-    x = x + 1
+test.nomentier (12)
+test.list.ajout{#@ prout encore#}
+
+addition : ent [ent (a b)]
+    résult a + b
+```
+
+### Example for conditions
+
+```kleftis
+recherche : bool [chaine (bob) car (c)]
+    si [bob == #@#] (résult Faux)
+    si [bob{0} == c] (résult Vrai)
+    sinon (résult recherche chaine(bob + 1) c)
+```
+
+### Example for loops:
+
+```kleftis
+tantque [x > i] (
+a = a * a 
+x -= 1
+)
+
+pour (i : int(2)) [i < 5] (i = i + 1) (a = a + i)
 ```
 
 ---
@@ -80,42 +103,4 @@ nomFonction : typeDeRetour [ent (var1) reel (var2)]
 
 ```kleftis
 résultat : typeDeRetour (nomFonction param1 param2)
-```
-
----
-
-## Some Examples
-
-```kleftis
-carré : ent [ent (a)] résult a * a
-
-test.nomentier (12)
-test.list.ajout{#@ prout encore#}
-
-addition : ent [ent (a b)]
-    résult a + b
-
-addition : reel [reel (a b)]
-    résult a + b
-
-carré : ent [ent (z)]
-    résult z * z
-
-max : ent [ent (a) ent (b)]
-    si [a > b] (résult a)
-    sinon (résult b)
-
-recherche : bool [chaine (bob) car (c)]
-    si [bob == #@#] (résult Faux)
-    si [bob{0} == c] (résult Vrai)
-    sinon (résult recherche chaine(bob + 1) c)
-
-tantque [x > i] (
-a = a * a 
-x -= 1
-)
-
-pour (i : int(2)) [i < 5] (i = i + 1) (a = a + i)
-
-résultat : ent (addition 3 5) + test.nomentier
 ```
