@@ -9,7 +9,7 @@ spec = do
     describe "check parenthese" $ do
         it "add spaces before parentheses" $ do
             checkparenthese "(define x 42)" `shouldBe` " ( define x 42 ) "
-        
+
         it "does nothing if there are no parentheses" $ do
             checkparenthese "define x 42" `shouldBe` "define x 42"
 
