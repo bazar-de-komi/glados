@@ -11,7 +11,7 @@ spec = do
     it "parses a full program with multiple definitions and expressions" $ do
       let input = unlines
             ["si [x > y] (result x) sinon (result y)"
-            , "tankeu [x < 10] (result x)"
+            , "tantque [x < 10] (result x)"
             , "pour (= i 0) [i < 10] (i += 1) (result i)"
             ]
       let expected = List
@@ -31,7 +31,7 @@ spec = do
       let input = unlines
             [ "define z (si [x > y] (result x) sinon (result y))"
             , "define list {1 2 3}"
-            , "tankeu [z < 10] (result z)"
+            , "tantque [z < 10] (result z)"
             ]
       let expected = Right (List [List [Atom "define", Atom "z", List [SEIf (Param [Atom "x", BasicFunc ">", Atom "y"]) (List [Return (List [Atom "x"])]) (List [Return (List [Atom "y"])])], Atom "define", Atom "list", SEList [SEInt 1, SEInt 2, SEInt 3], SELoop (Param [Atom "z", BasicFunc "<", SEInt 10]) (List [Return (List [Atom "z"])])]])
       parse pProgram "" input `shouldBe` expected
@@ -40,7 +40,7 @@ spec = do
       let input = unlines
             [ "define max (si [a > b] (result a) sinon (result b))"
             , "pour (= i 0) [i < 10] (i += 1) (result i)"
-            , "tankeu [i < 100] (result i)"
+            , "tantque [i < 100] (result i)"
             ]
       let expected = List
             [ List [Atom "define", Atom "max"
