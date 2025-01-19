@@ -1,6 +1,6 @@
 # Kleftis Programming Language
 
-Welcome to Kleftis, a minimalistic programming language inspired by Lisp. This document introduces the syntax of Kleftis and provides examples to help you get started. The Kleftis language is parsed into **S-Expressions (SExpr)** and supports basic programming constructs such as variables, functions, conditionals, loops, and more.
+Welcome to Kleftis, a minimalistic programming language inspired by Lisp, Python and other. This document introduces the syntax of Kleftis and provides examples to help you get started.
 
 ---
 
@@ -15,10 +15,10 @@ Kleftis uses symbolic expressions (SExpr) for all its constructs. Each construct
 You can define variables using the `define` keyword:
 
 ```kleftis
-define x 42           ; Define an integer
-define y 3.14         ; Define a float
-define name #@John#   ; Define a string
-define list {1 2 3}   ; Define a list
+x : ent (42)            ; Define an integer
+y : reel (3.14)         ; Define a float
+name : chaine (#@John#) ; Define a string
+list : ent{1|2|3}       ; Define a list
 ```
 
 ---
@@ -64,7 +64,7 @@ The `tantque` loop executes as long as the condition is true:
 
 ```kleftis
 tantque [x < 10]
-  (result x)
+  (x = x + 1)
 ```
 
 **For Loop (`pour`)**
@@ -72,8 +72,8 @@ tantque [x < 10]
 The `pour` loop includes initialization, condition, update, and body:
 
 ```kleftis
-pour (= i 0) [i < 10] (i += 1)
-  (result i)
+pour (i : ent (0)) [i < 10] (i = i + 1)
+  (a = a + i)
 ```
 
 #### Data Types
@@ -82,18 +82,18 @@ Kleftis supports the following data types:
 
 - **Integer**: `ent`
 - **Float**: `reel`
-- **String**: Enclosed in `#@ ... #`
-- **Boolean**: `True`, `False`
-- **Character**: `#a`
+- **String**: `chaine` Enclosed in `#@ ... #`
+- **Boolean**:`bool` = `True`, `False`
+- **Character**:`car` with # before like for a : `#a`
 
 Examples:
 
 ```kleftis
-define flag True       ; Boolean
-define char #a         ; Character
-define num ent 42      ; Integer
-define pi reel 3.14    ; Float
-define text chaine #@Hello, Kleftis!# ; String
+x : ent (42)            ; integer
+y : reel (3.14)         ; float
+name : chaine (#@John#) ; string
+letter : car (#e)       ; char
+flag : bool (True)      ; bool
 ```
 
 ---
@@ -105,8 +105,7 @@ define text chaine #@Hello, Kleftis!# ; String
 Kleftis supports lists enclosed in `{}`:
 
 ```kleftis
-define nums {1 2 3 4 5}
-define words {#@hello# #@world#}
+list : ent{1|2|3}       ; Define a list with 1, 2, 3
 ```
 
 #### Operations
@@ -155,8 +154,8 @@ Kleftis supports two types of comments:
 ### Example 1: Basic Operations
 
 ```kleftis
-define x 42
-define y 3.14
+x : ent (42)
+y : reel (3.14)
 si [x > y]
   (result x)
 sinon
@@ -166,7 +165,7 @@ sinon
 ### Example 2: Loops
 
 ```kleftis
-pour (= i 0) [i < 5] (i += 1)
+pour (i : ent(0)) [i < 5] (i = i + 1)
   (result i)
 
 tantque [x < 10]
@@ -176,14 +175,14 @@ tantque [x < 10]
 ### Example 3: Functions
 
 ```kleftis
-define add [a b]
+add : ent [ent (a b)]
   (result a + b)
 
-define factorial [n]
+factorial : ent [ent (n)]
   si [n <= 1]
-    (result 1)
+    (result (1))
   sinon
-    (result n * factorial [n - 1])
+    (result (n * factorial (n - 1)))
 ```
 
 ---
