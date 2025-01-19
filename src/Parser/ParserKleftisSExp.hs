@@ -101,7 +101,7 @@ parseIf = SEIf <$> (try (string "si" <* lookAhead (char ' ') <* noSpace) *> pars
 
 -- | Parses a `while` loop expression starting with `tankeu`.
 parseLoop :: MyParser SExpr
-parseLoop = SELoop <$> (try (string "tankeu" <* lookAhead (char ' ') <* noSpace) *> parseParam)
+parseLoop = SELoop <$> (try (string "tantque" <* lookAhead (char ' ') <* noSpace) *> parseParam)
                    <*> parseList
 
 -- | Parses a `for` loop expression starting with `pour`.
