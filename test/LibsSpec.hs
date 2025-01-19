@@ -2,7 +2,7 @@ module LibsSpec (spec) where
 
 import Test.Hspec
 import Lib (litostr, needParenthese, checkparenthese, checkNotEnd, checkAllString)
-import Structure (Value(..))
+import Structure (Value(..), LabelState(..))
 
 spec:: Spec
 spec = do
@@ -68,3 +68,27 @@ spec = do
           let value = VChar 'a'
           show value `shouldBe` "'a'"
 
+        it "correctly creates a LabelState with initialized counters" $ do
+          let state = LabelState 0 0
+          loopCounter state `shouldBe` 0
+          ifCounter state `shouldBe` 0
+
+        it "to modify the loopCounter" $ do
+          let state = LabelState 1 0
+          loopCounter state `shouldBe` 1
+          ifCounter state `shouldBe` 0
+
+        it "is used to modify the ifCounter" $ do
+          let state = LabelState 0 2
+          loopCounter state `shouldBe` 0
+          ifCounter state `shouldBe` 2
+
+        it "to modify both counters" $ do
+          let state = LabelState 3 4
+          loopCounter state `shouldBe` 3
+          ifCounter state `shouldBe` 4
+
+        it "creates a LabelState with negative values" $ do
+          let state = LabelState (-1) (-2)
+          loopCounter state `shouldBe` (-1)
+          ifCounter state `shouldBe` (-2)
