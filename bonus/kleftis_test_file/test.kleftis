@@ -4,37 +4,37 @@ sur plusieurs lignes -->
 
 <- juste sur une ligne >
 
-coucou : int (9)
+coucou : ent (9)
 
-carre : int [int (a)] result a * a
+carre : ent [ent (a)] result a * a
 
-test.nomentier : int (12)
+test.nomentier : ent (12)
 
-addition : int [int (a b)]
+addition : ent [ent (a b)]
     result a + b
 
-addition_float : float [float (a b)]
+addition_float : reel [reel (a b)]
     result a + b
 
-square : int [int (z)] (
+square : ent [ent (z)] (
     (z = z + 1)
     result z * z
 )
 
-max : int [int (a) int (b)]
+max : ent [ent (a) ent (b)]
     si [a > b]
         (
             result a)
     sinon
         (result b)
 
-test : int [int(i)] (
-    (a:int(0))
-    tankeu[i>0] (
+test : ent [ent(i)] (
+    (a:ent(0))
+    tantque[i>0] (
         (i=i- 1)
         (a = a+1)
     )
-    pour (i:int(0)) [i<3] (i = i + 1) (
+    pour (i:ent(0)) [i<3] (i = i + 1) (
         (a = a * a)
     )
     result a

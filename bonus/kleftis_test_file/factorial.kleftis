@@ -1,0 +1,7 @@
+factorial : ent [ent (n)]
+  si [n <= 1]
+    (result (1))
+  sinon
+    (result (n * (factorial ((n - 1)))))
+
+(factorial (5))
